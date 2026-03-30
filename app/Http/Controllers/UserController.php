@@ -264,14 +264,17 @@ class UserController extends Controller
         return view('dashboard');
     }
 
+    /**
+     * Updated checkUser method to accept both Username and Email
+     * Email is optional for login
+     */
     public function checkUser(Request $request)
     {
-
+        // Updated validation to accept 'login' field instead of 'email'
         $request->validate([
-            'email'    => [
+            'login' => [
                 'required',
-                'email',
-                'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
+                'string',
             ],
             'password' => [
                 'required',
@@ -284,42 +287,45 @@ class UserController extends Controller
             ],
         ]);
 
-        $userInfo = User::where('email', '=', $request->email)->first();
+        // Determine if login is email or username
+        $loginField = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
-        if (! $userInfo) {
+        // Find user by email or username
+        $userInfo = User::where($loginField, '=', $request->login)->first();
+
+        if (!$userInfo) {
             return response()->json([
                 'status'  => false,
-                'message' => 'We dont recognise the above email or password',
+                'message' => 'We don\'t recognise the provided username or password',
             ]);
         } else {
             if (Hash::check($request->password, $userInfo->password)) {
 
-                $registrationStatus = DB::table('users')->where('email', $request->email)->value('registration_status');
-
-                $user_check_email = $request->email;
+                $registrationStatus = DB::table('users')->where('id', $userInfo->id)->value('registration_status');
 
                 if ($registrationStatus == 0) {
 
                     $new_otp      = rand(10000, 99999);
                     $generatedOTP = $new_otp;
 
-                    $userId    = DB::table('users')->where('email', $request->email)->value('id');
-                    $user_mail = DB::table('users')->where('email', $request->email)->value('email');
-                    $username  = DB::table('users')->where('email', $request->email)->value('username');
+                    $userId    = $userInfo->id;
+                    $user_mail = $userInfo->email;
+                    $username  = $userInfo->username;
 
                     DB::table('users')
-                        ->where('email', $request->email)
+                        ->where('id', $userInfo->id)
                         ->update(['temp_otp' => $new_otp]);
 
-                    $data = [
-                        'subject'      => 'UP OTP LOGIN',
-                        'body'         => 'Enter the Sent OTP to Login : ',
-                        'generatedOTP' => $generatedOTP,
-                        'username'     => $username,
-                        'email'        => $user_mail,
-                    ];
-
+                    // Only send OTP if email exists
                     if ($user_mail) {
+                        $data = [
+                            'subject'      => 'UP OTP LOGIN',
+                            'body'         => 'Enter the Sent OTP to Login : ',
+                            'generatedOTP' => $generatedOTP,
+                            'username'     => $username,
+                            'email'        => $user_mail,
+                        ];
+
                         try {
                             Mail::send('emails.otp', $data, function ($message) use ($data) {
                                 $message->to($data['email'], $data['email'])->subject($data['subject']);
@@ -327,21 +333,21 @@ class UserController extends Controller
                         } catch (Exception $e) {
                             return back()->with('error', 'Email Not, Check Internet or re-register');
                         }
-
-                        $request->session()->put('userId', $userId);
-                        $request->session()->put('userEmail', $user_mail);
-                        $request->session()->put('userPassword', $request->password);
-
-                        return response()->json([
-                            'status'       => true,
-                            'message'      => 'OTP has been sent,check your email to proceed',
-                            'redirect_url' => '/users/user-otp',
-                        ]);
                     }
+
+                    $request->session()->put('userId', $userId);
+                    $request->session()->put('userEmail', $user_mail);
+                    $request->session()->put('userPassword', $request->password);
+
+                    return response()->json([
+                        'status'       => true,
+                        'message'      => 'OTP has been sent, check your email to proceed',
+                        'redirect_url' => '/users/user-otp',
+                    ]);
                 } else {
 
-                    $userId   = DB::table('users')->where('email', $request->email)->value('id');
-                    $userRole = DB::table('users')->where('email', $request->email)->value('user_role');
+                    $userId   = $userInfo->id;
+                    $userRole = $userInfo->user_role;
 
                     if ($userRole != 1) {
                         $request->session()->put('LoggedAdmin', $userId);
@@ -379,7 +385,7 @@ class UserController extends Controller
 
                 return response()->json([
                     'status'  => false,
-                    'message' => 'Invalid password or Email being entered',
+                    'message' => 'Invalid password or username/email being entered',
                 ]);
             }
         }
@@ -399,15 +405,16 @@ class UserController extends Controller
             ->where('email', $user_id)
             ->update(['temp_otp' => $new_otp]);
 
-        $data = [
-            'subject'      => 'UP RESENT OTP LOGIN',
-            'body'         => 'Enter the Sent OTP to Login : ',
-            'generatedOTP' => $generatedOTP,
-            'username'     => $username,
-            'email'        => $user_mail,
-        ];
-
+        // Only send email if email exists
         if ($user_mail) {
+            $data = [
+                'subject'      => 'UP RESENT OTP LOGIN',
+                'body'         => 'Enter the Sent OTP to Login : ',
+                'generatedOTP' => $generatedOTP,
+                'username'     => $username,
+                'email'        => $user_mail,
+            ];
+
             Mail::send('emails.otp', $data, function ($message) use ($data) {
                 $message->to($data['email'], $data['email'])->subject($data['subject']);
             });
@@ -519,7 +526,7 @@ class UserController extends Controller
 
         $request->validate([
 
-            'email'       => 'required',
+            'email'       => 'nullable|email',
             'firstname'   => 'required',
             'lastname'    => 'required',
             'username'    => 'required',
@@ -552,12 +559,14 @@ class UserController extends Controller
         $all_emails   = DB::table('users')->pluck('email');
         $all_username = DB::table('users')->pluck('username');
 
-        foreach ($all_emails as $specific_email) {
-
-            if ($email == $specific_email) {
-                $user_id = DB::table('users')->where('email', $email)->value('id');
-                if ($user_id != $id) {
-                    return back()->with('fail', 'The provided Email id is already registered to another user');
+        // Only check email uniqueness if email is provided
+        if ($email) {
+            foreach ($all_emails as $specific_email) {
+                if ($email == $specific_email) {
+                    $user_id = DB::table('users')->where('email', $email)->value('id');
+                    if ($user_id != $id) {
+                        return back()->with('fail', 'The provided Email id is already registered to another user');
+                    }
                 }
             }
         }
@@ -607,6 +616,148 @@ class UserController extends Controller
         $data->delete();
 
         return back()->with('success', 'user ' . $data->username . ' has been deleted successfully');
+    }
+
+    /**
+     * UPDATED: User Account Creation Method for Registration
+     * Now accepts: fullname, username, email (optional), phone, password, terms
+     */
+    public function userAccountCreation(Request $request)
+    {
+        dd('Hello world');
+        $request->validate([
+            'fullname' => 'required|string|min:3|max:255',
+            'username' => 'required|string|min:3|max:255|unique:users,username|regex:/^[a-zA-Z0-9_]+$/',
+            'email' => 'nullable|email|unique:users,email', // Email is now optional
+            'phone' => 'required|string|regex:/^[\+]?[0-9\s\-\(\)]{10,20}$/',
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/[A-Z]/',
+                'regex:/[a-z]/',
+                'regex:/[0-9]/',
+                'regex:/[@$!%*?&]/',
+            ],
+            'terms' => 'accepted'
+        ], [
+            'fullname.required' => 'Full Name is required.',
+            'fullname.min' => 'Full Name must be at least 3 characters.',
+            'username.required' => 'Username is required for login.',
+            'username.unique' => 'This username is already taken. Please choose another.',
+            'username.regex' => 'Username can only contain letters, numbers, and underscores.',
+            'email.email' => 'Please enter a valid email address or leave it blank.',
+            'email.unique' => 'This email is already registered.',
+            'phone.required' => 'Phone number is required for account recovery.',
+            'phone.regex' => 'Please enter a valid phone number (e.g., +256 700 123456 or 0700123456).',
+            'password.required' => 'Password is required.',
+            'password.min' => 'Password must be at least 8 characters.',
+            'password.confirmed' => 'Password confirmation does not match.',
+            'password.regex' => 'Password must include at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&).',
+            'terms.accepted' => 'You must agree to the terms and policies.',
+        ]);
+
+        // Generate OTP for verification (only if email is provided)
+        $new_otp = rand(10000, 99999);
+
+        // Create user
+        $user = new User();
+        $user->fullname = $request->fullname;
+        $user->username = $request->username;
+        $user->email = $request->email; // Can be null
+        $user->phonenumber = $request->phone;
+        $user->password = Hash::make($request->password);
+        $user->temp_otp = $new_otp;
+        $user->registration_status = 0; // 0 = pending verification
+        $user->user_role = 1; // 1 = student role
+        $user->account_status = 10; // 10 = active
+        
+        $save = $user->save();
+
+                if ($save) {
+            # code...
+
+             $data = [
+                    'subject' => 'AlHilal Online Academy - Account Verification OTP',
+                    'body' => 'Enter the OTP below to verify your account:',
+                    'username' => $request->username,
+                    'email' => $request->email,
+                    'fullname' => $request->fullname,
+                ];
+
+            Mail::send('emails.user-account-created', $data, function ($message) use ($data) {
+                $message->to($data['email'], $data['email'])->subject($data['title']);
+            });
+        }
+
+ dd('registration successfully....');
+
+        // if ($save) {
+        //     # code...
+
+        //      $data = [
+        //             'subject' => 'AlHilal Online Academy - Account Verification OTP',
+        //             'body' => 'Enter the OTP below to verify your account:',
+        //             'username' => $request->username,
+        //             'email' => $request->email,
+        //             'fullname' => $request->fullname,
+        //         ];
+
+        //     Mail::send('emails.reset_email', $data, function ($message) use ($data) {
+        //         $message->to($data['email'], $data['email'])->subject($data['title']);
+        //     });
+        // }
+        // if ($save) {
+        //     // Send OTP email only if email is provided
+        //     if ($request->email) {
+        //         $data = [
+        //             'subject' => 'AlHilal Online Academy - Account Verification OTP',
+        //             'body' => 'Enter the OTP below to verify your account:',
+        //             'generatedOTP' => $new_otp,
+        //             'username' => $request->username,
+        //             'email' => $request->email,
+        //             'fullname' => $request->fullname,
+        //         ];
+
+        //         try {
+        //             Mail::send('emails.otp', $data, function ($message) use ($data) {
+        //                 $message->to($data['email'], $data['email'])->subject($data['subject']);
+        //             });
+        //         } catch (Exception $e) {
+        //             // If email fails, still create account but inform user
+        //             return response()->json([
+        //                 'status' => true,
+        //                 'title' => 'Account Created!',
+        //                 'message' => 'Your account has been created successfully. However, we could not send the verification email. You can login using your username.',
+        //                 'redirect_url' => '/users/login'
+        //             ]);
+        //         }
+
+        //         return response()->json([
+        //             'status' => true,
+        //             'title' => 'Account Created!',
+        //             'message' => 'A verification OTP has been sent to your email. Please check your inbox to complete registration.',
+        //             'redirect_url' => '/users/user-otp'
+        //         ]);
+        //     } else {
+        //         // If no email provided, auto-verify the account
+        //         $user->registration_status = 1;
+        //         $user->save();
+                
+        //         return response()->json([
+        //             'status' => true,
+        //             'title' => 'Account Created Successfully!',
+        //             'message' => 'Your account has been created. You can now login using your username.',
+        //             'redirect_url' => '/users/login'
+        //         ]);
+        //     }
+        // } else {
+        //     return response()->json([
+        //         'status' => false,
+        //         'message' => 'Unable to create account. Please try again.',
+        //     ]);
+        // }
     }
 
     public function editRecord($md_id)
@@ -661,7 +812,7 @@ class UserController extends Controller
 
     public function storeInternalUser(Request $request)
     {
-
+        dd('Hello world');
         // ACCOUNT STATUSES
 // --------------------------------------
         // 1.Banned     ====> 0
@@ -671,7 +822,7 @@ class UserController extends Controller
 
         $request->validate([
             'username' => 'required',
-            'email'    => 'required|email|unique:users',
+            'email'    => 'nullable|email|unique:users',
             'password' => [
                 'required',
                 'string',
@@ -717,7 +868,7 @@ class UserController extends Controller
 
         $request->validate([
             'username' => 'required',
-            'email'    => 'required|email',
+            'email'    => 'nullable|email',
         ]);
 
         if ($request->password != null && $request->confirmPassword != null) {

@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>UP - Ugandan Programmer</title>
+    <title>AlHilal Online Academy</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
@@ -117,10 +117,10 @@
         <div class="container">
             <div class="row no-gutters slider-text js-fullheight align-items-center" data-scrollax-parent="true">
                 <div class="col-md-7 ftco-animate">
-                    <span class="subheading">Welcome to Ugandan Programmer</span>
+                    <span class="subheading">Welcome to AlHilal Online Academy</span>
                     <h1 class="mb-4">We Are Online Platform For Make Learn</h1>
                     <p class="caps">
-                        The best place to master programming — designed for Uganda’s junior developers and students.
+                        The best place to learn islamic knowledge step by step— espescially for the Islamic community,this is one of the best platform to achieve this.
                     </p>
                     <p class="mb-0">
                         <a href="#courses" class="btn btn-primary" id="courses-btn">Our Courses</a>

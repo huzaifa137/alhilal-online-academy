@@ -2,7 +2,31 @@
 
 use App\Http\Controllers\MasterDataController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\EmailController;
 use Illuminate\Support\Facades\Route;
+
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OtpMail; // we'll create this mailable
+use Illuminate\Http\Request;
+
+Route::post('/send-otp', function (Request $request) {
+    $request->validate([
+        'email' => 'required|email',
+        'otp' => 'required',
+    ]);
+
+    $data = [
+        'otp' => $request->otp,
+        'subject' => 'Your OTP Code',
+    ];
+
+    // Using a Mailable class for cleaner code
+    Mail::to($request->email)->send(new OtpMail($data));
+
+    return response()->json([
+        'message' => 'OTP sent successfully!'
+    ]);
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -15,10 +39,27 @@ use Illuminate\Support\Facades\Route;
 |
  */
 
+
+use Illuminate\Support\Facades\Hash;
+
+Route::get('/hash-test', function () {
+    return dd(Hash::make('123456789'));
+});
+
+Route::get('/splash', function () {
+    return view('mobile.splash');
+})->name('splash');
+
+Route::get('/', function () {
+    return redirect()->route('splash');
+});
+
+Route::get('send-mail',[EmailController::class,'welcomeEmail']);
+
 Route::controller(UserController::class)->group(function () {
 
     Route::group(['prefix' => '/users'], function () {
-
+          
         Route::get('/user-logout', 'userLogout')->name('user-logout');
         Route::get('/student-logout', 'studentLogout')->name('student-logout');
 
@@ -28,7 +69,7 @@ Route::controller(UserController::class)->group(function () {
             Route::get('/', 'login')->name('admin.dashboard');
             Route::post('auth-user-check', 'checkUser')->name('auth-user-check');
             Route::get('/users-profile', 'userProfile')->name('users-profile');
-            Route::get('/users-register', 'userRegister');
+            Route::get('/users-register', 'userRegister')->name('users.register');
             Route::get('/users-information', 'userInformation')->name('users.user-information');
             Route::get('user-account-information/{id}', 'userAccountInformation');
             Route::get('delete-user/{id}', 'deleteUser');

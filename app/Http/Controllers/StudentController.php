@@ -41,51 +41,37 @@ class StudentController extends Controller
         return view('users.LoginOTP');
     }
 
-    public function userAccountCreation(Request $request)
-    {
+   public function userAccountCreation(Request $request)
+{
+    // dd($request->all());
+    $request->validate([
+        'username' => 'required',
+        'email'    => 'required|email|unique:users',
+        'password' => [
+            'required',
+            'string',
+            'min:6',
+            'regex:/[A-Z]/',
+            'regex:/[a-z]/',
+            'regex:/[0-9]/',
+            'regex:/[@$!%*?&#]/',
+        ],
+        'password_confirmation' => 'required|same:password', // This validates the match
+    ], [
+        'password.required' => 'The password field is required.',
+        'password.string'   => 'The password must be a string.',
+        'password.min'      => 'The password must be at least 6 characters.',
+        'password.regex'    => 'The password must include at least one uppercase letter, one lowercase letter, one digit, and one special character.',
+        'password_confirmation.required' => 'Please confirm your password.',
+        'password_confirmation.same' => 'The password confirmation does not match.',
+    ]);
 
-        // ACCOUNT STATUSES
-// --------------------------------------
-        // 1.Banned     ====> 0
-        // 2.Locked     ====> 8
-        // 3.Suspended  ====> 9
-        // 4.Active     ====> 10
-
-        $request->validate([
-            'username' => 'required',
-            'email'    => 'required|email|unique:users',
-            'password' => [
-                'required',
-                'string',
-                'min:6',
-                'regex:/[A-Z]/',
-                'regex:/[a-z]/',
-                'regex:/[0-9]/',
-                'regex:/[@$!%*?&#]/',
-            ],
-        ], [
-            'password.required' => 'The password field is required.',
-            'password.string'   => 'The password must be a string.',
-            'password.min'      => 'The password must be at least 6 characters.',
-            'password.regex'    => 'The password must include at least one uppercase letter, one lowercase letter, one digit, and one special character.',
-        ]);
-
-        $password         = $request->password;
-        $confirm_password = $request->confirmPassword;
-
-        if ($password != $confirm_password) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Provided Passwords do not match',
-            ]);
-        }
-
-        $user = new User;
-
-        $user->username = $request->username;
-        $user->email    = $request->email;
-        $user->password = Hash::make($password);
-        $save           = $user->save();
+    // No need for manual password comparison - validation handles it
+    $user = new User;
+    $user->username = $request->username;
+    $user->email    = $request->email;
+    $user->password = Hash::make($request->password);
+    $save = $user->save();
 
         $generatedOTP   = rand(10000, 99999);
         $info           = DB::table('users')->where('email', $request->email)->update(['temp_otp' => $generatedOTP]);
