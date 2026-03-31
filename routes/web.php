@@ -3,6 +3,8 @@
 use App\Http\Controllers\MasterDataController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\EmailController;
+use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
 
 use Illuminate\Support\Facades\Mail;
@@ -42,6 +44,16 @@ Route::post('/send-otp', function (Request $request) {
 
 use Illuminate\Support\Facades\Hash;
 
+Route::get('/set-student-session', function () {
+    // Set the session
+    session()->put('LoggedStudent', 1);
+    });
+
+    Route::get('/set-admin-session', function () {
+    // Set the session
+    session()->put('LoggedAdmin', 1);
+    });
+
 Route::get('/hash-test', function () {
     return dd(Hash::make('123456789'));
 });
@@ -51,10 +63,15 @@ Route::get('/splash', function () {
 })->name('splash');
 
 Route::get('/', function () {
-    return redirect()->route('splash');
+    return redirect()->route('login');
 });
 
 Route::get('send-mail',[EmailController::class,'welcomeEmail']);
+
+// Teacher Dashboard Route
+Route::get('/teacher/dashboard', [TeacherController::class, 'index'])->name('teacher.dashboard');
+
+Route::get('/student-muhammad/dashboard',[StudentController::class,'myDashboard'])->name('student121.dashboard');
 
 Route::controller(UserController::class)->group(function () {
 
@@ -62,6 +79,7 @@ Route::controller(UserController::class)->group(function () {
           
         Route::get('/user-logout', 'userLogout')->name('user-logout');
         Route::get('/student-logout', 'studentLogout')->name('student-logout');
+       
 
         Route::group(['middleware' => ['AdminAuth']], function () {
             Route::get('/forgot-password', 'forgotPassword')->name('forgot-password');
