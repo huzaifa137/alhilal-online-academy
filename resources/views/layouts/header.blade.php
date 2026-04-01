@@ -10,7 +10,7 @@ use App\Http\Controllers\Helper;
         <div class="d-flex">
             <a class="header-brand text-left" href="{{ url('/') }}">
                 <div class="logo-wrapper" style="width: 200px; height: 70px; overflow: hidden;">
-                    <img src="{{ URL::asset('assets/images/brand/logo.png') }}" class="header-brand-img desktop-lgo"
+                    <img src="{{ URL::asset('assets/images/alhilal_logo.jpeg') }}" class="header-brand-img desktop-lgo"
                         alt="UP logo" style="width: 100%; height: 100%; object-fit:contain;">
                 </div>
             </a>

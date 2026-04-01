@@ -187,6 +187,7 @@
                 <span class="badge badge-pill badge-light px-3 py-2">
                     <i class="fas fa-language"></i> Arabic | English
                 </span>
+             
             </div>
         </div>
     </div>
@@ -550,6 +551,10 @@
             <i class="fas fa-chart-line"></i>
             <span>Analytics</span>
         </button>
+        <button class="nav-item-teacher" id="teacherLogoutBtn" style="color: #dc3545;">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+    </button>
     </div>
 @endsection
 @section('js')
@@ -979,5 +984,43 @@
         renderReportsTable();
         updateStats();
         $('.nav-item-teacher:first').addClass('active');
+
+        // Add this function to handle teacher logout
+function confirmLogout() {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Do you really want to logout from your teacher account?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, Logout",
+        cancelButtonText: "Cancel",
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Show loading state
+            Swal.fire({
+                title: 'Logging out...',
+                text: 'Please wait',
+                icon: 'info',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Redirect to teacher logout route
+            window.location.href = '{{ route("teacher-logout") }}';
+        }
+    });
+}
+
+// Add event listener for the bottom nav logout button
+document.getElementById('teacherLogoutBtn')?.addEventListener('click', function(event) {
+    event.preventDefault();
+    confirmLogout();
+});
     </script>
+    
 @endsection

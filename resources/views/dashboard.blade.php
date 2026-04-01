@@ -199,6 +199,58 @@
     </div>
 @endsection
 @section('content')
+
+  @php
+        use App\Models\User;
+        use App\Models\Course;
+        use App\Models\Lesson;
+        use App\Models\Quiz;
+        use App\Models\Enrollment;
+       // use App\Models\Payment;
+       // use App\Models\Certificate;
+        use Carbon\Carbon;
+        
+        // User Statistics
+        $totalUsers = User::count();
+        $totalStudents = User::where('user_role', 1)->count();
+        $totalTeachers = User::where('user_role', 3)->count();
+        $totalAdmins = User::where('user_role', 2)->count();
+        $activeStudents = User::where('user_role', 1)->where('account_status', 10)->count();
+        
+        // New users this month
+        $newUsersThisMonth = User::whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->count();
+        
+        // New students this month
+        $newStudentsThisMonth = User::where('user_role', 1)
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->count();
+        
+        // Content Statistics
+        $totalCourses = Course::count();
+        $totalLessons = Lesson::count();
+        $totalQuizzes = Quiz::count();
+        $totalEnrollments = Enrollment::count();
+        
+       
+        
+        // New lessons this month
+        $newLessonsThisMonth = Lesson::whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->count();
+        
+        // New quizzes this month
+        $newQuizzesThisMonth = Quiz::whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->count();
+        
+        // Calculate growth percentages
+        $studentGrowth = $totalStudents > 0 ? round(($newStudentsThisMonth / $totalStudents) * 100, 1) : 0;
+       // $revenueGrowth = $totalRevenue > 0 ? round(($revenueThisMonth / $totalRevenue) * 100, 1) : 0;
+    @endphp
+
     <!-- Welcome Banner -->
     <div class="welcome-banner">
         <div class="row align-items-center">
@@ -234,8 +286,8 @@
                             <div class="dashboard-icon me-3"><i class="fas fa-users"></i></div>
                             <div>
                                 <p class="mb-1">Total Users</p>
-                                <h2 class="mb-1 font-weight-bold">1,247</h2>
-                                <div class="label-sub"><i class="fas fa-arrow-up"></i> +156 this month</div>
+                                <h2 class="mb-1 font-weight-bold">{{ number_format($totalUsers) }}</h2>
+                                <div class="label-sub"><i class="fas fa-arrow-up"></i> +{{ number_format($newUsersThisMonth) }} this month</div>
                             </div>
                         </div>
                     </div>
@@ -249,8 +301,8 @@
                             <div class="dashboard-icon me-3"><i class="fas fa-user-graduate"></i></div>
                             <div>
                                 <p class="mb-1">Active Students</p>
-                                <h2 class="mb-1 font-weight-bold">847</h2>
-                                <div class="label-sub"><i class="fas fa-arrow-up"></i> +12% growth</div>
+                                <h2 class="mb-1 font-weight-bold">{{ number_format($activeStudents) }}</h2>
+                                <div class="label-sub"><i class="fas fa-arrow-up"></i> +{{ $studentGrowth }}% growth</div>
                             </div>
                         </div>
                     </div>
@@ -264,7 +316,7 @@
                             <div class="dashboard-icon me-3"><i class="fas fa-chalkboard-teacher"></i></div>
                             <div>
                                 <p class="mb-1">Teachers</p>
-                                <h2 class="mb-1 font-weight-bold">28</h2>
+                                <h2 class="mb-1 font-weight-bold"></h2>
                                 <div class="label-sub"><i class="fas fa-arrow-up"></i> +3 new</div>
                             </div>
                         </div>
@@ -309,8 +361,20 @@
                         <div class="card-body">
                             <i class="fas fa-book-open card-custom-icon text-primary icon-dropshadow-primary" style="font-size: 36px;"></i>
                             <p class="mb-1">Lessons Published</p>
-                            <h2 class="mb-0 font-weight-bold">500</h2>
-                            <small class="text-success">+28 this month</small>
+                            <h2 class="mb-0 font-weight-bold">{{ number_format($totalLessons) }}</h2>
+                            <small class="text-success">+{{ $newLessonsThisMonth }} this month</small>
+                        </div>
+                    </div>
+                </div>
+
+                  <!-- Quizzes Created -->
+                <div class="col-xl-3 col-md-6 col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <i class="fas fa-pen-alt card-custom-icon text-info icon-dropshadow-info" style="font-size: 36px;"></i>
+                            <p class="mb-1">Quizzes Created</p>
+                            <h2 class="mb-0 font-weight-bold">{{ number_format($totalQuizzes) }}</h2>
+                            <small class="text-success">+{{ $newQuizzesThisMonth }} this month</small>
                         </div>
                     </div>
                 </div>

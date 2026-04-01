@@ -1,0 +1,36 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreatePaymentsTable extends Migration
+{
+    public function up()
+    {
+        Schema::create('payments', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('user_id');
+            $table->string('transaction_id')->unique();
+            $table->decimal('amount', 10, 2);
+            $table->string('description')->nullable();
+            $table->string('gateway')->default('PesaPal');
+            $table->enum('status', ['pending', 'completed', 'failed', 'refunded'])->default('pending');
+            $table->timestamp('payment_date')->nullable();
+            $table->json('metadata')->nullable();
+            $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            
+            // Indexes for faster queries
+            $table->index(['user_id', 'status']);
+            $table->index('transaction_id');
+            $table->index('payment_date');
+        });
+    }
+
+    public function down()
+    {
+        Schema::dropIfExists('payments');
+    }
+}

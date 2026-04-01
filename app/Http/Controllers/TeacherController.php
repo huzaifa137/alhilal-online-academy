@@ -9,4 +9,9 @@ class TeacherController extends Controller
     public function index(){
         return view('teachers.teacher-dashboard');
     }
+    
+    public function userLogin()
+    {
+        
+    }
 }
