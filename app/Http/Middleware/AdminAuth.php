@@ -27,7 +27,7 @@ class AdminAuth
                 $request->path() != 'users/user-otp' &&
                 ! $request->routeIs('auth-user-check') &&
                 ! $request->routeIs('auth-user-check') &&
-                ! $request->routeIs('regenerate-otp') &&
+                ! $request->routeIs('users.terms-and-conditions') &&
                 ! $request->routeIs('password/reset') &&
                 $request->path() != 'users/forgot-password')
         ) {

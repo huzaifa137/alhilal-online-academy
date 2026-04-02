@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>UP - Ugandan Programmer</title>
+    <title>AlHilal Online Academy</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
@@ -344,7 +344,6 @@
     <script src="/assets007/js/jquery.animateNumber.min.js"></script>
     <script src="/assets007/js/bootstrap-datepicker.js"></script>
     <script src="/assets007/js/scrollax.min.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
     <script src="/assets007/js/google-map.js"></script>
     <script src="/assets007/js/main.js"></script>
 </body>

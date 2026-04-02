@@ -1,868 +1,1829 @@
-Here is the final landing page with quizzes for each lesson and a WhatsApp chat navigation added to the bottom bar.
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>AlHilal Online Academy | Islamic Curriculum P.1–S.6</title>
-    
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
-    <!-- Swiper JS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+@extends('layouts.master2')
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #fefaf3;
-            color: #1e1a2f;
-            scroll-behavior: smooth;
-            padding-bottom: 80px;
-        }
+@section('css')
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
 
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: #f0e6ff; }
-        ::-webkit-scrollbar-thumb { background: #9b6b9e; border-radius: 10px; }
+<style>
+:root {
+    --purple: #6B46C1;
+    --purple-dark: #4C2E8A;
+    --purple-light: #EDE9FA;
+    --red: #DC2626;
+    --red-light: #FEE2E2;
+    --red-dark: #9B1C1C;
+    --gold: #D97706;
+    --gold-light: #FEF3C7;
+    --cream: #FDFBF7;
+    --cream2: #F7F3EE;
+    --ink: #1A0A2E;
+    --ink2: #3B2459;
+    --muted: #6B6584;
+    --border: rgba(107,70,193,0.12);
+    --border2: rgba(107,70,193,0.22);
+    --gradient: linear-gradient(135deg, var(--purple) 0%, var(--red) 100%);
+    --gradient-soft: linear-gradient(135deg, #EDE9FA 0%, #FEE2E2 100%);
+    --shadow-sm: 0 2px 12px rgba(107,70,193,0.08);
+    --shadow-md: 0 8px 32px rgba(107,70,193,0.12);
+    --shadow-lg: 0 20px 60px rgba(107,70,193,0.16);
+    --shadow-xl: 0 32px 80px rgba(107,70,193,0.2);
+}
 
-        h1, h2, h3, h4 { font-weight: 700; line-height: 1.2; }
-        
-        .section-title {
-            font-size: 1.9rem;
-            margin-bottom: 1rem;
-            position: relative;
-            display: inline-block;
-            color: #4a1d6d;
-        }
-        .section-title:after {
-            content: '';
-            position: absolute;
-            bottom: -12px;
-            left: 0;
-            width: 60px;
-            height: 4px;
-            background: #e35f5f;
-            border-radius: 4px;
-        }
-        .text-center .section-title:after { left: 50%; transform: translateX(-50%); }
-        
-        .subheading {
-            font-size: 0.85rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #c24b4b;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            display: inline-block;
-        }
-        
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 26px;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.25s ease;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .btn-primary { background: #7c3a8c; color: white; box-shadow: 0 8px 18px rgba(124,58,140,0.25); }
-        .btn-primary:hover { background: #5a2a6e; transform: translateY(-2px); }
-        .btn-outline { background: transparent; border: 1.5px solid #7c3a8c; color: #7c3a8c; }
-        .btn-outline:hover { background: #7c3a8c; color: white; }
-        .btn-white { background: white; color: #7c3a8c; box-shadow: 0 5px 12px rgba(0,0,0,0.05); }
-        .btn-view { background: #e35f5f; color: white; box-shadow: 0 4px 12px rgba(227,95,95,0.3); }
-        .btn-view:hover { background: #c24b4b; transform: translateY(-2px); }
-        .btn-quiz { background: #7c3a8c; color: white; font-size: 0.7rem; padding: 4px 12px; border-radius: 30px; margin-left: 8px; }
-        .btn-quiz:hover { background: #5a2a6e; }
-        
-        .hero {
-            min-height: 85vh;
-            background: linear-gradient(135deg, #2d1b3a 0%, #4a2568 100%), url('https://images.unsplash.com/photo-1584556812952-905ffd0bebf6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
-            background-blend-mode: overlay;
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            align-items: center;
-            padding: 2rem 1.5rem;
-            color: white;
-        }
-        .hero-content { max-width: 600px; margin: 0 auto; text-align: center; }
-        .hero h1 { font-size: 2.5rem; margin: 1rem 0; }
-        .hero-badge { background: rgba(255,255,240,0.2); backdrop-filter: blur(4px); padding: 6px 18px; border-radius: 40px; font-size: 0.8rem; display: inline-block; }
-        
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
-        section { padding: 4rem 0; }
-        .bg-soft { background-color: #faf7ff; }
-        
-        /* Level Cards */
-        .levels-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-        .level-card {
-            background: white;
-            border-radius: 28px;
-            overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-            border: 1px solid #e9dfe5;
-        }
-        .level-header {
-            background: #7c3a8c;
-            color: white;
-            padding: 1rem 1.5rem;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .level-header h3 { font-size: 1.2rem; margin: 0; display: flex; align-items: center; gap: 10px; }
-        .level-header i { transition: transform 0.3s; }
-        .level-header.collapsed i { transform: rotate(-90deg); }
-        .level-body {
-            padding: 1.2rem;
-            background: #fffdf8;
-            border-top: 1px solid #f0e3e5;
-        }
-        
-        /* Class Tabs */
-        .class-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid #f0e3e5;
-            padding-bottom: 1rem;
-        }
-        .class-tab {
-            background: #f5eff9;
-            border-radius: 30px;
-            padding: 8px 18px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            color: #4a1d6d;
-        }
-        .class-tab.active {
-            background: #e35f5f;
-            color: white;
-        }
-        
-        /* Subjects Grid */
-        .subjects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1rem;
-            margin-top: 0.5rem;
-        }
-        .subject-card {
-            background: #fef9ef;
-            border-radius: 20px;
-            padding: 1rem;
-            border: 1px solid #f0e3e5;
-            transition: all 0.2s;
-        }
-        .subject-card h4 {
-            font-size: 1rem;
-            margin-bottom: 0.5rem;
-            color: #7c3a8c;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .lesson-list {
-            margin-top: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .lesson-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 10px;
-            background: white;
-            border-radius: 14px;
-            font-size: 0.8rem;
-            border: 1px solid #f0e3e5;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .lesson-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            flex: 1;
-        }
-        .lesson-type {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 0.7rem;
-            padding: 2px 8px;
-            border-radius: 20px;
-            background: #f0e6ff;
-        }
-        .lesson-actions {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
-        .view-btn {
-            background: #e35f5f;
-            color: white;
-            border: none;
-            padding: 4px 16px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .view-btn:hover { background: #c24b4b; }
-        .quiz-btn {
-            background: #7c3a8c;
-            color: white;
-            border: none;
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .quiz-btn:hover { background: #5a2a6e; }
-        .quiz-passed {
-            background: #4caf50;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        
-        /* Stats */
-        .stats-row {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 1rem;
-            background: linear-gradient(135deg, #7c3a8c, #9b4d96);
-            border-radius: 60px;
-            padding: 2rem 1.5rem;
-            color: white;
-            margin: 2rem 0;
-        }
-        .stat { text-align: center; flex: 1; }
-        .stat-number { font-size: 2rem; font-weight: 800; }
-        
-        /* Feature Cards */
-        .features-section {
-            background: linear-gradient(135deg, #faf7ff 0%, #fff5f5 100%);
-            border-radius: 48px;
-            margin: 2rem 0;
-            padding: 2rem 1.5rem;
-        }
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-        .feature-card-large {
-            background: white;
-            border-radius: 28px;
-            padding: 1.8rem;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
-            border: 1px solid #f0e3e5;
-        }
-        .feature-card-large:hover { transform: translateY(-5px); }
-        .feature-card-large i { font-size: 2.8rem; color: #e35f5f; margin-bottom: 1rem; }
-        .feature-card-large h3 { font-size: 1.4rem; margin-bottom: 0.8rem; color: #7c3a8c; }
-        
-        /* Testimonial */
-        .testimonial-slide { background: white; border-radius: 32px; padding: 2rem; box-shadow: 0 12px 24px rgba(0,0,0,0.05); margin: 0.5rem; border: 1px solid #f0e3e5; }
-        .stars { color: #e35f5f; margin-bottom: 1rem; }
-        .user-info { display: flex; align-items: center; gap: 1rem; margin-top: 1.5rem; }
-        .avatar { width: 52px; height: 52px; border-radius: 50%; background-size: cover; background-position: center; }
-        
-        /* Contact */
-        .contact-card { background: white; border-radius: 36px; padding: 2rem; box-shadow: 0 25px 40px rgba(0,0,0,0.08); max-width: 700px; margin: 2rem auto 0; border: 1px solid #f0e3e5; }
-        input, textarea { width: 100%; padding: 14px 18px; border-radius: 28px; border: 1px solid #e2dcd0; font-family: inherit; background: #fffdf9; margin-bottom: 1rem; }
-        input:focus, textarea:focus { outline: none; border-color: #7c3a8c; box-shadow: 0 0 0 3px rgba(124,58,140,0.1); }
-        
-        /* Bottom Navigation */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(255, 253, 245, 0.98);
-            backdrop-filter: blur(12px);
-            display: flex;
-            justify-content: space-around;
-            padding: 0.7rem 0.8rem 1rem;
-            border-top: 1px solid #f0e3e5;
-            z-index: 1000;
-        }
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            text-decoration: none;
-            color: #8a7b9a;
-            font-size: 0.7rem;
-            font-weight: 500;
-            flex: 1;
-            transition: 0.2s;
-            cursor: pointer;
-        }
-        .nav-item i { font-size: 1.5rem; }
-        .nav-item.active { color: #7c3a8c; font-weight: 600; }
-        .whatsapp-nav { color: #25D366; }
-        .whatsapp-nav:hover { color: #128C7E; }
-        
-        footer { text-align: center; padding: 2rem 1rem 1rem; color: #6a5a7a; font-size: 0.8rem; border-top: 1px solid #f0e3e5; }
-        
-        @media (max-width: 640px) {
-            .hero h1 { font-size: 2rem; }
-            .section-title { font-size: 1.7rem; }
-            .stats-row { flex-direction: column; align-items: center; border-radius: 32px; }
-            .subjects-grid { grid-template-columns: 1fr; }
-            .lesson-item { flex-direction: column; align-items: stretch; }
-            .lesson-actions { justify-content: flex-end; }
-        }
-        
-        /* Modals */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .modal-content {
-            background: white;
-            border-radius: 32px;
-            padding: 2rem;
-            max-width: 500px;
-            width: 90%;
-            text-align: center;
-            border-top: 5px solid #e35f5f;
-            animation: modalSlideIn 0.3s ease;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        @keyframes modalSlideIn {
-            from { transform: translateY(-30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .quiz-question {
-            background: #f9f5ff;
-            padding: 1rem;
-            border-radius: 20px;
-            margin-bottom: 1rem;
-            text-align: left;
-        }
-        .quiz-question p { font-weight: 600; margin-bottom: 0.5rem; color: #4a1d6d; }
-        .quiz-option { display: flex; align-items: center; gap: 10px; padding: 8px; margin: 5px 0; cursor: pointer; border-radius: 12px; transition: 0.2s; }
-        .quiz-option:hover { background: #f0e6ff; }
-        .quiz-option input { width: auto; margin: 0; }
-        .quiz-result { margin-top: 1rem; padding: 1rem; border-radius: 20px; font-weight: 600; }
-        .quiz-result.passed { background: #e8f5e9; color: #2e7d32; }
-        .quiz-result.failed { background: #ffebee; color: #c62828; }
-        .close-modal-btn { margin-top: 1.5rem; background: #7c3a8c; color: white; border: none; padding: 10px 24px; border-radius: 40px; cursor: pointer; font-weight: 600; }
-        .submit-quiz-btn { background: #e35f5f; color: white; border: none; padding: 12px 24px; border-radius: 40px; cursor: pointer; font-weight: 600; margin-top: 1rem; width: 100%; }
-        .submit-quiz-btn:hover { background: #c24b4b; }
-    </style>
-</head>
-<body>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-<!-- HERO SECTION -->
-<section class="hero" id="home">
-    <div class="hero-content">
-        <span class="hero-badge"><i class="fas fa-quran"></i> AlHilal Online Academy</span>
-        <h1>Islamic Education<br>P.1 – S.6</h1>
-        <p>Access premium Islamic lessons: Video, Audio, or PDF. Complete quizzes after each lesson to test your knowledge and earn certificates.</p>
-        <div class="btn-group">
-            <a href="#curriculum" class="btn btn-primary"><i class="fas fa-layer-group"></i> Browse Subjects</a>
-            <a href="#features" class="btn btn-white"><i class="fas fa-chart-line"></i> Exams & Reports</a>
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    padding-bottom: 80px;
+    overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--purple-light); }
+::-webkit-scrollbar-thumb { background: var(--purple); border-radius: 10px; }
+
+/* ── TYPOGRAPHY ── */
+.font-display { font-family: 'Playfair Display', serif; }
+h1,h2,h3 { font-family: 'Playfair Display', serif; line-height: 1.15; }
+
+/* ── UTILITY ── */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+.section { padding: 80px 0; }
+.section-sm { padding: 56px 0; }
+.text-center { text-align: center; }
+
+.eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 14px;
+}
+.eyebrow::before {
+    content: '';
+    width: 24px; height: 2px;
+    background: var(--red);
+    border-radius: 2px;
+}
+
+.section-heading {
+    font-size: clamp(1.9rem, 4vw, 2.6rem);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+    margin-bottom: 16px;
+}
+
+.section-sub {
+    font-size: 1rem;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 560px;
+}
+.text-center .section-sub { margin: 0 auto; }
+
+/* ── BUTTONS ── */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 28px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.2px;
+}
+.btn-primary {
+    background: var(--gradient);
+    color: white;
+    box-shadow: 0 6px 20px rgba(107,70,193,0.35);
+}
+.btn-primary:hover {
+    box-shadow: 0 10px 28px rgba(107,70,193,0.45);
+    transform: translateY(-2px);
+    color: white;
+}
+.btn-outline {
+    background: transparent;
+    border: 1.5px solid var(--purple);
+    color: var(--purple);
+}
+.btn-outline:hover {
+    background: var(--purple);
+    color: white;
+    transform: translateY(-2px);
+}
+.btn-ghost {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+}
+.btn-ghost:hover {
+    background: rgba(255,255,255,0.25);
+    color: white;
+}
+.btn-sm { padding: 7px 18px; font-size: 0.78rem; }
+.btn-red {
+    background: var(--red);
+    color: white;
+    box-shadow: 0 6px 20px rgba(220,38,38,0.3);
+}
+.btn-red:hover { background: var(--red-dark); transform: translateY(-2px); color: white; }
+
+/* ── TOP HEADER ── */
+.site-header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 999;
+    background: rgba(253,251,247,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    transition: box-shadow 0.3s;
+}
+.site-header.scrolled { box-shadow: var(--shadow-md); }
+.header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.header-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+}
+.header-logo img {
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    object-fit: cover;
+    box-shadow: var(--shadow-sm);
+}
+.header-logo-text { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; color: var(--ink); line-height: 1.2; }
+.header-logo-sub { font-size: 0.68rem; color: var(--muted); font-family: 'DM Sans', sans-serif; font-weight: 400; }
+.header-actions { display: flex; gap: 10px; align-items: center; }
+
+/* ── HERO ── */
+.hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: var(--ink);
+    padding-top: 68px;
+}
+.hero-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #1A0A2E 0%, #2D0F5C 40%, #4A1A1A 100%);
+}
+.hero-pattern {
+    position: absolute; inset: 0;
+    opacity: 0.04;
+    background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(255,255,255,0.5) 60px, rgba(255,255,255,0.5) 61px),
+        repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(255,255,255,0.5) 60px, rgba(255,255,255,0.5) 61px);
+}
+.hero-orb-1 {
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(107,70,193,0.35) 0%, transparent 70%);
+    top: -100px; right: -150px;
+    pointer-events: none;
+}
+.hero-orb-2 {
+    position: absolute;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(220,38,38,0.25) 0%, transparent 70%);
+    bottom: 0; left: -100px;
+    pointer-events: none;
+}
+.hero-inner {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 80px 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(6px);
+    padding: 7px 16px;
+    border-radius: 40px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 24px;
+}
+.hero-badge-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 8px rgba(74,222,128,0.6);
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.3); }
+}
+.hero-title {
+    font-size: clamp(2.5rem, 5vw, 3.8rem);
+    font-weight: 800;
+    color: white;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    letter-spacing: -0.5px;
+}
+.hero-title-accent {
+    background: linear-gradient(135deg, #C084FC, #F87171);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.hero-desc {
+    font-size: 1.05rem;
+    color: rgba(255,255,255,0.72);
+    line-height: 1.75;
+    margin-bottom: 36px;
+    max-width: 480px;
+}
+.hero-actions { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 48px; }
+.hero-stats {
+    display: flex;
+    gap: 32px;
+    padding-top: 28px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+.hero-stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1;
+}
+.hero-stat-label { font-size: 0.78rem; color: rgba(255,255,255,0.55); margin-top: 4px; }
+.hero-visual { position: relative; }
+.hero-card-main {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(20px);
+    border-radius: 28px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+}
+.hero-card-main::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: var(--gradient);
+}
+.progress-row { display: flex; flex-direction: column; gap: 14px; }
+.progress-item {}
+.progress-label { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.82rem; color: rgba(255,255,255,0.7); }
+.progress-bar-bg { background: rgba(255,255,255,0.1); border-radius: 40px; height: 8px; overflow: hidden; }
+.progress-bar-fill { height: 100%; border-radius: 40px; background: var(--gradient); position: relative; }
+.progress-bar-fill::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 14px; height: 14px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(107,70,193,0.6);
+}
+.hero-float-card {
+    position: absolute;
+    background: white;
+    border-radius: 20px;
+    padding: 14px 18px;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--ink);
+    animation: float-y 3s ease-in-out infinite;
+}
+.hero-float-card-2 { animation-delay: 1.5s; }
+@keyframes float-y {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+.float-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+}
+
+/* ── ABOUT / FEATURES STRIP ── */
+.features-strip {
+    background: white;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 60px 0;
+}
+.features-strip-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+}
+.strip-feature {
+    padding: 28px 32px;
+    border-right: 1px solid var(--border);
+    position: relative;
+    transition: background 0.2s;
+}
+.strip-feature:last-child { border-right: none; }
+.strip-feature:hover { background: var(--cream2); }
+.strip-icon {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+}
+.strip-icon-purple { background: var(--purple-light); color: var(--purple); }
+.strip-icon-red { background: var(--red-light); color: var(--red); }
+.strip-icon-gold { background: var(--gold-light); color: var(--gold); }
+.strip-icon-green { background: #DCFCE7; color: #16A34A; }
+.strip-feature h4 { font-size: 1rem; font-weight: 600; margin-bottom: 6px; color: var(--ink); font-family: 'DM Sans', sans-serif; }
+.strip-feature p { font-size: 0.84rem; color: var(--muted); line-height: 1.6; }
+
+/* ── ABOUT SECTION ── */
+.about-section { background: var(--cream); }
+.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+.about-mini-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 36px;
+}
+.mini-card {
+    background: white;
+    border-radius: 20px;
+    padding: 22px;
+    border: 1px solid var(--border);
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+}
+.mini-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--gradient);
+    transform: scaleX(0);
+    transition: transform 0.25s;
+    transform-origin: left;
+}
+.mini-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.mini-card:hover::before { transform: scaleX(1); }
+.mini-card i { font-size: 1.6rem; margin-bottom: 10px; }
+.mini-card h4 { font-size: 0.95rem; font-weight: 600; color: var(--ink); margin-bottom: 4px; font-family: 'DM Sans'; }
+.mini-card p { font-size: 0.78rem; color: var(--muted); }
+.about-visual-side { position: relative; }
+.about-image-wrap {
+    border-radius: 32px;
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 4/5;
+    background: linear-gradient(135deg, var(--ink) 0%, var(--purple-dark) 100%);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 32px;
+}
+.about-image-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(26,10,46,0.95) 0%, rgba(26,10,46,0.3) 60%, transparent 100%);
+}
+.about-image-content {
+    position: relative; z-index: 2;
+    color: white;
+}
+.about-image-content h3 { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
+.about-image-content p { font-size: 0.85rem; opacity: 0.75; line-height: 1.6; }
+.about-floating-badge {
+    position: absolute;
+    top: 28px; right: -20px;
+    background: white;
+    border-radius: 18px;
+    padding: 16px 20px;
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+    min-width: 110px;
+}
+.about-floating-badge .num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    line-height: 1;
+}
+.about-floating-badge .lbl { font-size: 0.72rem; color: var(--muted); margin-top: 4px; font-weight: 500; }
+.about-text p {
+    font-size: 0.98rem;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 16px;
+}
+
+/* ── STATS BANNER ── */
+.stats-banner {
+    background: linear-gradient(135deg, var(--purple-dark) 0%, var(--ink) 100%);
+    padding: 64px 0;
+    position: relative;
+    overflow: hidden;
+}
+.stats-banner::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle at 20% 50%, rgba(107,70,193,0.3) 0%, transparent 50%),
+                      radial-gradient(circle at 80% 50%, rgba(220,38,38,0.2) 0%, transparent 50%);
+}
+.stats-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+}
+.stat-item {
+    text-align: center;
+    padding: 28px;
+    border-right: 1px solid rgba(255,255,255,0.1);
+    position: relative;
+}
+.stat-item:last-child { border-right: none; }
+.stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 800;
+    color: white;
+    line-height: 1;
+    margin-bottom: 8px;
+    display: block;
+}
+.stat-lbl { font-size: 0.82rem; color: rgba(255,255,255,0.55); font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+.stat-divider {
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 24px; height: 2px;
+    background: var(--gradient);
+    border-radius: 2px;
+}
+
+/* ── CURRICULUM SECTION ── */
+.curriculum-section { background: var(--cream2); }
+.level-accordion {
+    margin-top: 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.level-card {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+}
+.level-card:hover { box-shadow: var(--shadow-sm); }
+.level-header-btn {
+    width: 100%;
+    padding: 20px 28px;
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    text-align: left;
+    gap: 16px;
+    transition: background 0.2s;
+}
+.level-header-btn:hover { background: var(--cream); }
+.level-header-btn.active { background: var(--purple); }
+.level-header-left { display: flex; align-items: center; gap: 16px; }
+.level-number {
+    width: 40px; height: 40px;
+    background: var(--gradient-soft);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--purple);
+}
+.level-header-btn.active .level-number {
+    background: rgba(255,255,255,0.2);
+    color: white;
+}
+.level-title { font-size: 1rem; font-weight: 600; color: var(--ink); font-family: 'DM Sans'; }
+.level-header-btn.active .level-title { color: white; }
+.level-meta { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+.level-header-btn.active .level-meta { color: rgba(255,255,255,0.65); }
+.level-toggle {
+    width: 32px; height: 32px;
+    background: var(--purple-light);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--purple);
+    font-size: 0.75rem;
+    transition: transform 0.3s, background 0.2s;
+    flex-shrink: 0;
+}
+.level-header-btn.active .level-toggle {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    transform: rotate(180deg);
+}
+.level-body {
+    padding: 24px 28px;
+    border-top: 1px solid var(--border);
+    background: var(--cream);
+    display: none;
+}
+.level-body.open { display: block; }
+.class-tabs-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+.class-tab-btn {
+    padding: 7px 18px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid var(--border2);
+    background: white;
+    color: var(--ink2);
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+}
+.class-tab-btn.active {
+    background: var(--gradient);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(107,70,193,0.3);
+}
+.subjects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+}
+.subject-card {
+    background: white;
+    border-radius: 16px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+}
+.subject-card:hover { box-shadow: var(--shadow-sm); border-color: var(--border2); }
+.subject-card-head {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+}
+.subject-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: var(--purple-light);
+    color: var(--purple);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem;
+}
+.subject-title { font-size: 0.9rem; font-weight: 600; color: var(--ink); }
+.lesson-list { display: flex; flex-direction: column; gap: 8px; }
+.lesson-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--cream);
+    border-radius: 10px;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.lesson-info { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+.lesson-type-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.badge-video { background: #EDE9FA; color: var(--purple); }
+.badge-audio { background: var(--red-light); color: var(--red); }
+.badge-pdf { background: var(--gold-light); color: var(--gold); }
+.lesson-title-text { font-size: 0.78rem; color: var(--ink); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; }
+.lesson-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+.btn-view-lesson {
+    background: var(--red);
+    color: white;
+    border: none;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans';
+    transition: 0.2s;
+}
+.btn-view-lesson:hover { background: var(--red-dark); }
+.btn-quiz-lesson {
+    background: var(--purple);
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans';
+    transition: 0.2s;
+}
+.btn-quiz-lesson:hover { background: var(--purple-dark); }
+.quiz-passed-badge {
+    background: #DCFCE7;
+    color: #16A34A;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    display: inline-flex; align-items: center; gap: 4px;
+}
+
+/* ── PROGRESS / FEATURES ── */
+.progress-section { background: white; }
+.progress-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 48px;
+}
+.progress-card {
+    border-radius: 24px;
+    padding: 36px 28px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+}
+.progress-card::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    opacity: 0.07;
+    transform: translate(30%, -30%);
+}
+.progress-card-1 { background: var(--purple-light); }
+.progress-card-1::after { background: var(--purple); }
+.progress-card-2 { background: var(--red-light); }
+.progress-card-2::after { background: var(--red); }
+.progress-card-3 { background: var(--gold-light); }
+.progress-card-3::after { background: var(--gold); }
+.progress-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-md); }
+.progress-card-icon {
+    width: 56px; height: 56px;
+    border-radius: 18px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 22px;
+    position: relative; z-index: 1;
+}
+.progress-card-1 .progress-card-icon { background: white; color: var(--purple); }
+.progress-card-2 .progress-card-icon { background: white; color: var(--red); }
+.progress-card-3 .progress-card-icon { background: white; color: var(--gold); }
+.progress-card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 12px; color: var(--ink); position: relative; z-index: 1; }
+.progress-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.7; position: relative; z-index: 1; }
+
+/* ── TESTIMONIALS ── */
+.testimonials-section { background: var(--cream2); }
+.testimonial-card {
+    background: white;
+    border-radius: 24px;
+    padding: 28px;
+    border: 1px solid var(--border);
+    height: 100%;
+    display: flex; flex-direction: column;
+    transition: all 0.2s;
+}
+.testimonial-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.testimonial-stars { display: flex; gap: 3px; margin-bottom: 16px; }
+.testimonial-stars i { color: var(--gold); font-size: 0.85rem; }
+.testimonial-text {
+    font-size: 0.92rem;
+    color: var(--muted);
+    line-height: 1.75;
+    flex: 1;
+    font-style: italic;
+    margin-bottom: 20px;
+}
+.testimonial-quote-icon {
+    font-size: 3rem;
+    line-height: 0;
+    font-family: Georgia, serif;
+    color: var(--purple-light);
+    position: absolute;
+    top: 18px; right: 24px;
+    opacity: 0.5;
+}
+.testimonial-user { display: flex; align-items: center; gap: 12px; }
+.testimonial-avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background-size: cover; background-position: center;
+    border: 2px solid var(--purple-light);
+}
+.testimonial-name { font-weight: 600; font-size: 0.88rem; color: var(--ink); }
+.testimonial-role { font-size: 0.75rem; color: var(--muted); }
+.swiper-pagination-bullet { background: var(--purple) !important; }
+.swiper-pagination-bullet-active { background: var(--red) !important; }
+
+/* ── CONTACT ── */
+.contact-section { background: white; }
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+.contact-info h2 { margin-bottom: 16px; }
+.contact-info .section-sub { margin-bottom: 32px; }
+.contact-detail-row {
+    display: flex; gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 22px;
+}
+.contact-detail-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: var(--purple-light);
+    color: var(--purple);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 1rem;
+}
+.contact-detail-label { font-size: 0.75rem; color: var(--muted); font-weight: 500; margin-bottom: 3px; }
+.contact-detail-value { font-size: 0.92rem; font-weight: 600; color: var(--ink); }
+.contact-form-card {
+    background: var(--cream);
+    border-radius: 28px;
+    padding: 36px;
+    border: 1px solid var(--border);
+}
+.form-group { margin-bottom: 18px; }
+.form-group label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink2);
+    margin-bottom: 8px;
+}
+.form-control-alhilal {
+    width: 100%;
+    padding: 13px 18px;
+    border-radius: 50px;
+    border: 1.5px solid var(--border2);
+    background: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--ink);
+    transition: all 0.2s;
+    outline: none;
+}
+.form-control-alhilal:focus {
+    border-color: var(--purple);
+    box-shadow: 0 0 0 3px rgba(107,70,193,0.1);
+}
+textarea.form-control-alhilal {
+    border-radius: 20px;
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* ── FOOTER ── */
+.site-footer {
+    background: var(--ink);
+    color: rgba(255,255,255,0.7);
+    padding: 60px 0 30px;
+}
+.footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 60px;
+    margin-bottom: 48px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.footer-brand { }
+.footer-logo-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.footer-logo-img { width: 44px; height: 44px; border-radius: 12px; object-fit: cover; }
+.footer-logo-name { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: white; font-weight: 700; }
+.footer-brand p { font-size: 0.85rem; line-height: 1.7; max-width: 280px; }
+.footer-social { display: flex; gap: 10px; margin-top: 20px; }
+.footer-social-btn {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+.footer-social-btn:hover { background: var(--purple); border-color: var(--purple); color: white; }
+.footer-col h5 { font-size: 0.85rem; font-weight: 600; color: white; margin-bottom: 16px; letter-spacing: 0.5px; }
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.footer-col ul li a { font-size: 0.83rem; color: rgba(255,255,255,0.55); text-decoration: none; transition: color 0.2s; }
+.footer-col ul li a:hover { color: white; }
+.footer-bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.footer-bottom p { font-size: 0.78rem; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 998;
+    background: rgba(253,251,247,0.97);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0 12px;
+}
+.nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 0.65rem;
+    font-weight: 500;
+    flex: 1;
+    transition: color 0.2s;
+    cursor: pointer;
+}
+.nav-item i { font-size: 1.25rem; transition: transform 0.2s; }
+.nav-item:hover i { transform: translateY(-2px); }
+.nav-item.active { color: var(--purple); font-weight: 600; }
+.nav-item.nav-whatsapp { color: #25D366; }
+.nav-item.nav-whatsapp:hover { color: #128C7E; }
+
+/* ── MODALS ── */
+.modal-backdrop {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(26,10,46,0.85);
+    z-index: 2000;
+    backdrop-filter: blur(6px);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.modal-backdrop.open { display: flex; }
+.modal-box {
+    background: white;
+    border-radius: 28px;
+    padding: 32px;
+    max-width: 500px;
+    width: 100%;
+    position: relative;
+    animation: modal-in 0.3s ease;
+    max-height: 85vh;
+    overflow-y: auto;
+    border-top: 4px solid transparent;
+    border-image: var(--gradient) 1;
+    border-top-left-radius: 28px;
+    border-top-right-radius: 28px;
+}
+@keyframes modal-in {
+    from { transform: translateY(-24px) scale(0.96); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+}
+.modal-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: var(--cream2);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-family: 'DM Sans';
+    transition: 0.2s;
+}
+.modal-close:hover { background: var(--red-light); color: var(--red); }
+.modal-icon { font-size: 2.5rem; color: var(--purple); margin-bottom: 12px; }
+.modal-title { font-size: 1.3rem; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+.modal-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+.quiz-question-block {
+    background: var(--cream2);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+.quiz-question-block p { font-size: 0.88rem; font-weight: 600; color: var(--ink); margin-bottom: 10px; }
+.quiz-option-label {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px;
+    margin: 4px 0;
+    cursor: pointer;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    color: var(--ink);
+    transition: 0.15s;
+}
+.quiz-option-label:hover { background: var(--purple-light); }
+.quiz-option-label input { width: auto; margin: 0; }
+.quiz-result-box {
+    border-radius: 16px;
+    padding: 16px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 14px;
+    display: none;
+}
+.quiz-result-pass { background: #DCFCE7; color: #166534; }
+.quiz-result-fail { background: var(--red-light); color: var(--red-dark); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+    .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+    .hero-visual { display: none; }
+    .about-grid { grid-template-columns: 1fr; gap: 40px; }
+    .progress-cards-grid { grid-template-columns: 1fr; }
+    .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+    .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .stat-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .features-strip-grid { grid-template-columns: repeat(2, 1fr); }
+    .strip-feature { border-right: none; border-bottom: 1px solid var(--border); }
+    .header-actions .btn-outline { display: none; }
+}
+@media (max-width: 600px) {
+    .hero-title { font-size: 2rem; }
+    .hero-stats { gap: 20px; flex-wrap: wrap; }
+    .features-strip-grid { grid-template-columns: 1fr; }
+    .subjects-grid { grid-template-columns: 1fr; }
+    .footer-bottom { flex-direction: column; text-align: center; }
+    .progress-cards-grid { grid-template-columns: 1fr; }
+}
+</style>
+@endsection
+
+@section('content')
+
+<!-- ════════════════════ SITE HEADER ════════════════════ -->
+<header class="site-header" id="siteHeader">
+    <div class="header-inner">
+        <a href="{{ url('/') }}" class="header-logo">
+            <img src="{{ asset('assets/images/alhilal_logo.jpeg') }}" alt="AlHilal Academy">
+            <div>
+                <div class="header-logo-text">AlHilal Academy</div>
+                <div class="header-logo-sub">Online Islamic Learning</div>
+            </div>
+        </a>
+        <div class="header-actions">
+            <a href="{{ url('/users/register') }}" class="btn btn-outline btn-sm">Register</a>
+            <a href="{{ url('/users/login') }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-arrow-right-to-bracket"></i> Sign In
+            </a>
         </div>
     </div>
-</section>
+</header>
 
-<!-- ABOUT Section -->
-<section id="about">
-    <div class="container">
-        <div class="row" style="display: flex; flex-wrap: wrap; gap: 2rem; align-items: center;">
-            <div style="flex: 1;">
-                <span class="subheading">Our Model</span>
-                <h2 class="section-title">Learn, Test, Succeed</h2>
-                <p style="margin: 1.5rem 0;">Each lesson contains video, audio, or PDF material. After completing a lesson, you must attempt a <strong>quiz</strong> to test your understanding. Pass the quiz to track your progress and earn certificates.</p>
-                <p><strong>📚 S.1–S.6:</strong> 10+ advanced subjects including Tafsir, Hadith Sciences, Arabic Literature, Fiqh, Seerah, Islamic Economics, and more.</p>
-                <a href="#curriculum" class="btn btn-outline" style="margin-top: 1rem;"><i class="fas fa-book-open"></i> Explore Levels</a>
+<!-- ════════════════════ HERO ════════════════════ -->
+<section class="hero" id="home">
+    <div class="hero-bg"></div>
+    <div class="hero-pattern"></div>
+    <div class="hero-orb-1"></div>
+    <div class="hero-orb-2"></div>
+
+    <div class="hero-inner">
+        <!-- Left: Copy -->
+        <div class="hero-left">
+            <div class="hero-badge">
+                <span class="hero-badge-dot"></span>
+                Now enrolling for 2026/2027
             </div>
-            <div style="flex: 1;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div style="background: white; border-radius: 24px; padding: 1rem; border: 1px solid #f0e3e5;"><i class="fas fa-video" style="font-size: 2rem; color:#e35f5f;"></i><h3 style="color:#7c3a8c;">Video Lessons</h3><p>Watch & Learn</p></div>
-                    <div style="background: white; border-radius: 24px; padding: 1rem; border: 1px solid #f0e3e5;"><i class="fas fa-headphones" style="font-size: 2rem; color:#e35f5f;"></i><h3 style="color:#7c3a8c;">Audio Tracks</h3><p>Listen Anywhere</p></div>
-                    <div style="background: white; border-radius: 24px; padding: 1rem; border: 1px solid #f0e3e5;"><i class="fas fa-file-pdf" style="font-size: 2rem; color:#e35f5f;"></i><h3 style="color:#7c3a8c;">PDF Notes</h3><p>Arabic + Translation</p></div>
-                    <div style="background: white; border-radius: 24px; padding: 1rem; border: 1px solid #f0e3e5;"><i class="fas fa-question-circle" style="font-size: 2rem; color:#e35f5f;"></i><h3 style="color:#7c3a8c;">Lesson Quizzes</h3><p>Test Understanding</p></div>
+            <h1 class="hero-title">
+                Islamic Education<br>
+                for <span class="hero-title-accent">Every</span><br>
+                Level, P.1 – S.6
+            </h1>
+            <p class="hero-desc">
+                Video lessons, audio tracks, and PDF notes — with quizzes after each lesson to reinforce learning. Track your progress, earn certificates, and grow in knowledge.
+            </p>
+            <div class="hero-actions">
+                <a href="#curriculum" class="btn btn-primary">
+                    <i class="fas fa-layer-group"></i> Explore Curriculum
+                </a>
+                <a href="{{ url('/users/register') }}" class="btn btn-ghost">
+                    <i class="fas fa-user-plus"></i> Get Started Free
+                </a>
+            </div>
+            <div class="hero-stats">
+                <div>
+                    <div class="hero-stat-num" data-count="500">500+</div>
+                    <div class="hero-stat-label">Lessons</div>
+                </div>
+                <div>
+                    <div class="hero-stat-num" data-count="60">60+</div>
+                    <div class="hero-stat-label">Subjects</div>
+                </div>
+                <div>
+                    <div class="hero-stat-num" data-count="5">5</div>
+                    <div class="hero-stat-label">Levels</div>
+                </div>
+                <div>
+                    <div class="hero-stat-num" data-count="20">20+</div>
+                    <div class="hero-stat-label">Classes</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Visual Card -->
+        <div class="hero-visual">
+            <div class="hero-card-main" style="position: relative;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+                    <img src="{{ asset('assets/images/alhilal_logo.jpeg') }}" style="width: 44px; height: 44px; border-radius: 12px; object-fit: cover;">
+                    <div>
+                        <div style="font-size: 0.85rem; font-weight: 600; color: white;">Student Progress</div>
+                        <div style="font-size: 0.72rem; color: rgba(255,255,255,0.5);">2026/2027 Academic Year</div>
+                    </div>
+                    <div style="margin-left: auto; background: rgba(74,222,128,0.15); border: 1px solid rgba(74,222,128,0.3); color: #4ade80; padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 600;">Active</div>
+                </div>
+                <div class="progress-row">
+                    <div class="progress-item">
+                        <div class="progress-label"><span>Quran Recitation</span><span>87%</span></div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 87%;"></div></div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-label"><span>Islamic Studies</span><span>72%</span></div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 72%;"></div></div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-label"><span>Arabic Language</span><span>65%</span></div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 65%;"></div></div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-label"><span>Fiqh & Ethics</span><span>91%</span></div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 91%;"></div></div>
+                    </div>
+                </div>
+                <div style="margin-top: 22px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 16px; justify-content: space-between;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.4rem; font-weight: 700; color: white; font-family: 'Playfair Display', serif;">12</div>
+                        <div style="font-size: 0.68rem; color: rgba(255,255,255,0.5);">Quizzes Passed</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.4rem; font-weight: 700; color: white; font-family: 'Playfair Display', serif;">3</div>
+                        <div style="font-size: 0.68rem; color: rgba(255,255,255,0.5);">Certificates</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.4rem; font-weight: 700; color: white; font-family: 'Playfair Display', serif;">S.3</div>
+                        <div style="font-size: 0.68rem; color: rgba(255,255,255,0.5);">Current Level</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Floating badges -->
+            <div class="hero-float-card" style="bottom: -20px; left: -30px;">
+                <div class="float-icon" style="background: #DCFCE7; color: #16A34A;">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div>
+                    <div style="font-size: 0.82rem; font-weight: 600;">Quiz Passed!</div>
+                    <div style="font-size: 0.72rem; color: var(--muted);">Tafsir — Lesson 7</div>
+                </div>
+            </div>
+            <div class="hero-float-card hero-float-card-2" style="top: -16px; right: -24px;">
+                <div class="float-icon" style="background: #EDE9FA; color: var(--purple);">
+                    <i class="fas fa-certificate"></i>
+                </div>
+                <div>
+                    <div style="font-size: 0.82rem; font-weight: 600;">New Certificate</div>
+                    <div style="font-size: 0.72rem; color: var(--muted);">Level 2 Complete</div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- FEATURES Section -->
-<section id="features" class="bg-soft">
+<!-- ════════════════════ FEATURES STRIP ════════════════════ -->
+<div class="features-strip">
     <div class="container">
-        <div class="text-center">
-            <span class="subheading">Assessment & Recognition</span>
-            <h2 class="section-title">Track Your Progress</h2>
-            <p>Complete quizzes after each lesson, get instant results, and earn certificates</p>
-        </div>
-        <div class="features-grid">
-            <div class="feature-card-large">
-                <i class="fas fa-pen-alt"></i>
-                <h3>Exams</h3>
-                <p>Auto-graded quizzes and termly assessments to test your understanding. Instant feedback and performance analytics.</p>
+        <div class="features-strip-grid">
+            <div class="strip-feature">
+                <div class="strip-icon strip-icon-purple"><i class="fas fa-video"></i></div>
+                <h4>Video Lessons</h4>
+                <p>Engaging recorded lessons taught by qualified Islamic scholars, available on any device.</p>
             </div>
-            <div class="feature-card-large">
-                <i class="fas fa-chart-line"></i>
-                <h3>Reports</h3>
-                <p>Detailed progress reports for students, parents, and teachers. Track lesson completion, quiz scores, and improvement areas.</p>
+            <div class="strip-feature">
+                <div class="strip-icon strip-icon-red"><i class="fas fa-headphones"></i></div>
+                <h4>Audio Tracks</h4>
+                <p>Listen and learn anywhere. Perfect for commuting or revision sessions on the go.</p>
             </div>
-            <div class="feature-card-large">
-                <i class="fas fa-certificate"></i>
-                <h3>Certifications</h3>
-                <p>Earn recognized certificates upon completing each level with all quizzes passed. Share your achievements online.</p>
+            <div class="strip-feature">
+                <div class="strip-icon strip-icon-gold"><i class="fas fa-file-pdf"></i></div>
+                <h4>PDF Notes</h4>
+                <p>Detailed study notes in Arabic and English. Download for offline reference and revision.</p>
+            </div>
+            <div class="strip-feature">
+                <div class="strip-icon strip-icon-green"><i class="fas fa-trophy"></i></div>
+                <h4>Certifications</h4>
+                <p>Earn recognized certificates after passing all quizzes and completing a full level.</p>
             </div>
         </div>
-    </div>
-</section>
-
-<!-- CURRICULUM Section -->
-<section id="curriculum">
-    <div class="container">
-        <div class="text-center">
-            <span class="subheading">Structured Islamic Curriculum</span>
-            <h2 class="section-title">Classes, Subjects & Lessons</h2>
-            <p>Each lesson includes content + a quiz. Pass the quiz to complete the lesson.</p>
-        </div>
-        <div class="levels-grid" id="levelsContainer"></div>
-    </div>
-</section>
-
-<!-- Stats -->
-<div class="container">
-    <div class="stats-row">
-        <div class="stat"><div class="stat-number">5</div><div>Levels</div></div>
-        <div class="stat"><div class="stat-number">20+</div><div>Classes</div></div>
-        <div class="stat"><div class="stat-number">60+</div><div>Subjects</div></div>
-        <div class="stat"><div class="stat-number">500+</div><div>Lessons</div></div>
     </div>
 </div>
 
-<!-- TESTIMONIALS -->
-<section id="testimony">
+<!-- ════════════════════ ABOUT ════════════════════ -->
+<section class="about-section section" id="about">
+    <div class="container">
+        <div class="about-grid">
+            <div class="about-text">
+                <span class="eyebrow">Our Learning Model</span>
+                <h2 class="section-heading">Learn, Test,<br>Then Succeed</h2>
+                <p>AlHilal Online Academy brings structured Islamic education to students from Primary 1 through Senior 6. Every lesson is carefully crafted by qualified teachers and comes with assessments to ensure genuine understanding.</p>
+                <p>Our platform serves students, parents, and teachers with dedicated dashboards — providing full visibility into progress, quiz results, reports, and certificates.</p>
+                <a href="#curriculum" class="btn btn-primary" style="margin-top: 8px;">
+                    <i class="fas fa-book-open"></i> Browse All Levels
+                </a>
+                <div class="about-mini-cards">
+                    <div class="mini-card">
+                        <i class="fas fa-video" style="color: var(--purple);"></i>
+                        <h4>Video Lessons</h4>
+                        <p>Watch & Learn</p>
+                    </div>
+                    <div class="mini-card">
+                        <i class="fas fa-question-circle" style="color: var(--red);"></i>
+                        <h4>Post-Lesson Quizzes</h4>
+                        <p>Test & Track</p>
+                    </div>
+                    <div class="mini-card">
+                        <i class="fas fa-chart-line" style="color: var(--gold);"></i>
+                        <h4>Progress Reports</h4>
+                        <p>For students & parents</p>
+                    </div>
+                    <div class="mini-card">
+                        <i class="fas fa-certificate" style="color: #16A34A;"></i>
+                        <h4>Certificates</h4>
+                        <p>On level completion</p>
+                    </div>
+                </div>
+            </div>
+            <div class="about-visual-side">
+                <div class="about-image-wrap">
+                    <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(26,10,46,0.8) 0%, rgba(107,70,193,0.6) 50%, rgba(220,38,38,0.4) 100%);"></div>
+                    <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0.06;">
+                        <div style="font-size: 12rem; font-family: 'Playfair Display', serif; color: white; line-height: 1;">﷽</div>
+                    </div>
+                    <div class="about-image-content" style="position: relative; z-index: 2; padding: 32px;">
+                        <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; color: rgba(255,255,255,0.8); font-weight: 500; margin-bottom: 20px;">
+                            <i class="fas fa-quran"></i> Bismillahir Rahmanir Raheem
+                        </div>
+                        <h3 style="font-size: 2rem; color: white; margin-bottom: 12px;">Structured<br>Islamic Studies</h3>
+                        <p style="color: rgba(255,255,255,0.65); font-size: 0.88rem; line-height: 1.7; max-width: 300px;">From foundational Quran recitation to advanced Tafsir, Hadith, and Fiqh — a complete Islamic curriculum.</p>
+                        <div style="margin-top: 28px; display: flex; gap: 20px;">
+                            <div>
+                                <div style="font-size: 1.6rem; font-weight: 700; color: white; font-family: 'Playfair Display', serif;">P.1–S.6</div>
+                                <div style="font-size: 0.72rem; color: rgba(255,255,255,0.5);">All School Levels</div>
+                            </div>
+                            <div style="width: 1px; background: rgba(255,255,255,0.1);"></div>
+                            <div>
+                                <div style="font-size: 1.6rem; font-weight: 700; color: white; font-family: 'Playfair Display', serif;">100%</div>
+                                <div style="font-size: 0.72rem; color: rgba(255,255,255,0.5);">Online & Mobile</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-floating-badge">
+                    <div class="num">1,200+</div>
+                    <div class="lbl">Students Enrolled</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ════════════════════ STATS ════════════════════ -->
+<div class="stats-banner">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-num" data-count="5">5</span>
+                <div class="stat-lbl">School Levels</div>
+                <div class="stat-divider"></div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-num" data-count="20">20+</span>
+                <div class="stat-lbl">Classes</div>
+                <div class="stat-divider"></div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-num" data-count="60">60+</span>
+                <div class="stat-lbl">Subjects</div>
+                <div class="stat-divider"></div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-num" data-count="500">500+</span>
+                <div class="stat-lbl">Lessons</div>
+                <div class="stat-divider"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════════════ CURRICULUM ════════════════════ -->
+<section class="curriculum-section section" id="curriculum">
     <div class="container">
         <div class="text-center">
-            <span class="subheading">Student Stories</span>
-            <h2 class="section-title">What Our Community Says</h2>
+            <span class="eyebrow" style="justify-content: center;">Structured Curriculum</span>
+            <h2 class="section-heading">Classes, Subjects & Lessons</h2>
+            <p class="section-sub">Every lesson comes with content + a quiz. Pass the quiz to complete the lesson and track your progress toward a certificate.</p>
         </div>
-        <div class="swiper testimonialSwiper" style="margin-top: 2rem; overflow: hidden; padding: 1rem 0;">
+        <div class="level-accordion" id="levelsContainer"></div>
+    </div>
+</section>
+
+<!-- ════════════════════ PROGRESS / FEATURES ════════════════════ -->
+<section class="progress-section section" id="features">
+    <div class="container">
+        <div class="text-center">
+            <span class="eyebrow" style="justify-content: center;">Assessment & Recognition</span>
+            <h2 class="section-heading">Track Your Progress</h2>
+            <p class="section-sub">Complete quizzes after every lesson to test your understanding, earn certificates, and demonstrate mastery.</p>
+        </div>
+        <div class="progress-cards-grid">
+            <div class="progress-card progress-card-1">
+                <div class="progress-card-icon"><i class="fas fa-pen-nib"></i></div>
+                <h3>Lesson Quizzes</h3>
+                <p>Auto-graded quizzes after every lesson. Instant feedback with correct answers shown — so you understand, not just pass. Termly assessments available for all levels.</p>
+            </div>
+            <div class="progress-card progress-card-2">
+                <div class="progress-card-icon"><i class="fas fa-chart-bar"></i></div>
+                <h3>Progress Reports</h3>
+                <p>Detailed reports for students, parents, and teachers. Track lesson completion rates, quiz scores, attendance, and improvement areas all in one dashboard.</p>
+            </div>
+            <div class="progress-card progress-card-3">
+                <div class="progress-card-icon"><i class="fas fa-award"></i></div>
+                <h3>Certifications</h3>
+                <p>Earn an official AlHilal Academy certificate upon completing each level with all quizzes passed. Share your achievement and advance to the next level.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ════════════════════ TESTIMONIALS ════════════════════ -->
+<section class="testimonials-section section" id="testimony">
+    <div class="container">
+        <div class="text-center">
+            <span class="eyebrow" style="justify-content: center;">Student Stories</span>
+            <h2 class="section-heading">What Our Community Says</h2>
+        </div>
+        <div class="swiper testimonialSwiper" style="margin-top: 48px; overflow: hidden; padding-bottom: 40px;">
             <div class="swiper-wrapper">
-                <div class="swiper-slide"><div class="testimonial-slide"><div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p>"The quizzes after each lesson really help reinforce what I learned. I love tracking my progress!"</p><div class="user-info"><div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/women/68.jpg');"></div><div><strong>Amina Hussein</strong><br><span>S.3 Student</span></div></div></div></div>
-                <div class="swiper-slide"><div class="testimonial-slide"><div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p>"The quiz system ensures students actually understand before moving on. Great platform for Islamic education."</p><div class="user-info"><div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/men/45.jpg');"></div><div><strong>Ustadh Rashid</strong><br><span>Level 4 Teacher</span></div></div></div></div>
-                <div class="swiper-slide"><div class="testimonial-slide"><div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p>"The WhatsApp chat feature is amazing! I can directly ask my teacher questions when I'm stuck."</p><div class="user-info"><div class="avatar" style="background-image: url('https://randomuser.me/api/portraits/men/32.jpg');"></div><div><strong>Ibrahim Ssemanda</strong><br><span>S.4 Candidate</span></div></div></div></div>
+                <div class="swiper-slide" style="height: auto;">
+                    <div class="testimonial-card" style="position: relative;">
+                        <div style="position: absolute; top: 18px; right: 24px; font-size: 3rem; line-height: 0; font-family: Georgia, serif; color: var(--purple-light); opacity: 0.5; padding-top: 24px;">"</div>
+                        <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                        <p class="testimonial-text">"The quizzes after each lesson truly reinforce what I learn. Seeing my progress chart go up is so motivating — I've never felt this engaged with Islamic studies before."</p>
+                        <div class="testimonial-user">
+                            <div class="testimonial-avatar" style="background-image: url('https://randomuser.me/api/portraits/women/68.jpg');"></div>
+                            <div><div class="testimonial-name">Amina Hussein</div><div class="testimonial-role">S.3 Student</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper-slide" style="height: auto;">
+                    <div class="testimonial-card" style="position: relative;">
+                        <div style="position: absolute; top: 18px; right: 24px; font-size: 3rem; line-height: 0; font-family: Georgia, serif; color: var(--purple-light); opacity: 0.5; padding-top: 24px;">"</div>
+                        <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                        <p class="testimonial-text">"The quiz-before-advancing system ensures students genuinely understand before moving on. As a teacher, the reporting dashboard saves me hours every week."</p>
+                        <div class="testimonial-user">
+                            <div class="testimonial-avatar" style="background-image: url('https://randomuser.me/api/portraits/men/45.jpg');"></div>
+                            <div><div class="testimonial-name">Ustadh Rashid</div><div class="testimonial-role">Level 4 Teacher</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper-slide" style="height: auto;">
+                    <div class="testimonial-card" style="position: relative;">
+                        <div style="position: absolute; top: 18px; right: 24px; font-size: 3rem; line-height: 0; font-family: Georgia, serif; color: var(--purple-light); opacity: 0.5; padding-top: 24px;">"</div>
+                        <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                        <p class="testimonial-text">"Direct WhatsApp access to my teacher when I'm stuck is amazing. And the PDF notes are perfect for offline revision before my S.4 exams."</p>
+                        <div class="testimonial-user">
+                            <div class="testimonial-avatar" style="background-image: url('https://randomuser.me/api/portraits/men/32.jpg');"></div>
+                            <div><div class="testimonial-name">Ibrahim Ssemanda</div><div class="testimonial-role">S.4 Candidate</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper-slide" style="height: auto;">
+                    <div class="testimonial-card" style="position: relative;">
+                        <div style="position: absolute; top: 18px; right: 24px; font-size: 3rem; line-height: 0; font-family: Georgia, serif; color: var(--purple-light); opacity: 0.5; padding-top: 24px;">"</div>
+                        <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                        <p class="testimonial-text">"My children love the platform. As a parent, I can monitor their lesson completion and quiz scores from my own account. This level of transparency is exactly what I needed."</p>
+                        <div class="testimonial-user">
+                            <div class="testimonial-avatar" style="background-image: url('https://randomuser.me/api/portraits/women/44.jpg');"></div>
+                            <div><div class="testimonial-name">Fatuma Nakato</div><div class="testimonial-role">Parent of Two Students</div></div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="swiper-pagination"></div>
         </div>
     </div>
 </section>
+<!-- Minimal but elegant Back to Top - Add to your CSS section -->
+<style>
+.back-to-top {
+    position: fixed;
+    bottom: 80px;
+    right: 24px;
+    width: 46px;
+    height: 46px;
+    border-radius: 46px;
+    background: #D8382E;
+    backdrop-filter: blur(8px);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    z-index: 997;
+    opacity: 0;
+    visibility: hidden;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
 
-<footer>
-    <p>© 2025 AlHilal Online Academy — Learn with quizzes | Video, Audio, PDF | Certifications & Reports</p>
-    <p style="font-size:0.7rem;">info@alhilalacademy.org | +256 702 082 209</p>
+.back-to-top.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.back-to-top:hover {
+    background: linear-gradient(135deg, var(--purple) 0%, var(--red) 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(107, 70, 193, 0.4);
+}
+
+@media (max-width: 768px) {
+    .back-to-top {
+        bottom: 72px;
+        right: 16px;
+        width: 40px;
+        height: 40px;
+        font-size: 0.9rem;
+    }
+}
+</style>
+
+<!-- HTML -->
+<a href="#" class="back-to-top" id="backToTopBtn">
+    <i class="fas fa-chevron-up"></i>
+</a>
+
+<!-- JavaScript -->
+<script>
+const backBtn = document.getElementById('backToTopBtn');
+window.addEventListener('scroll', () => {
+    backBtn.classList.toggle('show', window.scrollY > 500);
+});
+backBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+</script>
+<!-- ════════════════════ CONTACT ════════════════════ -->
+<section class="contact-section section" id="contact">
+    <div class="container">
+        <div class="contact-grid">
+            <div class="contact-info">
+                <span class="eyebrow">Get In Touch</span>
+                <h2 class="section-heading">Enroll Your Child<br>Today</h2>
+                <p class="section-sub">Questions about enrollment, tuition, or the curriculum? Reach out and our team will respond within 24 hours.</p>
+                <div style="margin-top: 36px;">
+                    <div class="contact-detail-row">
+                        <div class="contact-detail-icon"><i class="fas fa-phone"></i></div>
+                        <div>
+                            <div class="contact-detail-label">Phone / WhatsApp</div>
+                            <div class="contact-detail-value">+256 702 082 209</div>
+                        </div>
+                    </div>
+                    <div class="contact-detail-row">
+                        <div class="contact-detail-icon"><i class="fas fa-envelope"></i></div>
+                        <div>
+                            <div class="contact-detail-label">Email</div>
+                            <div class="contact-detail-value">info@alhilalacademy.org</div>
+                        </div>
+                    </div>
+                    <div class="contact-detail-row">
+                        <div class="contact-detail-icon"><i class="fab fa-whatsapp"></i></div>
+                        <div>
+                            <div class="contact-detail-label">Live Chat</div>
+                            <div class="contact-detail-value">WhatsApp us anytime</div>
+                        </div>
+                    </div>
+                </div>
+                <a href="https://wa.me/256702082209?text=Assalamu+Alaikum!+I'd+like+to+enroll+at+AlHilal+Academy." target="_blank" class="btn btn-primary" style="margin-top: 12px;">
+                    <i class="fab fa-whatsapp"></i> Chat on WhatsApp
+                </a>
+            </div>
+            <div class="contact-form-card">
+                <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 24px; color: var(--ink);">Send Us a Message</h3>
+                <form id="contactForm">
+                    @csrf
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="fullname" class="form-control-alhilal" placeholder="Your full name">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="emailContact" class="form-control-alhilal" placeholder="your@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" class="form-control-alhilal" placeholder="+256 ...">
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea class="form-control-alhilal" placeholder="Tell us about your child's level and questions..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                        <i class="fas fa-paper-plane"></i> Send Message
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ════════════════════ FOOTER ════════════════════ -->
+<footer class="site-footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="footer-logo-row">
+                    <img src="{{ asset('assets/images/alhilal_logo.jpeg') }}" alt="AlHilal Academy" class="footer-logo-img">
+                    <div class="footer-logo-name">AlHilal Online Academy</div>
+                </div>
+                <p>Delivering structured Islamic education from P.1 to S.6 — with video, audio, PDF, quizzes, and certification. Learning made accessible for every Muslim student.</p>
+                <div class="footer-social">
+                    <a href="#" class="footer-social-btn"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="footer-social-btn"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="footer-social-btn"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#" class="footer-social-btn"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h5>Platform</h5>
+                <ul>
+                    <li><a href="#curriculum">Curriculum</a></li>
+                    <li><a href="#features">Track Progress</a></li>
+                    <li><a href="#testimony">Testimonials</a></li>
+                    <li><a href="{{ url('/users/login') }}">Student Portal</a></li>
+                    <li><a href="{{ url('/users/register') }}">Register</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h5>Support</h5>
+                <ul>
+                    <li><a href="#contact">Contact Us</a></li>
+                    <li><a href="https://wa.me/256702082209" target="_blank">WhatsApp Chat</a></li>
+                    <li><a href="mailto:info@alhilalacademy.org">Email Us</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© {{ date('Y') }} AlHilal Online Academy. All rights reserved.</p>
+            <p>Made with <i class="fas fa-heart" style="color: var(--red);"></i> for Islamic Education</p>
+        </div>
+    </div>
 </footer>
 
-<!-- BOTTOM NAVIGATION with WhatsApp -->
-<div class="bottom-nav">
-    <a href="#home" class="nav-item" data-nav="home"><i class="fas fa-home"></i><span>Home</span></a>
-    <a href="#payments" class="nav-item" data-nav="payments"><i class="fas fa-credit-card"></i><span>Payments</span></a>
-    <a href="#testimony" class="nav-item" data-nav="testimony"><i class="fas fa-chart-line"></i><span>Reports</span></a>
-    <a href="#notifications" class="nav-item" data-nav="notifications"><i class="fas fa-bell"></i><span>Notifications</span></a>
-    <a href="#contact" class="nav-item" data-nav="contact"><i class="fas fa-certificate"></i><span>Certifications</span></a>
-    <a href="#" class="nav-item whatsapp-nav" id="whatsappChat"><i class="fab fa-whatsapp"></i><span>Chat</span></a>
-</div>
+<!-- ════════════════════ BOTTOM NAV ════════════════════ -->
+<nav class="bottom-nav">
+    <a href="#home" class="nav-item active"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="#curriculum" class="nav-item"><i class="fas fa-layer-group"></i><span>Lessons</span></a>
+    <a href="#features" class="nav-item"><i class="fas fa-chart-line"></i><span>Reports</span></a>
+    <a href="#contact" class="nav-item"><i class="fas fa-award"></i><span>Certificates</span></a>
+    <a href="#" class="nav-item nav-whatsapp" id="whatsappChat"><i class="fab fa-whatsapp"></i><span>Chat</span></a>
+</nav>
 
-<!-- Lesson View Modal -->
-<div id="lessonModal" class="modal-overlay">
-    <div class="modal-content">
-        <i class="fas fa-play-circle" style="font-size: 3rem; color: #7c3a8c;"></i>
-        <h3 id="modalLessonTitle" style="margin: 1rem 0;">Lesson Title</h3>
-        <div id="modalLessonIcon" style="font-size: 3rem; color: #e35f5f; margin: 1rem 0;"></div>
-        <p id="modalLessonDescription">Click play to start learning this lesson.</p>
-        <button class="close-modal-btn" onclick="closeLessonModal()">Close</button>
+<!-- ════════════════════ MODALS ════════════════════ -->
+<div id="lessonModal" class="modal-backdrop">
+    <div class="modal-box">
+        <button class="modal-close" onclick="document.getElementById('lessonModal').classList.remove('open')"><i class="fas fa-times"></i></button>
+        <div class="modal-icon"><i class="fas fa-play-circle"></i></div>
+        <div class="modal-title" id="modalLessonTitle">Lesson Title</div>
+        <div class="modal-desc" id="modalLessonDescription">Click play to start this lesson.</div>
+        <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="document.getElementById('lessonModal').classList.remove('open')">
+            <i class="fas fa-times"></i> Close
+        </button>
     </div>
 </div>
 
-<!-- Quiz Modal -->
-<div id="quizModal" class="modal-overlay">
-    <div class="modal-content">
-        <i class="fas fa-question-circle" style="font-size: 3rem; color: #e35f5f;"></i>
-        <h3 id="quizTitle" style="margin: 1rem 0;">Lesson Quiz</h3>
+<div id="quizModal" class="modal-backdrop">
+    <div class="modal-box">
+        <button class="modal-close" id="closeQuizBtn"><i class="fas fa-times"></i></button>
+        <div class="modal-icon" style="color: var(--red);"><i class="fas fa-question-circle"></i></div>
+        <div class="modal-title" id="quizTitle">Lesson Quiz</div>
         <div id="quizQuestions"></div>
-        <button class="submit-quiz-btn" id="submitQuizBtn">Submit Quiz</button>
-        <div id="quizResult" class="quiz-result" style="display: none;"></div>
-        <button class="close-modal-btn" id="closeQuizBtn" style="margin-top: 1rem;">Close</button>
+        <button class="btn btn-red" id="submitQuizBtn" style="width: 100%; justify-content: center; margin-top: 16px;">
+            <i class="fas fa-check"></i> Submit Quiz
+        </button>
+        <div id="quizResult" class="quiz-result-box"></div>
     </div>
 </div>
 
+@endsection
+
+@section('js')
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script>
-    // Store quiz completion status
-    let quizPassedLessons = JSON.parse(localStorage.getItem('quizPassedLessons') || '{}');
-    
-    function markQuizPassed(lessonId) {
-        quizPassedLessons[lessonId] = true;
-        localStorage.setItem('quizPassedLessons', JSON.stringify(quizPassedLessons));
-    }
-    
-    function isQuizPassed(lessonId) {
-        return quizPassedLessons[lessonId] === true;
-    }
-    
-    // Generate quiz questions for a lesson
-    function generateQuiz(lessonTitle) {
-        return [
-            { question: `What is the main topic of "${lessonTitle}"?`, options: ["Islamic Knowledge", "World History", "Mathematics", "Science"], correct: 0 },
-            { question: `Which of the following is most important in understanding this lesson?`, options: ["Memorization", "Understanding Context", "Speed Reading", "Writing Notes"], correct: 1 },
-            { question: `How does this lesson relate to Islamic teachings?`, options: ["Directly relates to Quran/Sunnah", "Only cultural", "Not related", "Historical only"], correct: 0 },
-            { question: `What is the best way to apply knowledge from this lesson?`, options: ["Share with others", "Practice regularly", "Reflect and implement", "All of the above"], correct: 3 },
-            { question: `Which scholar's work is most relevant to this topic?`, options: ["Imam Bukhari", "Imam Abu Hanifa", "Imam Ghazali", "Depends on context"], correct: 3 }
-        ];
-    }
-    
-    let currentQuizLesson = null;
-    
-    function showQuiz(lesson) {
-        currentQuizLesson = lesson;
-        const quizModal = document.getElementById('quizModal');
-        const quizTitle = document.getElementById('quizTitle');
-        const quizQuestionsDiv = document.getElementById('quizQuestions');
-        const quizResultDiv = document.getElementById('quizResult');
-        
-        quizTitle.innerText = `Quiz: ${lesson.title}`;
-        const quizData = generateQuiz(lesson.title);
-        
-        let quizHtml = '';
-        quizData.forEach((q, idx) => {
-            quizHtml += `
-                <div class="quiz-question">
-                    <p>${idx + 1}. ${q.question}</p>
-                    ${q.options.map((opt, optIdx) => `
-                        <label class="quiz-option">
-                            <input type="radio" name="q${idx}" value="${optIdx}">
-                            <span>${opt}</span>
-                        </label>
-                    `).join('')}
-                </div>
-            `;
-        });
-        
-        quizQuestionsDiv.innerHTML = quizHtml;
-        quizResultDiv.style.display = 'none';
-        quizResultDiv.innerHTML = '';
-        quizModal.style.display = 'flex';
-        
-        // Store quiz data for submission
-        window.currentQuizData = quizData;
-    }
-    
-    document.getElementById('submitQuizBtn').onclick = () => {
-        const quizData = window.currentQuizData;
-        if (!quizData) return;
-        
-        let score = 0;
-        for (let i = 0; i < quizData.length; i++) {
-            const selected = document.querySelector(`input[name="q${i}"]:checked`);
-            if (selected && parseInt(selected.value) === quizData[i].correct) {
-                score++;
-            }
-        }
-        
-        const passed = score >= 3; // Need at least 3 out of 5 to pass
-        const quizResultDiv = document.getElementById('quizResult');
-        
-        if (passed) {
-            markQuizPassed(currentQuizLesson.id);
-            quizResultDiv.innerHTML = `<i class="fas fa-check-circle"></i> Congratulations! You passed the quiz (${score}/5). Lesson completed!`;
-            quizResultDiv.className = 'quiz-result passed';
-            // Refresh the lesson display to show quiz passed
-            renderCurriculum();
-        } else {
-            quizResultDiv.innerHTML = `<i class="fas fa-times-circle"></i> You scored ${score}/5. You need at least 3 correct to pass. Please review the lesson and try again.`;
-            quizResultDiv.className = 'quiz-result failed';
-        }
-        
-        quizResultDiv.style.display = 'block';
-    };
-    
-    document.getElementById('closeQuizBtn').onclick = () => {
-        document.getElementById('quizModal').style.display = 'none';
-        currentQuizLesson = null;
-    };
-    
-    function showLessonModal(lesson) {
-        const modal = document.getElementById('lessonModal');
-        const titleEl = document.getElementById('modalLessonTitle');
-        const iconContainer = document.getElementById('modalLessonIcon');
-        const descEl = document.getElementById('modalLessonDescription');
-        
-        titleEl.innerText = lesson.title;
-        descEl.innerText = lesson.description || `Learn about ${lesson.title} through this ${lesson.type} lesson.`;
-        
-        if (lesson.type === 'video') {
-            iconContainer.innerHTML = '<i class="fas fa-video" style="font-size: 4rem;"></i><p style="margin-top: 0.5rem;">Watch Video Lesson</p>';
-        } else if (lesson.type === 'audio') {
-            iconContainer.innerHTML = '<i class="fas fa-headphones" style="font-size: 4rem;"></i><p style="margin-top: 0.5rem;">Listen to Audio</p>';
-        } else {
-            iconContainer.innerHTML = '<i class="fas fa-file-pdf" style="font-size: 4rem;"></i><p style="margin-top: 0.5rem;">View PDF Document</p>';
-        }
-        
-        modal.style.display = 'flex';
-    }
-    
-    function closeLessonModal() {
-        document.getElementById('lessonModal').style.display = 'none';
-    }
-    
-    // Generate curriculum with quiz tracking
-    const levelsData = [
-        { name: "Level 1 (P.1 - P.4)", classes: ["P.1", "P.2", "P.3", "P.4"], subjectsPerClass: 4 },
-        { name: "Level 2 (P.5 - P.7)", classes: ["P.5", "P.6", "P.7"], subjectsPerClass: 4 },
-        { name: "Level 3 (S.1 - S.3)", classes: ["S.1", "S.2", "S.3"], subjectsPerClass: 10 },
-        { name: "Level 4 (S.4 - S.5)", classes: ["S.4", "S.5"], subjectsPerClass: 10 },
-        { name: "Level 5 (S.6)", classes: ["S.6"], subjectsPerClass: 10 }
+// ── Data ──────────────────────────────────────────────────
+const levelsData = [
+    { name: 'Lower Primary', range: 'P.1 – P.3', classes: ['P.1','P.2','P.3'], subjectsPerClass: 4, icon: '<i class="fa-solid fa-seedling"></i>' },
+    { name: 'Upper Primary', range: 'P.4 – P.7', classes: ['P.4','P.5','P.6','P.7'], subjectsPerClass: 5, icon: '<i class="fa-solid fa-book"></i>' },
+    { name: 'Lower Secondary', range: 'S.1 – S.2', classes: ['S.1','S.2'], subjectsPerClass: 8, icon: '<i class="fa-solid fa-graduation-cap"></i>' },
+    { name: 'Middle Secondary', range: 'S.3 – S.4', classes: ['S.3','S.4'], subjectsPerClass: 10, icon: '<i class="fa-solid fa-bolt"></i>' },
+    { name: 'Advanced Secondary', range: 'S.5 – S.6', classes: ['S.5','S.6'], subjectsPerClass: 12, icon: '<i class="fa-solid fa-trophy"></i>' }
+];
+const subjectNames = {
+    primary: ['Quran Recitation','Islamic Studies','Arabic Language','Du\'a & Adab','Seerah','Taharah & Salah'],
+    secondary: ['Quran & Tafsir','Hadith Studies','Fiqh (Islamic Law)','Arabic Literature','Seerah & History','Islamic Aqeedah','Du\'a & Azkar','Islamic Economics','Usul al-Fiqh','Comparative Religion','Tajweed Advanced','Islamic Ethics']
+};
+
+let quizPassedLessons = JSON.parse(localStorage.getItem('alhilal_quizPassed') || '{}');
+function markQuizPassed(id) { quizPassedLessons[id] = true; localStorage.setItem('alhilal_quizPassed', JSON.stringify(quizPassedLessons)); }
+function isQuizPassed(id) { return !!quizPassedLessons[id]; }
+
+function generateLessons(subj, cls) {
+    const types = ['video','audio','pdf'];
+    return [
+        { id: `${cls}-${subj}-1`, title: `Introduction to ${subj}`, type: types[0] },
+        { id: `${cls}-${subj}-2`, title: `Core Concepts: ${subj}`, type: types[1] },
+        { id: `${cls}-${subj}-3`, title: `${subj} — Advanced Review`, type: types[2] }
     ];
-    
-    const subjectNames = {
-        primary: ["Qur'an (Tajweed)", "Lugha (Arabic)", "Fiqh (Ibadat)", "Seerah & Hadith"],
-        secondary: [
-            "Qur'an & Tafsir", "Arabic Grammar", "Fiqh (Worship)", "Hadith Sciences", "Seerah (Prophetic Biography)",
-            "Islamic Creed (Aqeedah)", "Islamic History", "Moral Ethics (Akhlaq)", "Arabic Literature", "Islamic Jurisprudence (Usul)"
-        ]
-    };
-    
-    function generateLessons(subjectName, classLevel) {
-        const lessonCount = Math.floor(Math.random() * 3) + 3;
-        const lessons = [];
-        const types = ['video', 'audio', 'pdf'];
-        for (let i = 1; i <= lessonCount; i++) {
-            const type = types[Math.floor(Math.random() * types.length)];
-            lessons.push({
-                id: `${classLevel}-${subjectName.replace(/\s/g, '')}-${i}`,
-                title: `Lesson ${i}: ${subjectName} - ${type === 'video' ? 'Video Explanation' : type === 'audio' ? 'Audio Recitation' : 'PDF Notes'}`,
-                type: type,
-                description: `Learn about ${subjectName} in depth. This ${type} lesson covers key concepts for ${classLevel} students.`
-            });
-        }
-        return lessons;
-    }
-    
-    function renderCurriculum() {
-        const container = document.getElementById('levelsContainer');
-        container.innerHTML = '';
-        
-        levelsData.forEach((level, levelIdx) => {
-            const levelDiv = document.createElement('div');
-            levelDiv.className = 'level-card';
-            let activeClass = level.classes[0];
-            
-            levelDiv.innerHTML = `
-                <div class="level-header" data-level="${levelIdx}">
-                    <h3><i class="fas fa-school"></i> ${level.name}</h3>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="level-body" style="display: block">
-                    <div class="class-tabs" id="class-tabs-${levelIdx}">
-                        ${level.classes.map(cls => `<span class="class-tab" data-class="${cls}">${cls}</span>`).join('')}
+}
+
+function generateQuiz(title) {
+    return [
+        { q: `What is the central topic of "${title}"?`, opts: ['Islamic Knowledge','World History','Mathematics','Natural Sciences'], correct: 0 },
+        { q: 'What is the best approach to understanding Islamic lessons?', opts: ['Memorisation only','Understanding context','Speed reading','Skipping difficult parts'], correct: 1 },
+        { q: 'How does this topic connect to the Quran and Sunnah?', opts: ['Directly','Only culturally','Not at all','Only historically'], correct: 0 },
+        { q: 'What is the best way to apply this knowledge?', opts: ['Share with others','Practice regularly','Reflect and implement','All of the above'], correct: 3 },
+        { q: 'Which scholarly tradition is most relevant here?', opts: ['Imam Bukhari','Imam Abu Hanifa','Imam Ghazali','Depends on context'], correct: 3 }
+    ];
+}
+
+// ── Render Curriculum ─────────────────────────────────────
+function renderCurriculum() {
+    const container = document.getElementById('levelsContainer');
+    container.innerHTML = '';
+    levelsData.forEach((level, li) => {
+        const card = document.createElement('div');
+        card.className = 'level-card';
+        card.innerHTML = `
+            <button class="level-header-btn" id="lvl-btn-${li}">
+                <div class="level-header-left">
+                    <div class="level-number">${level.icon}</div>
+                    <div>
+                        <div class="level-title">${level.name}</div>
+                        <div class="level-meta">${level.range} &nbsp;·&nbsp; ${level.classes.length} Classes</div>
                     </div>
-                    <div id="subjects-container-${levelIdx}" data-current-class="${activeClass}"></div>
                 </div>
-            `;
-            container.appendChild(levelDiv);
-            
-            const subjectsContainer = levelDiv.querySelector(`#subjects-container-${levelIdx}`);
-            
-            function renderSubjectsForClass(className) {
-                const isSecondary = levelIdx >= 2;
-                const subjectList = isSecondary ? subjectNames.secondary : subjectNames.primary;
-                const numSubjects = level.subjectsPerClass;
-                const selectedSubjects = subjectList.slice(0, numSubjects);
-                
-                let subjectsHtml = `<div class="subjects-grid">`;
-                selectedSubjects.forEach(subj => {
-                    const lessons = generateLessons(subj, className);
-                    let lessonsHtml = `<div class="lesson-list">`;
-                    lessons.forEach(lesson => {
-                        const typeIcon = lesson.type === 'video' ? '<i class="fas fa-video"></i>' : lesson.type === 'audio' ? '<i class="fas fa-headphones"></i>' : '<i class="fas fa-file-pdf"></i>';
-                        const quizPassed = isQuizPassed(lesson.id);
-                        lessonsHtml += `
-                            <div class="lesson-item">
-                                <div class="lesson-info">
-                                    <span class="lesson-type">${typeIcon} ${lesson.type.toUpperCase()}</span>
-                                    <span>${lesson.title}</span>
-                                </div>
-                                <div class="lesson-actions">
-                                    <button class="view-btn" data-lesson='${JSON.stringify(lesson)}'>View</button>
-                                    ${quizPassed ? 
-                                        '<span class="quiz-passed"><i class="fas fa-check-circle"></i> Quiz Passed</span>' : 
-                                        `<button class="quiz-btn" data-lesson='${JSON.stringify(lesson)}'>Take Quiz</button>`
-                                    }
-                                </div>
-                            </div>
-                        `;
-                    });
-                    lessonsHtml += `</div>`;
-                    subjectsHtml += `
-                        <div class="subject-card">
-                            <h4><i class="fas fa-star-of-life"></i> ${subj}</h4>
-                            ${lessonsHtml}
-                        </div>
-                    `;
-                });
-                subjectsHtml += `</div>`;
-                subjectsContainer.innerHTML = subjectsHtml;
-                subjectsContainer.setAttribute('data-current-class', className);
-                
-                subjectsContainer.querySelectorAll('.view-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const lessonData = JSON.parse(btn.getAttribute('data-lesson'));
-                        showLessonModal(lessonData);
-                    });
-                });
-                
-                subjectsContainer.querySelectorAll('.quiz-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const lessonData = JSON.parse(btn.getAttribute('data-lesson'));
-                        showQuiz(lessonData);
-                    });
-                });
-            }
-            
-            renderSubjectsForClass(activeClass);
-            
-            const tabsContainer = levelDiv.querySelector(`#class-tabs-${levelIdx}`);
-            tabsContainer.querySelectorAll('.class-tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    tabsContainer.querySelectorAll('.class-tab').forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    const selectedClass = tab.getAttribute('data-class');
-                    renderSubjectsForClass(selectedClass);
-                });
-            });
-            tabsContainer.querySelector('.class-tab')?.classList.add('active');
-            
-            const header = levelDiv.querySelector('.level-header');
-            const body = levelDiv.querySelector('.level-body');
-            header.addEventListener('click', (e) => {
-                if(e.target.closest('.class-tab')) return;
-                const isVisible = body.style.display !== 'none';
-                body.style.display = isVisible ? 'none' : 'block';
-                header.classList.toggle('collapsed', !isVisible);
-            });
+                <div class="level-toggle"><i class="fas fa-chevron-down"></i></div>
+            </button>
+            <div class="level-body" id="lvl-body-${li}">
+                <div class="class-tabs-row" id="tabs-${li}">
+                    ${level.classes.map(cls => `<button class="class-tab-btn" data-cls="${cls}">${cls}</button>`).join('')}
+                </div>
+                <div id="subjects-${li}"></div>
+            </div>`;
+        container.appendChild(card);
+
+        const btn = card.querySelector(`#lvl-btn-${li}`);
+        const body = card.querySelector(`#lvl-body-${li}`);
+        btn.addEventListener('click', (e) => {
+            if (e.target.closest('.class-tab-btn')) return;
+            const open = body.classList.contains('open');
+            body.classList.toggle('open', !open);
+            btn.classList.toggle('active', !open);
         });
-    }
-    
-    renderCurriculum();
-    
-    // Close modals
-    window.onclick = (e) => {
-        const lessonModal = document.getElementById('lessonModal');
-        const quizModal = document.getElementById('quizModal');
-        if (e.target === lessonModal) closeLessonModal();
-        if (e.target === quizModal) document.getElementById('quizModal').style.display = 'none';
-    };
-    
-    // WhatsApp chat functionality
-    document.getElementById('whatsappChat').onclick = (e) => {
-        e.preventDefault();
-        const phoneNumber = "256702082209"; // Teacher's WhatsApp number
-        const message = encodeURIComponent("Assalamu Alaikum! I need assistance with my lessons on AlHilal Online Academy.");
-        window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
-    };
-    
-    // Bottom nav active highlight
-    const sections = document.querySelectorAll('section[id], .hero[id]');
-    const navItems = document.querySelectorAll('.nav-item:not(.whatsapp-nav)');
-    function updateActiveNav() {
-        let scrollPos = window.scrollY + 120;
-        sections.forEach(section => {
-            const top = section.offsetTop, bottom = top + section.offsetHeight;
-            if (scrollPos >= top && scrollPos < bottom) {
-                const id = section.getAttribute('id');
-                navItems.forEach(item => { 
-                    item.classList.remove('active'); 
-                    if (item.getAttribute('href') === `#${id}`) item.classList.add('active'); 
-                });
-            }
-        });
-    }
-    window.addEventListener('scroll', updateActiveNav);
-    window.addEventListener('load', updateActiveNav);
-    
-    document.querySelectorAll('.bottom-nav a:not(.whatsapp-nav), .btn-group a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            const targetId = this.getAttribute('href');
-            if (targetId && targetId.startsWith('#') && targetId !== '#') {
-                e.preventDefault();
-                const target = document.querySelector(targetId);
-                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        });
+
+        const tabs = card.querySelectorAll('.class-tab-btn');
+        tabs.forEach(t => t.addEventListener('click', () => {
+            tabs.forEach(x => x.classList.remove('active'));
+            t.classList.add('active');
+            renderSubjects(li, t.dataset.cls, level, card);
+        }));
+        tabs[0]?.classList.add('active');
+        renderSubjects(li, level.classes[0], level, card);
     });
-    
-    new Swiper('.testimonialSwiper', { loop: true, slidesPerView: 1, spaceBetween: 20, pagination: { el: '.swiper-pagination', clickable: true }, breakpoints: { 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } } });
-    
-    $('#contactForm').on('submit', function(e) {
-        e.preventDefault();
-        let name = $('#fullname').val().trim();
-        let email = $('#emailContact').val().trim();
-        if (!name || !email) { Swal.fire('Error', 'Please fill name and email', 'warning'); return; }
-        Swal.fire('Message Sent!', `Thank you ${name}, our team will contact you regarding enrollment.`, 'success');
-        $('#contactForm')[0].reset();
+}
+
+function renderSubjects(li, cls, level, card) {
+    const isSecondary = li >= 2;
+    const list = isSecondary ? subjectNames.secondary : subjectNames.primary;
+    const sel = list.slice(0, level.subjectsPerClass);
+    const container = card.querySelector(`#subjects-${li}`);
+    const typeLabels = { video: 'VIDEO', audio: 'AUDIO', pdf: 'PDF' };
+    const typeIcons = { video: 'fas fa-video', audio: 'fas fa-headphones', pdf: 'fas fa-file-pdf' };
+    const badgeClass = { video: 'badge-video', audio: 'badge-audio', pdf: 'badge-pdf' };
+    let html = '<div class="subjects-grid">';
+    sel.forEach(subj => {
+        const lessons = generateLessons(subj, cls);
+        let lhtml = '<div class="lesson-list">';
+        lessons.forEach(l => {
+            const passed = isQuizPassed(l.id);
+            lhtml += `
+                <div class="lesson-row">
+                    <div class="lesson-info">
+                        <span class="lesson-type-badge ${badgeClass[l.type]}"><i class="${typeIcons[l.type]}"></i> ${typeLabels[l.type]}</span>
+                        <span class="lesson-title-text" title="${l.title}">${l.title}</span>
+                    </div>
+                    <div class="lesson-actions">
+                        <button class="btn-view-lesson" data-lesson='${JSON.stringify(l)}'>View</button>
+                        ${passed
+                            ? '<span class="quiz-passed-badge"><i class="fas fa-check-circle"></i> Passed</span>'
+                            : `<button class="btn-quiz-lesson" data-lesson='${JSON.stringify(l)}'>Quiz</button>`
+                        }
+                    </div>
+                </div>`;
+        });
+        lhtml += '</div>';
+        html += `
+            <div class="subject-card">
+                <div class="subject-card-head">
+                    <div class="subject-icon"><i class="fas fa-star-of-life"></i></div>
+                    <div class="subject-title">${subj}</div>
+                </div>
+                ${lhtml}
+            </div>`;
     });
-    
-    const counters = document.querySelectorAll('.stat-number');
-    const animateNumbers = () => { counters.forEach(c => { if (!c.dataset.animated) { let target = parseInt(c.innerText); let curr = 0; let inc = target/35; let up = () => { curr += inc; if(curr < target) { c.innerText = Math.floor(curr)+(target>20?'+':''); requestAnimationFrame(up); } else c.innerText = target+(target>20?'+':''); }; up(); c.dataset.animated = true; } }); };
-    const observer = new IntersectionObserver((entries) => { entries.forEach(e => { if(e.isIntersecting) animateNumbers(); }); }, { threshold: 0.3 });
-    const statsRow = document.querySelector('.stats-row');
-    if(statsRow) observer.observe(statsRow);
+    html += '</div>';
+    container.innerHTML = html;
+
+    container.querySelectorAll('.btn-view-lesson').forEach(b => b.addEventListener('click', e => {
+        e.stopPropagation();
+        openLesson(JSON.parse(b.dataset.lesson));
+    }));
+    container.querySelectorAll('.btn-quiz-lesson').forEach(b => b.addEventListener('click', e => {
+        e.stopPropagation();
+        openQuiz(JSON.parse(b.dataset.lesson));
+    }));
+}
+
+// ── Modals ────────────────────────────────────────────────
+function openLesson(l) {
+    document.getElementById('modalLessonTitle').textContent = l.title;
+    document.getElementById('modalLessonDescription').textContent = `This is a ${l.type} lesson. Click play in the student portal to begin.`;
+    document.getElementById('lessonModal').classList.add('open');
+}
+
+let activeQuizLesson = null;
+function openQuiz(l) {
+    activeQuizLesson = l;
+    document.getElementById('quizTitle').textContent = `Quiz: ${l.title}`;
+    const quizData = generateQuiz(l.title);
+    window._currentQuiz = quizData;
+    let html = '';
+    quizData.forEach((q, i) => {
+        html += `<div class="quiz-question-block"><p>${i+1}. ${q.q}</p>`;
+        q.opts.forEach((opt, oi) => {
+            html += `<label class="quiz-option-label"><input type="radio" name="q${i}" value="${oi}"> ${opt}</label>`;
+        });
+        html += '</div>';
+    });
+    document.getElementById('quizQuestions').innerHTML = html;
+    document.getElementById('quizResult').style.display = 'none';
+    document.getElementById('quizResult').className = 'quiz-result-box';
+    document.getElementById('quizModal').classList.add('open');
+}
+
+document.getElementById('submitQuizBtn').addEventListener('click', () => {
+    const qd = window._currentQuiz;
+    let correct = 0;
+    qd.forEach((q, i) => {
+        const sel = document.querySelector(`input[name="q${i}"]:checked`);
+        if (sel && parseInt(sel.value) === q.correct) correct++;
+    });
+    const pct = Math.round((correct / qd.length) * 100);
+    const passed = pct >= 60;
+    const rb = document.getElementById('quizResult');
+    rb.style.display = 'block';
+    rb.className = `quiz-result-box ${passed ? 'quiz-result-pass' : 'quiz-result-fail'}`;
+    rb.innerHTML = passed
+        ? `<i class="fas fa-check-circle"></i> Passed! You scored ${pct}% (${correct}/${qd.length})`
+        : `<i class="fas fa-times-circle"></i> ${pct}% — You need 60% to pass. Try again!`;
+    if (passed && activeQuizLesson) {
+        markQuizPassed(activeQuizLesson.id);
+        renderCurriculum();
+    }
+});
+document.getElementById('closeQuizBtn').addEventListener('click', () => document.getElementById('quizModal').classList.remove('open'));
+
+window.addEventListener('click', e => {
+    if (e.target === document.getElementById('lessonModal')) document.getElementById('lessonModal').classList.remove('open');
+    if (e.target === document.getElementById('quizModal')) document.getElementById('quizModal').classList.remove('open');
+});
+
+// ── Header scroll ─────────────────────────────────────────
+window.addEventListener('scroll', () => {
+    document.getElementById('siteHeader').classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// ── Bottom nav active ─────────────────────────────────────
+const sections = document.querySelectorAll('section[id], .hero[id]');
+const navItems = document.querySelectorAll('.nav-item:not(.nav-whatsapp)');
+function updateNav() {
+    let sp = window.scrollY + 100;
+    sections.forEach(s => {
+        if (sp >= s.offsetTop && sp < s.offsetTop + s.offsetHeight) {
+            const id = s.id;
+            navItems.forEach(n => { n.classList.remove('active'); if (n.getAttribute('href') === `#${id}`) n.classList.add('active'); });
+        }
+    });
+}
+window.addEventListener('scroll', updateNav);
+
+// ── Smooth scroll ─────────────────────────────────────────
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+        const t = document.querySelector(a.getAttribute('href'));
+        if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+});
+
+// ── WhatsApp ──────────────────────────────────────────────
+document.getElementById('whatsappChat').addEventListener('click', e => {
+    e.preventDefault();
+    window.open('https://wa.me/256702082209?text=' + encodeURIComponent('Assalamu Alaikum! I need assistance with my lessons on AlHilal Online Academy.'), '_blank');
+});
+
+// ── Contact form ──────────────────────────────────────────
+$('#contactForm').on('submit', function(e) {
+    e.preventDefault();
+    const name = $('#fullname').val().trim(), email = $('#emailContact').val().trim();
+    if (!name || !email) { Swal.fire('Incomplete', 'Please fill in your name and email.', 'warning'); return; }
+    Swal.fire({ title: 'Message Sent!', html: `Thank you <strong>${name}</strong>! Our team will contact you soon regarding enrollment.`, icon: 'success', confirmButtonColor: '#6B46C1' });
+    this.reset();
+});
+
+// ── Swiper ────────────────────────────────────────────────
+new Swiper('.testimonialSwiper', {
+    loop: true, slidesPerView: 1, spaceBetween: 24,
+    pagination: { el: '.swiper-pagination', clickable: true },
+    autoplay: { delay: 5000 },
+    breakpoints: { 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }
+});
+
+// ── Init ──────────────────────────────────────────────────
+renderCurriculum();
 </script>
-</body>
-</html>
-```
-```
+@endsection

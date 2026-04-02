@@ -2,11 +2,13 @@
 @section('css')
 @endsection
 @section('content')
+
+
     <!-- Mobile-Optimized Header with Logo -->
     <div style="text-align: center; padding: 40px 20px 30px; background: linear-gradient(135deg, #6B46C1 0%, #DC2626 100%); border-radius: 0 0 30px 30px;">
         <img src="{{ asset('assets/images/alhilal_logo.jpeg') }}" alt="Logo" style="max-width: 100px; border-radius: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
         <h1 style="color: white; font-size: 1.8rem; margin: 10px 0 5px; font-weight: 700;">AlHilal Online Academy</h1>
-        <p style="color: rgba(255,255,255,0.9); font-size: 0.9rem;">Join our coding community</p>
+        <p style="color: rgba(255,255,255,0.9); font-size: 0.9rem;">Join our studying community</p>
     </div>
 
     <!-- Mobile-Optimized Form Container -->
@@ -150,15 +152,14 @@
                 </form>
 
                 <!-- Login Link -->
-                <div style="text-align: center; padding-top: 15px; border-top: 1px solid #f0f0f0;">
+                <div style="text-align: center; padding-top: 15px; border-top: 0px solid #f0f0f0;">
                     <span style="color: #6c6c6c;">Already have an account?</span>
                     <a href="{{ url('/users/login') }}" style="background: linear-gradient(135deg, #6B46C1 0%, #DC2626 100%); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 600; text-decoration: none; margin-left: 5px;">Login Here</a>
                 </div>
-                <div style="text-align: center; margin-top: 15px;">
-                    <small style="color: #999; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                        <i class="fas fa-info-circle"></i> 
-                        <span>You can login using your <strong>Username</strong> <span style="color: #6c6c6c;">OR</span> <strong>Email</strong></span>
-                    </small>
+                <div style="text-align: center; padding-top: 15px; border-top: 0px solid #f0f0f0;">
+                    <span style="color: #6c6c6c;">Return to </span>
+                    <a href="{{ url('/users/home-page') }}"
+                        style="background: linear-gradient(135deg, #6B46C1 0%, #DC2626 100%); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 600; text-decoration: none; margin-left: 5px;">Homepage</a>
                 </div>
             </div>
         </div>
@@ -376,7 +377,7 @@
 
                 // Terms validation
                 if (!termsAccepted) {
-                    errorMessages.push("You must agree to the terms and policy.");
+                    errorMessages.push("Please agree to the terms and policy.");
                     $('#termsCheckbox').addClass('is-invalid');
                 } else {
                     $('#termsCheckbox').addClass('is-valid');
@@ -431,9 +432,9 @@
                                         icon: 'success',
                                         title: response.title || 'Account Created Successfully!',
                                         html: response.message || 'Your account has been successfully created. You can now login using your username or email.',
-                                        confirmButtonText: 'Go to Login'
+                                        confirmButtonText: 'Go to Student Dashboard'
                                     }).then(() => {
-                                        window.location.href = "{{ url('/users/login') }}";
+                                        window.location.href = "{{ url('/') }}";
                                     });
                                 } else {
                                     Swal.fire({
