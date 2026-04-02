@@ -80,7 +80,6 @@ Route::controller(UserController::class)->group(function () {
        
         // Public routes (no auth required)
         Route::get('/login', 'login')->name('users.login');
-                Route::get('/login', 'login')->name('login');
         Route::post('auth-user-check', 'checkUser')->name('auth-user-check');
         Route::post('user-account-creation', 'userAccountCreation')->name('user-account-creation');
         Route::get('/register', 'register')->name('users.register');

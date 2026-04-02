@@ -10,9 +10,9 @@ class CreateCertificatesTable extends Migration
     {
         Schema::create('certificates', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('course_id')->nullable();
-            $table->unsignedBigInteger('level_id')->nullable();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('course_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('level_id')->nullable()->constrained('levels')->onDelete('set null');
             $table->string('certificate_number')->unique();
             $table->string('honors')->nullable();
             $table->decimal('score', 5, 2)->nullable();
@@ -20,15 +20,12 @@ class CreateCertificatesTable extends Migration
             $table->string('file_url')->nullable();
             $table->boolean('is_downloaded')->default(false);
             $table->timestamps();
-
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('course_id')->references('id')->on('courses')->onDelete('set null');
-            $table->foreign('level_id')->references('id')->on('levels')->onDelete('set null');
             
-            // Indexes
+            // Additional indexes for better performance
             $table->index(['user_id', 'course_id']);
             $table->index('certificate_number');
             $table->index('issued_date');
+            $table->index('level_id');
         });
     }
 
