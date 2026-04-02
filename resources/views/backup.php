@@ -18,7 +18,7 @@
             text: "Do you want to proceed with the submission?",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
+            confirmButtonColor: '#0b131b',
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes, proceed',
             cancelButtonText: 'Cancel'

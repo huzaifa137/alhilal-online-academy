@@ -14,17 +14,19 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
+        'fullname',          // NEW: Full name field
         'username',
         'email',
         'password',
+        'phonenumber',       // Phone number (required)
         'temp_otp',
+        'registration_status', // NEW: 0 = pending, 1 = verified
         'user_role',
         'user_status',
         'procurement_approval_status',
         'firstname',
         'lastname',
         'gender',
-        'phonenumber',
         'user_id',
         'account_status',
         'supervisor',
@@ -55,7 +57,19 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'registration_status' => 'integer',
+        'user_role' => 'integer',
+        'account_status' => 'integer',
     ];
+
+    // Accessor to get full name
+    public function getFullNameAttribute()
+    {
+        if ($this->fullname) {
+            return $this->fullname;
+        }
+        return $this->firstname . ' ' . $this->lastname;
+    }
 
     public function completedLessons()
     {
@@ -73,5 +87,4 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Lesson::class, 'lesson_user')->withTimestamps();
     }
-
 }

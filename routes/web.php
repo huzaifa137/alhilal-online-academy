@@ -2,7 +2,13 @@
 
 use App\Http\Controllers\MasterDataController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\EmailController;
+use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
+
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,28 +21,84 @@ use Illuminate\Support\Facades\Route;
 |
  */
 
+use Illuminate\Support\Facades\Hash;
+
+Route::get('/set-student-session', function () {
+    session()->put('LoggedStudent', 1);
+    return redirect('/student/dashboard');
+});
+
+Route::get('/set-admin-session', function () {
+    session()->put('LoggedAdmin', 1);
+    return redirect('/dashboard');
+});
+
+Route::get('/hash-test', function () {
+    return dd(Hash::make('123456789'));
+});
+
+Route::get('/flush-session', function () {
+    // Flush all session data
+    session()->flush();
+    
+    // Alternative: You can also use this
+    Session::flush();
+    
+    return response()->json([
+        'status' => 'success',
+        'message' => 'All sessions have been flushed successfully!',
+        'redirect_url' => '/'
+    ]);
+})->name('flush.session');
+
+Route::get('/splash', function () {
+    return view('mobile.splash');
+})->name('splash');
+
+Route::get('/', function () {
+    return redirect()->route('login');
+});
+
+Route::get('send-mail',[EmailController::class,'welcomeEmail']);
+
+
+// Route::get('/login-user', [TeacherController::class, 'userLogin'])->name('login');y
+
+// Teacher Dashboard Route
+Route::get('/teacher/dashboard', [TeacherController::class, 'index'])->name('teacher.dashboard');
+
+Route::get('/student/dashboard',[StudentController::class,'myDashboard'])->name('student.dashboard');
+
+
 Route::controller(UserController::class)->group(function () {
 
     Route::group(['prefix' => '/users'], function () {
-
+          
         Route::get('/user-logout', 'userLogout')->name('user-logout');
         Route::get('/student-logout', 'studentLogout')->name('student-logout');
+        Route::get('/teacher-logout', 'teacherLogout')->name('teacher-logout');
+       
+        // Public routes (no auth required)
+        Route::get('/login', 'login')->name('users.login');
+        Route::post('auth-user-check', 'checkUser')->name('auth-user-check');
+        Route::post('user-account-creation', 'userAccountCreation')->name('user-account-creation');
+        Route::get('/register', 'register')->name('users.register');
+        Route::get('/terms-and-conditions', 'user_terms_and_conditions')->name('users.terms-and-conditions');
+        Route::get('/forgot-password', 'forgotPassword')->name('forgot-password');
+        Route::post('user-generate-forgot-password-link', 'generateForgotPasswordLink')->name('user-generate-forgot-password-link');
+        Route::post('user-store-new-password', 'store_new_password')->name('user-store-new-password');
 
+        // Admin protected routes
         Route::group(['middleware' => ['AdminAuth']], function () {
-            Route::get('/forgot-password', 'forgotPassword')->name('forgot-password');
-            Route::get('/login', 'login')->name('users.login');
-            Route::get('/', 'login')->name('admin.dashboard');
-            Route::post('auth-user-check', 'checkUser')->name('auth-user-check');
+            Route::get('/dashboard', 'dashboard')->name('admin.dashboard');
             Route::get('/users-profile', 'userProfile')->name('users-profile');
-            Route::get('/users-register', 'userRegister');
+            Route::get('/users-register', 'userRegister')->name('users.register');
             Route::get('/users-information', 'userInformation')->name('users.user-information');
             Route::get('user-account-information/{id}', 'userAccountInformation');
             Route::get('delete-user/{id}', 'deleteUser');
             Route::get('/home-page', 'homePage')->name('home.page');
-            Route::get('/register', 'register')->name('users.register');
             Route::get('/edit-user-information', 'editUserInformation');
             Route::get('/edit-specific-user/{userid}', 'editSpecificUser');
-            Route::get('/terms-and-conditions', 'user_terms_and_conditions')->name('users.terms-and-conditions');
         });
 
         Route::post('store-internal-user', 'storeInternalUser')->name('store-internal-user');
@@ -47,16 +109,7 @@ Route::controller(UserController::class)->group(function () {
 
     });
 
-    Route::group(['middleware' => ['AdminAuth']], function () {
-        Route::get('/', 'dashboard')->name('dashboard');
-    });
-
     Route::get('password/reset/{id}', 'createNewPassword')->name('password/reset');
-    Route::post('auth.save', 'save')->name('auth.save');
-    Route::post('regenerate-otp', 'regenerateOTP')->name('regenerate-otp');
-    Route::post('user-generate-forgot-password-link', 'generateForgotPasswordLink')->name('user-generate-forgot-password-link');
-    Route::post('user-store-new-password', 'store_new_password')->name('user-store-new-password');
-    Route::post('supplier-user-otp-verification', 'supplierOtpVerification')->name('supplier-user-otp-verification');
     Route::get('reload-captcha', 'reload_captcha')->name('reload-captcha');
 });
 
@@ -102,28 +155,17 @@ Route::controller(StudentController::class)->group(function () {
 
     Route::group(['prefix' => '/users'], function () {
         Route::group(['middleware' => ['AdminAuth']], function () {
-
             Route::get('/register', 'register')->name('users.register');
             Route::get('/terms-and-conditions', 'user_terms_and_conditions')->name('users.terms-and-conditions');
-            Route::get('/user-otp', function () {
-                $userId       = session('userId');
-                $userEmail    = session('userEmail');
-                $userPassword = session('userPassword');
-
-                if (! $userId || ! $userEmail) {
-                    return redirect()->route('users.login')->with('fail', 'You must be logged in');
-                }
-
-                return view('users.otp', compact(['userId', 'userEmail', 'userPassword']));
-            });
         });
 
-        Route::post('user-account-creation', 'userAccountCreation')->name('user-account-creation');
         Route::post('contact-message-information', 'contactMessageInformation')->name('contact-message-information');
 
     });
     Route::get('/clear-session', 'flushSession');
 });
+
+// REMOVED: OTP routes - No longer needed
 
 Route::controller(CourseController::class)->group(function () {
 
@@ -148,7 +190,6 @@ Route::controller(CourseController::class)->group(function () {
             Route::put('/update-module/{id}', 'updateModule')->name('update.course.module');
 
         });
-        Route::post('user-course-creation', 'userAccountCreation')->name('user-course-creation');
     });
 });
 
