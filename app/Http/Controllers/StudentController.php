@@ -19,6 +19,12 @@ use Mail;
 
 class StudentController extends Controller
 {
+
+    public function demoFormerDashboard(Request $request)
+    {
+        return view('demo-former-dashboard');
+    }
+
     public function register(Request $request)
     {
         return view('users.register');

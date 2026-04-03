@@ -1,274 +1,905 @@
-<?php
-use App\Http\Controllers\Helper;
-use App\Http\Controllers\Controller;
-$controller = new Controller();
-?>
-@extends('layouts-side-bar.master')
+@extends('layouts.master2')
+
 @section('css')
-    <!---jvectormap css-->
-    <link href="{{ URL::asset('assets/plugins/jvectormap/jqvmap.css') }}" rel="stylesheet" />
-    <!-- Data table css -->
-    <link href="{{ URL::asset('assets/plugins/datatable/dataTables.bootstrap4.min.css') }}" rel="stylesheet" />
-    <!--Daterangepicker css-->
-    <link href="{{ URL::asset('assets/plugins/bootstrap-daterangepicker/daterangepicker.css') }}" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --purple: #6B46C1;
+            --purple-dark: #4C2E8A;
+            --purple-light: #EDE9FA;
+            --red: #DC2626;
+            --red-light: #FEE2E2;
+            --red-dark: #9B1C1C;
+            --gold: #D97706;
+            --gold-light: #FEF3C7;
+            --cream: #FDFBF7;
+            --cream2: #F7F3EE;
+            --ink: #1A0A2E;
+            --ink2: #3B2459;
+            --muted: #6B6584;
+            --border: rgba(107, 70, 193, 0.12);
+            --border2: rgba(107, 70, 193, 0.22);
+            --gradient: linear-gradient(135deg, var(--purple) 0%, var(--red) 100%);
+            --gradient-soft: linear-gradient(135deg, #EDE9FA 0%, #FEE2E2 100%);
+            --shadow-sm: 0 2px 12px rgba(107, 70, 193, 0.08);
+            --shadow-md: 0 8px 32px rgba(107, 70, 193, 0.12);
+            --shadow-lg: 0 20px 60px rgba(107, 70, 193, 0.16);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--purple-light);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--purple);
+            border-radius: 10px;
+        }
+
+        .container-custom {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(107, 70, 193, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(107, 70, 193, 0.4);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--purple);
+            color: var(--purple);
+        }
+
+        .btn-outline:hover {
+            background: var(--purple);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-sm {
+            padding: 8px 18px;
+            font-size: 0.75rem;
+        }
+
+        /* Site Header */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            background: rgba(253, 251, 247, 0.95);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .header-logo img {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .header-logo-sub {
+            font-size: 0.68rem;
+            color: var(--muted);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* Profile Hero Section */
+        .profile-hero {
+            background: linear-gradient(135deg, #1A0A2E 0%, #2D0F5C 50%, #4A1A1A 100%);
+            padding: 100px 0 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(circle at 20% 50%, rgba(107, 70, 193, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(220, 38, 38, 0.2) 0%, transparent 50%);
+        }
+
+        .profile-hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .profile-avatar-large {
+            width: 120px;
+            height: 120px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-avatar-large span {
+            font-size: 48px;
+            font-weight: 700;
+            color: white;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .profile-hero h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .profile-hero p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 16px;
+        }
+
+        .status-active {
+            background: rgba(74, 222, 128, 0.15);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            color: #4ade80;
+        }
+
+        .status-banned {
+            background: rgba(220, 38, 38, 0.15);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            color: #f87171;
+        }
+
+        .status-suspended {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #fbbf24;
+        }
+
+        .status-locked {
+            background: rgba(107, 114, 128, 0.15);
+            border: 1px solid rgba(107, 114, 128, 0.3);
+            color: #9ca3af;
+        }
+
+        /* Profile Main Content */
+        .profile-main {
+            padding: 60px 0 80px;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 32px;
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background: white;
+            border-radius: 28px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .profile-card-header {
+            padding: 28px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            background: var(--cream2);
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .profile-avatar span {
+            font-size: 32px;
+            font-weight: 700;
+            color: white;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .profile-card-header h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--ink);
+        }
+
+        .profile-card-header p {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .profile-card-body {
+            padding: 24px;
+        }
+
+        .profile-info-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .profile-info-row:last-child {
+            border-bottom: none;
+        }
+
+        .profile-info-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--purple-light);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--purple);
+            font-size: 1rem;
+        }
+
+        .profile-info-label {
+            font-size: 0.7rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .profile-info-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 16px;
+            background: var(--cream);
+            border-radius: 20px;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            font-family: 'Playfair Display', serif;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        /* Details Card */
+        .details-card {
+            background: white;
+            border-radius: 28px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .details-header {
+            padding: 24px 28px;
+            background: var(--cream2);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .details-header h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--ink);
+            font-family: 'Playfair Display', serif;
+        }
+
+        .details-body {
+            padding: 28px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .info-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .info-field label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-field .value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-field .value i {
+            color: var(--purple);
+            font-size: 0.9rem;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        .edit-section {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 80px;
+            right: 24px;
+            width: 46px;
+            height: 46px;
+            border-radius: 46px;
+            background: var(--red);
+            backdrop-filter: blur(8px);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            z-index: 997;
+            opacity: 0;
+            visibility: hidden;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            background: var(--gradient);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(107, 70, 193, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .back-to-top {
+                bottom: 72px;
+                right: 16px;
+                width: 40px;
+                height: 40px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 998;
+            background: rgba(253, 251, 247, 0.97);
+            backdrop-filter: blur(16px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 12px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            text-decoration: none;
+            color: var(--muted);
+            font-size: 0.65rem;
+            font-weight: 500;
+            flex: 1;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-item i {
+            font-size: 1.25rem;
+            transition: transform 0.2s;
+        }
+
+        .nav-item:hover i {
+            transform: translateY(-2px);
+        }
+
+        .nav-item.active {
+            color: var(--purple);
+            font-weight: 600;
+        }
+
+        .nav-item.nav-whatsapp {
+            color: #25D366;
+        }
+
+        .nav-item.nav-whatsapp:hover {
+            color: #128C7E;
+        }
+
+        /* Footer */
+        .site-footer {
+            background: var(--ink);
+            color: rgba(255, 255, 255, 0.7);
+            padding: 40px 0 30px;
+            margin-top: 40px;
+        }
+
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+
+        .footer-copyright {
+            font-size: 0.78rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full-width {
+                grid-column: span 1;
+            }
+
+            .header-actions .btn-outline {
+                display: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .profile-hero {
+                padding: 80px 0 40px;
+            }
+
+            .profile-avatar-large {
+                width: 90px;
+                height: 90px;
+            }
+
+            .profile-avatar-large span {
+                font-size: 36px;
+            }
+
+            .profile-hero h1 {
+                font-size: 1.5rem;
+            }
+
+            .details-header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
 @endsection
-@section('page-header')
-@endsection
+
 @section('content')
-    <br> <br>
-    <div class="row">
-        <div class="col-xl-4 col-lg-4 col-md-12">
+    <!-- Site Header -->
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="{{ url('/') }}" class="header-logo">
+                <img src="{{ asset('assets/images/alhilal_logo.jpeg') }}" alt="AlHilal Academy">
+                <div>
+                    <div class="header-logo-text">AlHilal Academy</div>
+                    <div class="header-logo-sub">Online Islamic Learning</div>
+                </div>
+            </a>
+            <div class="header-actions">
+                <a href="{{ url('/') }}" class="btn btn-outline btn-sm">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a href="{{ url('/users/logout') }}" class="btn btn-primary btn-sm" id="logoutLink">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </header>
 
-            <style>
-                .google-avatar {
-                    width: 80px;
-                    height: 80px;
-                    background-color: #8e98db;
-                    color: white;
-                    font-size: 36px;
-                    font-weight: bold;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                }
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById('logoutLink').addEventListener('click', function(event) {
+            event.preventDefault();
 
-                .google-avatar {
-                    width: 80px;
-                    height: 80px;
-                    background-color: #8e98db;
-                    color: white;
-                    font-size: 36px;
-                    font-weight: bold;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Do you really want to sign out?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Sign out",
+                cancelButtonText: "Cancel",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '{{ route('user-logout') }}';
                 }
-            </style>
-            <div class="card box-widget widget-user">
+            });
+        });
+    </script>
+
+    <!-- Profile Hero Section -->
+    <section class="profile-hero">
+        <div class="container-custom">
+            <div class="profile-hero-content">
                 @php
-                    $initial = strtoupper(substr($user->username, 0, 1));
+                    $initial = strtoupper(substr($user->username ?? ($user->firstname ?? 'U'), 0, 1));
+                    $fullName =
+                        $user->fullname ??
+                        ($user->firstname && $user->lastname
+                            ? $user->firstname . ' ' . $user->lastname
+                            : $user->username);
                 @endphp
-
-                <div class="widget-user-image mx-auto mt-5">
-                    <div class="google-avatar">
-                        {{ $initial }}
-                    </div>
+                <div class="profile-avatar-large">
+                    <span>{{ $initial }}</span>
                 </div>
+                <h1>{{ $fullName }}</h1>
+                <p>{{ $user->user_role == 1 ? 'Student Account' : 'Administrator Account' }}</p>
 
-                <div class="card-body text-center">
-                    <div class="pro-user">
-                        @if ($user->username != null)
-                            <h4 class="pro-user-username text-dark mb-1 font-weight-bold">{{ $user->username }}</h4>
-                        @elseif ($user->firstname != null && $user->lastname != null)
-                            <h4 class="pro-user-username text-dark mb-1 font-weight-bold">{{ $user->firstname }}
-                                {{ $user->lastname }}</h4>
-                        @endif
-                        @if ($user->user_role == 1)
-                            <h6 class="pro-user-desc text-muted">Enrolled as : Student</h6>
-                        @else
-                            <h6 class="pro-user-desc text-muted">Enrolled as : Admin</h6>
-                        @endif
-                        @if ($user->account_status == 10)
-                            <a href="#" class="btn btn-success btn-sm mt-3">
-                                <i class="fas fa-check-circle"></i> Account Status: Active
-                            </a>
-                        @elseif ($user->account_status == 0)
-                            <a href="#" class="btn btn-danger btn-sm mt-3">
-                                <i class="fas fa-ban"></i> Account Status: Banned
-                            </a>
-                        @elseif ($user->account_status == 8)
-                            <a href="#" class="btn btn-secondary btn-sm mt-3">
-                                <i class="fas fa-lock"></i> Account Status: Locked
-                            </a>
-                        @elseif ($user->account_status == 9)
-                            <a href="#" class="btn btn-warning btn-sm mt-3 text-white">
-                                <i class="fas fa-exclamation-triangle"></i> Account Status: Suspended
-                            </a>
-                        @endif
-
-
+                @if ($user->account_status == 10)
+                    <div class="status-badge status-active">
+                        <i class="fas fa-check-circle"></i> Account Active
                     </div>
-                </div>
-                <div class="card-footer p-0">
-                    <div class="row">
-                        <div class="col-sm-12 border-right text-center">
-                            <div class="description-block p-4">
-                                <h5 class="description-header mb-1 font-weight-bold">0</h5>
-                                <span class="text-muted">Enrolled Courses</span>
+                @elseif($user->account_status == 0)
+                    <div class="status-badge status-banned">
+                        <i class="fas fa-ban"></i> Account Banned
+                    </div>
+                @elseif($user->account_status == 8)
+                    <div class="status-badge status-locked">
+                        <i class="fas fa-lock"></i> Account Locked
+                    </div>
+                @elseif($user->account_status == 9)
+                    <div class="status-badge status-suspended">
+                        <i class="fas fa-exclamation-triangle"></i> Account Suspended
+                    </div>
+                @endif
+            </div>
+        </div>
+    </section>
+
+    <!-- Profile Main Content -->
+    <main class="profile-main">
+        <div class="container-custom">
+            <div class="profile-grid">
+                <!-- Left Column - Profile Card -->
+                <div class="profile-card">
+                    <div class="profile-card-header">
+                        <div class="profile-avatar">
+                            <span>{{ $initial }}</span>
+                        </div>
+                        <h3>{{ $fullName }}</h3>
+                        <p>Member since {{ $user->created_at ? date('F Y', strtotime($user->created_at)) : '2026' }}</p>
+                    </div>
+                    <div class="profile-card-body">
+                        <div class="profile-info-row">
+                            <div class="profile-info-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div>
+                                <div class="profile-info-label">Email Address</div>
+                                <div class="profile-info-value">{{ $user->email ?? '-' }}</div>
+                            </div>
+                        </div>
+                        <div class="profile-info-row">
+                            <div class="profile-info-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div>
+                                <div class="profile-info-label">Phone Number</div>
+                                <div class="profile-info-value">{{ $user->phonenumber ?? ($user->phone ?? '-') }}</div>
+                            </div>
+                        </div>
+                        <div class="profile-info-row">
+                            <div class="profile-info-icon">
+                                <i class="fas fa-user-tag"></i>
+                            </div>
+                            <div>
+                                <div class="profile-info-label">Username</div>
+                                <div class="profile-info-value">{{ $user->username ?? '-' }}</div>
+                            </div>
+                        </div>
+                        <div class="profile-info-row">
+                            <div class="profile-info-icon">
+                                <i class="fas fa-flag"></i>
+                            </div>
+                            <div>
+                                <div class="profile-info-label">Country / Region</div>
+                                <div class="profile-info-value">{{ $user->country ?? 'Uganda' }}</div>
+                            </div>
+                        </div>
+
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <div class="stat-number">0</div>
+                                <div class="stat-label">Courses Enrolled</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">0</div>
+                                <div class="stat-label">Certificates</div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-        </div>
-        <div class="col-xl-8 col-lg-8 col-md-12">
-            <div class="main-content-body main-content-body-profile card mg-b-20">
-                <!-- main-profile-body -->
-                <div class="main-profile-body">
-                    <div class="tab-content">
-                        <div class="tab-pane show active" id="about">
-                            <br>
-                            <div class="col-xl-12 col-lg-12">
-                                <div class="card border p-0 shadow-none">
-                                    @php
-                                        $initial = strtoupper(substr($user->username, 0, 1));
-                                        $FL = strtoupper(substr($user->firstname, 0, 1));
-                                        $LL = strtoupper(substr($user->lastname, 0, 1));
-                                    @endphp
-
-                                    <div class="d-flex align-items-center p-4">
-
-                                        @if ($user->firstname != null && $user->lastname != null)
-                                            <div class="google-avatar">
-                                                {{ $FL }}{{ $LL }}
-                                            </div>
-                                        @elseif($user->username != null)
-                                            <div class="google-avatar">
-                                                {{ $initial }}
-                                            </div>
-                                        @endif
-
-                                        <div class="wrapper ml-3">
-                                            @if ($user->firstname != null && $user->lastname != null)
-                                                <p class="mb-0 mt-1 text-dark font-weight-semibold">{{ $user->firstname }}
-                                                    {{ $user->lastname }}</p>
-                                            @elseif($user->username != null)
-                                                <p class="mb-0 mt-1 text-dark font-weight-semibold">{{ $user->username }}
-                                                </p>
-                                            @endif
-
-                                            @if ($user->user_role == 1)
-                                                <small class="text-muted">Enrolled Student</small>
-                                            @else
-                                                <small class="text-muted">Enrolled Student</small>
-                                            @endif
-                                        </div>
-
-                                        <div class="float-right ml-auto">
-                                            <div class="btn-group ml-3 mb-0">
-                                                <a href="{{ url('/student/edit-student-profile') }}"
-                                                    class="btn btn-link p-0 d-flex align-items-center"
-                                                    title="Edit Profile Information">
-                                                    <i class="fe fe-edit mr-1"></i>
-                                                    Edit Details
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="card-body pt-2">
-                                        <div class="d-flex mb-3">
-                                            <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" height="24"
-                                                viewBox="0 0 24 24" width="24">
-                                                <path d="M0 0h24v24H0V0z" fill="none" />
-                                                <path d="M20 8l-8 5-8-5v10h16zm0-2H4l8 4.99z" opacity=".3" />
-                                                <path
-                                                    d="M4 20h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2zM20 6l-8 4.99L4 6h16zM4 8l8 5 8-5v10H4V8z" />
-                                            </svg>
-                                            <div class="h6 mb-0 ml-3 mt-1">{{ $user->email }}</div>
-                                        </div>
-
-                                        <div class="d-flex">
-                                            <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" height="24"
-                                                viewBox="0 0 24 24" width="24">
-                                                <path d="M0 0h24v24H0V0z" fill="none" />
-                                                <path
-                                                    d="M15.2 18.21c1.21.41 2.48.67 3.8.76v-1.5c-.88-.07-1.75-.22-2.6-.45l-1.2 1.19zM6.54 5h-1.5c.09 1.32.35 2.59.75 3.79l1.2-1.21c-.24-.83-.39-1.7-.45-2.58zM14 8h5V5h-5z"
-                                                    opacity=".3" />
-                                                <path
-                                                    d="M20 15.5c-1.25 0-2.45-.2-3.57-.57-.1-.03-.21-.05-.31-.05-.26 0-.51.1-.71.29l-2.2 2.2c-2.83-1.44-5.15-3.75-6.59-6.58l2.2-2.21c.28-.27.36-.66.25-1.01C8.7 6.45 8.5 5.25 8.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1zM5.03 5h1.5c.07.88.22 1.75.46 2.59L5.79 8.8c-.41-1.21-.67-2.48-.76-3.8zM19 18.97c-1.32-.09-2.6-.35-3.8-.76l1.2-1.2c.85.24 1.72.39 2.6.45v1.51zM12 3v10l3-3h6V3h-9zm7 5h-5V5h5v3z" />
-                                            </svg>
-                                            @if ($user->phonenumber)
-                                                <div class="h6 mb-0 ml-3 mt-1">{{ $user->phonenumber }}</div>
-                                            @else
-                                                <div class="h6 mb-0 ml-3 mt-1">-</div>
-                                            @endif
-                                        </div>
-                                        <div class="d-flex mt-2">
-                                            <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" height="24"
-                                                viewBox="0 0 24 24" width="24" fill="currentColor">
-                                                <path
-                                                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z" />
-                                                <path d="M0 0h24v24H0z" fill="none" />
-                                            </svg>
-                                            @if ($user->country)
-                                                <div class="h6 mb-0 ml-3 mt-1">{{ $user->country }}</div>
-                                            @else
-                                                <div class="h6 mb-0 ml-3 mt-1">-</div>
-                                            @endif
-                                        </div>
-
-                                        <div class="d-flex mt-2" style="color: #8e98db;">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"
-                                                height="24">
-                                                <path
-                                                    d="M12 2a5 5 0 0 1 5 5v1a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5zm-3 13c-2.21 0-4 1.79-4 4v3h14v-3c0-2.21-1.79-4-4-4H9z" />
-                                            </svg>
-                                            @if ($user->gender)
-                                                <div class="h6 mb-0 ml-3 mt-1"> <span
-                                                        style="color: #424e79;">{{ $user->gender }}</span></div>
-                                            @else
-                                                <div class="h6 mb-0 ml-3 mt-1"> <span style="color: #424e79;">-</span>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </div>
-
+                <!-- Right Column - Details Card -->
+                <div class="details-card">
+                    <div class="details-header">
+                        <h2><i class="fas fa-user-circle" style="color: var(--purple); margin-right: 8px;"></i> Personal
+                            Information</h2>
+                        <a href="{{ url('/student/edit-student-profile') }}" class="btn btn-outline btn-sm">
+                            <i class="fas fa-edit"></i> Edit Profile
+                        </a>
+                    </div>
+                    <div class="details-body">
+                        <div class="info-grid">
+                            <div class="info-field">
+                                <label>Full Name</label>
+                                <div class="value">
+                                    <i class="fas fa-user"></i>
+                                    {{ $fullName }}
+                                </div>
+                            </div>
+                            <div class="info-field">
+                                <label>Username</label>
+                                <div class="value">
+                                    <i class="fas fa-at"></i>
+                                    {{ $user->username ?? '-' }}
+                                </div>
+                            </div>
+                            <div class="info-field">
+                                <label>Email Address</label>
+                                <div class="value">
+                                    <i class="fas fa-envelope"></i>
+                                    {{ $user->email ?? '-' }}
+                                </div>
+                            </div>
+                            <div class="info-field">
+                                <label>Phone Number</label>
+                                <div class="value">
+                                    <i class="fas fa-phone-alt"></i>
+                                    {{ $user->phonenumber ?? ($user->phone ?? '-') }}
+                                </div>
+                            </div>
+                            <div class="info-field">
+                                <label>Gender</label>
+                                <div class="value">
+                                    <i class="fas fa-venus-mars"></i>
+                                    {{ $user->gender ?? 'Not specified' }}
+                                </div>
+                            </div>
+                            <div class="info-field">
+                                <label>Account Type</label>
+                                <div class="value">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    {{ $user->user_role == 1 ? 'Student' : 'Administrator' }}
+                                </div>
+                            </div>
+                            <div class="info-field full-width">
+                                <label>Account Status</label>
+                                <div class="value">
+                                    @if ($user->account_status == 10)
+                                        <span style="color: #4ade80;"><i class="fas fa-check-circle"></i> Active</span>
+                                    @elseif($user->account_status == 0)
+                                        <span style="color: #f87171;"><i class="fas fa-ban"></i> Banned</span>
+                                    @elseif($user->account_status == 8)
+                                        <span style="color: #9ca3af;"><i class="fas fa-lock"></i> Locked</span>
+                                    @elseif($user->account_status == 9)
+                                        <span style="color: #fbbf24;"><i class="fas fa-exclamation-triangle"></i>
+                                            Suspended</span>
+                                    @else
+                                        <span>Unknown</span>
+                                    @endif
                                 </div>
                             </div>
                         </div>
+
+                        <div class="edit-section">
+                            <a href="{{ url('/student/edit-student-profile') }}" class="btn btn-primary">
+                                <i class="fas fa-edit"></i> Edit Profile Information
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
-    </div>
-    </div>
-    </div>
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-copyright">
+                <p>© {{ date('Y') }} AlHilal Online Academy. All rights reserved.</p>
+                <p style="margin-top: 8px;">Dedicated to authentic Islamic education for all — P.1 through S.6</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="{{ url('/') }}" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="{{ url('/users/home-page') }}#curriculum" class="nav-item"><i
+                class="fas fa-layer-group"></i><span>Lessons</span></a>
+        <a href="#" class="nav-item active"><i class="fas fa-user"></i><span>Profile</span></a>
+        <a href="{{ url('/users/home-page') }}#contact" class="nav-item"><i
+                class="fas fa-headset"></i><span>Support</span></a>
+        <a href="https://wa.me/256702082209" class="nav-item nav-whatsapp"><i
+                class="fab fa-whatsapp"></i><span>Chat</span></a>
+    </nav>
+
+    <!-- Back to Top Button -->
+    <a href="#" class="back-to-top" id="backToTopBtn">
+        <i class="fas fa-chevron-up"></i>
+    </a>
 @endsection
+
 @section('js')
-    <!-- ECharts js -->
-    <script src="{{ URL::asset('assets/plugins/echarts/echarts.js') }}"></script>
-    <!-- Peitychart js-->
-    <script src="{{ URL::asset('assets/plugins/peitychart/jquery.peity.min.js') }}"></script>
-    <script src="{{ URL::asset('assets/plugins/peitychart/peitychart.init.js') }}"></script>
-    <!-- Apexchart js-->
-    <script src="{{ URL::asset('assets/js/apexcharts.js') }}"></script>
-    <!--Moment js-->
-    <script src="{{ URL::asset('assets/plugins/moment/moment.js') }}"></script>
-    <!-- Daterangepicker js-->
-    <script src="{{ URL::asset('assets/plugins/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
-    <script src="{{ URL::asset('assets/js/daterange.js') }}"></script>
-    <!---jvectormap js-->
-    <script src="{{ URL::asset('assets/plugins/jvectormap/jquery.vmap.js') }}"></script>
-    <script src="{{ URL::asset('assets/plugins/jvectormap/jquery.vmap.world.js') }}"></script>
-    <script src="{{ URL::asset('assets/plugins/jvectormap/jquery.vmap.sampledata.js') }}"></script>
-    <!-- Index js-->
-    <script src="{{ URL::asset('assets/js/index1.js') }}"></script>
-    <!-- Data tables js-->
-    <script src="{{ URL::asset('assets/plugins/datatable/js/jquery.dataTables.js') }}"></script>
-    <script src="{{ URL::asset('assets/plugins/datatable/js/dataTables.bootstrap4.js') }}"></script>
-    <script src="{{ URL::asset('assets/plugins/datatable/js/dataTables.buttons.min.js') }}"></script>
-    <script src="{{ URL::asset('assets/plugins/datatable/js/buttons.bootstrap4.min.js') }}"></script>
-    <script src="{{ URL::asset('assets/plugins/datatable/js/jszip.min.js') }}"></script>
-    <script src="{{ URL::asset('assets/plugins/datatable/js/pdfmake.min.js') }}"></script>
-    <script src="{{ URL::asset('assets/plugins/datatable/js/vfs_fonts.js') }}"></script>
-    <script src="{{ URL::asset('assets/plugins/datatable/js/buttons.html5.min.js') }}"></script>
-    <script src="{{ URL::asset('assets/plugins/datatable/js/buttons.print.min.js') }}"></script>
-    <script src="{{ URL::asset('assets/plugins/datatable/js/buttons.colVis.min.js') }}"></script>
-    <script src="{{ URL::asset('assets/plugins/datatable/dataTables.responsive.min.js') }}"></script>
-    <script src="{{ URL::asset('assets/plugins/datatable/responsive.bootstrap4.min.js') }}"></script>
-    <script src="{{ URL::asset('assets/js/datatables.js') }}"></script>
-    <!--Counters -->
-    <script src="{{ URL::asset('assets/plugins/counters/counterup.min.js') }}"></script>
-    <script src="{{ URL::asset('assets/plugins/counters/waypoints.min.js') }}"></script>
-    <!--Chart js -->
-    <script src="{{ URL::asset('assets/plugins/chart/chart.bundle.js') }}"></script>
-    <script src="{{ URL::asset('assets/plugins/chart/utils.js') }}"></script>
+    <script>
+        // Back to Top Button
+        const backBtn = document.getElementById('backToTopBtn');
+        window.addEventListener('scroll', () => {
+            backBtn.classList.toggle('show', window.scrollY > 500);
+        });
+        backBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Active nav highlight based on scroll
+        const sections = document.querySelectorAll('section');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        function updateNav() {
+            let scrollPos = window.scrollY + 100;
+            // For profile page, keep profile active
+            navItems.forEach(n => n.classList.remove('active'));
+            document.querySelector('.nav-item:nth-child(3)')?.classList.add('active');
+        }
+        window.addEventListener('scroll', updateNav);
+    </script>
 @endsection

@@ -60,6 +60,8 @@ Route::get('/teacher/dashboard', [TeacherController::class, 'index'])->name('tea
 
 Route::get('/student/dashboard', [StudentController::class, 'myDashboard'])->name('student.dashboard');
 
+Route::get('demo-former-dashboard',[StudentController::class, 'demoFormerDashboard']);
+
 Route::controller(UserController::class)->group(function () {
 
     Route::group(['prefix' => '/users'], function () {

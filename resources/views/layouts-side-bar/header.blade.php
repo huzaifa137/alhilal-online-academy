@@ -83,7 +83,7 @@
                                     cancelButtonText: "Cancel",
                                 }).then((result) => {
                                     if (result.isConfirmed) {
-                                        window.location.href = '{{ route('student-logout') }}';
+                                        window.location.href = '{{ route('user-logout') }}';
                                     }
                                 });
                             });
