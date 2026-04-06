@@ -1736,7 +1736,7 @@
                         cancelButtonText: "Cancel",
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            window.location.href = '{{ route('user - logout') }}';
+                            window.location.href = '{{ route('user-logout') }}';
                         }
                     });
                 });
