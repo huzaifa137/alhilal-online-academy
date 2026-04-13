@@ -1015,9 +1015,9 @@ textarea.form-control-alhilal {
 <header class="site-header" id="siteHeader">
     <div class="header-inner">
         <a href="{{ url('/') }}" class="header-logo">
-            <img src="{{ asset('assets/images/alhilal_logo.jpeg') }}" alt="AlHilal Academy">
+            <img src="{{ asset('assets/images/alhilal_logo.jpeg') }}" alt="Al-Hilal Online Academy">
             <div>
-                <div class="header-logo-text">AlHilal Academy</div>
+                <div class="header-logo-text">Al-Hilal Online Academy</div>
                 <div class="header-logo-sub">Online Islamic Learning</div>
             </div>
         </a>
@@ -1183,7 +1183,7 @@ textarea.form-control-alhilal {
             <div class="about-text">
                 <span class="eyebrow">Our Learning Model</span>
                 <h2 class="section-heading">Learn, Test,<br>Then Succeed</h2>
-                <p>AlHilal Online Academy brings structured Islamic education to students from Primary 1 through Senior 6. Every lesson is carefully crafted by qualified teachers and comes with assessments to ensure genuine understanding.</p>
+                <p>Al-Hilal Online Academy brings structured Islamic education to students from Primary 1 through Senior 6. Every lesson is carefully crafted by qualified teachers and comes with assessments to ensure genuine understanding.</p>
                 <p>Our platform serves students, parents, and teachers with dedicated dashboards — providing full visibility into progress, quiz results, reports, and certificates.</p>
                 <a href="#curriculum" class="btn btn-primary" style="margin-top: 8px;">
                     <i class="fas fa-book-open"></i> Browse All Levels
@@ -1307,7 +1307,7 @@ textarea.form-control-alhilal {
             <div class="progress-card progress-card-3">
                 <div class="progress-card-icon"><i class="fas fa-award"></i></div>
                 <h3>Certifications</h3>
-                <p>Earn an official AlHilal Academy certificate upon completing each level with all quizzes passed. Share your achievement and advance to the next level.</p>
+                <p>Earn an official Al-Hilal Online Academy certificate upon completing each level with all quizzes passed. Share your achievement and advance to the next level.</p>
             </div>
         </div>
     </div>
@@ -1505,8 +1505,8 @@ backBtn.addEventListener('click', (e) => {
         <div class="footer-grid">
             <div class="footer-brand">
                 <div class="footer-logo-row">
-                    <img src="{{ asset('assets/images/alhilal_logo.jpeg') }}" alt="AlHilal Academy" class="footer-logo-img">
-                    <div class="footer-logo-name">AlHilal Online Academy</div>
+                    <img src="{{ asset('assets/images/alhilal_logo.jpeg') }}" alt="Al-Hilal Online Academy" class="footer-logo-img">
+                    <div class="footer-logo-name">Al-Hilal Online Academy</div>
                 </div>
                 <p>Delivering structured Islamic education from P.1 to S.6 — with video, audio, PDF, quizzes, and certification. Learning made accessible for every Muslim student.</p>
                 <div class="footer-social">
@@ -1537,7 +1537,7 @@ backBtn.addEventListener('click', (e) => {
             </div>
         </div>
         <div class="footer-bottom">
-            <p>© {{ date('Y') }} AlHilal Online Academy. All rights reserved.</p>
+            <p>© {{ date('Y') }} Al-Hilal Online Academy. All rights reserved.</p>
             <p>Made with <i class="fas fa-heart" style="color: var(--red);"></i> for Islamic Education</p>
         </div>
     </div>
@@ -1803,7 +1803,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 // ── WhatsApp ──────────────────────────────────────────────
 document.getElementById('whatsappChat').addEventListener('click', e => {
     e.preventDefault();
-    window.open('https://wa.me/256702082209?text=' + encodeURIComponent('Assalamu Alaikum! I need assistance with my lessons on AlHilal Online Academy.'), '_blank');
+    window.open('https://wa.me/256702082209?text=' + encodeURIComponent('Assalamu Alaikum! I need assistance with my lessons on Al-Hilal Online Academy.'), '_blank');
 });
 
 // ── Contact form ──────────────────────────────────────────

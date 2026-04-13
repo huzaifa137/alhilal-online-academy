@@ -1598,9 +1598,9 @@
 
     {{-- Brand --}}
     <div class="sd-brand">
-        <img src="{{ asset('assets/images/alhilal_logo.jpeg') }}" alt="AlHilal Academy">
+        <img src="{{ asset('assets/images/alhilal_logo.jpeg') }}" alt="Al-Hilal Online Academy">
         <div class="sd-brand-text">
-            <div class="sd-brand-name">AlHilal Academy</div>
+            <div class="sd-brand-name">Al-Hilal Online Academy</div>
             <div class="sd-brand-sub">Student Portal</div>
         </div>
     </div>

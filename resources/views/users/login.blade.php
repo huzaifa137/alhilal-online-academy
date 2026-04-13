@@ -7,7 +7,7 @@
         style="text-align: center; padding: 40px 20px 30px; background: linear-gradient(135deg, #6B46C1 0%, #DC2626 100%); border-radius: 0 0 30px 30px;">
         <img src="{{ asset('assets/images/alhilal_logo.jpeg') }}" alt="Logo"
             style="max-width: 100px; border-radius: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-        <h1 style="color: white; font-size: 1.8rem; margin: 10px 0 5px; font-weight: 700;">AlHilal Online Academy</h1>
+        <h1 style="color: white; font-size: 1.8rem; margin: 10px 0 5px; font-weight: 700;">Al-Hilal Online Academy</h1>
         <p style="color: rgba(255,255,255,0.9); font-size: 0.9rem;">Sign in to continue learning</p>
     </div>
 

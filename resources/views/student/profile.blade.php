@@ -624,9 +624,9 @@
     <header class="site-header">
         <div class="header-inner">
             <a href="{{ url('/') }}" class="header-logo">
-                <img src="{{ asset('assets/images/alhilal_logo.jpeg') }}" alt="AlHilal Academy">
+                <img src="{{ asset('assets/images/alhilal_logo.jpeg') }}" alt="Al-Hilal Online Academy">
                 <div>
-                    <div class="header-logo-text">AlHilal Academy</div>
+                    <div class="header-logo-text">Al-Hilal Online Academy</div>
                     <div class="header-logo-sub">Online Islamic Learning</div>
                 </div>
             </a>
@@ -851,7 +851,7 @@
     <footer class="site-footer">
         <div class="footer-inner">
             <div class="footer-copyright">
-                <p>© {{ date('Y') }} AlHilal Online Academy. All rights reserved.</p>
+                <p>© {{ date('Y') }} Al-Hilal Online Academy. All rights reserved.</p>
                 <p style="margin-top: 8px;">Dedicated to authentic Islamic education for all — P.1 through S.6</p>
             </div>
         </div>

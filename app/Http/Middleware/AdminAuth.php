@@ -19,33 +19,42 @@ class AdminAuth
 
     public function handle(Request $request, Closure $next): Response
     {
+        $path = $request->path();
 
-        if (! session()->has('LoggedAdmin') &&
-            ($request->path() != 'users/login' &&
-                $request->path() != 'users/register' &&
-                $request->path() != 'users/home-page' &&
-                $request->path() != 'users/user-otp' &&
-                ! $request->routeIs('auth-user-check') &&
-                ! $request->routeIs('auth-user-check') &&
-                ! $request->routeIs('users.terms-and-conditions') &&
-                ! $request->routeIs('password/reset') &&
-                $request->path() != 'users/forgot-password')
-        ) {
+        // Routes that don't require login
+        $publicRoutes = [
+            'users/login',
+            'users/register',
+            'users/home-page',
+            'users/user-otp',
+            'users/forgot-password',
+        ];
+
+        $publicRouteNames = [
+            'auth-user-check',
+            'users.terms-and-conditions',
+            'password/reset',
+        ];
+
+        // If admin not logged in and trying to access protected routes
+        if (!session()->has('LoggedAdmin') && !in_array($path, $publicRoutes) && !$request->routeIs(...$publicRouteNames)) {
             Session::put('url.intended', $request->url());
-
-            // return redirect('/users/login')->with('fail', 'You must be logged in');
             return redirect('/users/home-page')->with('fail', 'You must be logged in');
-
         }
 
-        if (session()->has('LoggedStudent') &&
-            ($request->path() == 'users/login' || $request->path() == 'users/register' || $request->path() == 'users/home-page' || $request->routeIs('auth-user-check'))) {
+        // Redirect logged students away from login/register/home-page
+        if (session()->has('LoggedStudent') && in_array($path, ['users/login', 'users/register', 'users/home-page'])) {
             return redirect('/student/dashboard');
         }
 
-        if (session()->has('LoggedAdmin') &&
-            ($request->path() == 'users/login' || $request->path() == 'users/register' || $request->path() == 'users/home-page' || $request->routeIs('auth-user-check'))) {
+        // Redirect logged admins away from login/register/home-page
+        if (session()->has('LoggedAdmin') && in_array($path, ['users/login', 'users/register', 'users/home-page'])) {
             return redirect('/');
+        }
+
+        // Redirect logged teachers away from login/register/home-page
+        if (session()->has('LoggedTeacher') && in_array($path, ['users/login', 'users/register', 'users/home-page'])) {
+            return redirect('/teacher/dashboard');
         }
 
         $response = $next($request);

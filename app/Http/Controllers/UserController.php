@@ -2,38 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Course;
 use App\Models\password_reset_table;
-use App\Models\User;
-use DB;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Models\User;
 use Mail;
+use DB;
 
 class UserController extends Controller
 {
-    public static $page = 'USERS';
-
-    public static function links()
-    {
-        return $links = [
-            [
-                'link_name' => 'Register new user',
-                'link_address' => 'users/users-register',
-                'link_icon' => 'fa-calendar',
-                'link_page' => self::$page,
-                'link_right' => 'V',
-            ],
-            [
-                'link_name' => 'View users information',
-                'link_address' => 'users/users-information',
-                'link_icon' => 'fa-search',
-                'link_page' => self::$page,
-                'link_right' => 'V',
-            ],
-        ];
-    }
 
     public function createNewPassword($id)
     {
@@ -179,10 +157,6 @@ class UserController extends Controller
         return view('dashboard');
     }
 
-    /**
-     * UPDATED: Login without OTP verification
-     * Direct login after password verification
-     */
     public function checkUser(Request $request)
     {
         $request->validate([
@@ -255,8 +229,6 @@ class UserController extends Controller
         }
     }
 
-    // REMOVED: regenerateOTP method - No longer needed
-
     public function userProfile()
     {
 
@@ -277,10 +249,7 @@ class UserController extends Controller
 
     public function homePage()
     {
-
-        $allCourses = Course::orderBy('id', 'desc')->paginate(9);
-
-        return view('home-page', compact(['allCourses']));
+        return view('home-page');
     }
 
     public function editUserInformation()
@@ -530,7 +499,7 @@ class UserController extends Controller
             // Send welcome email (optional, no OTP)
             if ($request->email) {
                 $data = [
-                    'subject' => 'AlHilal Online Academy - Welcome!',
+                    'subject' => 'Al-Hilal Online Academy - Welcome!',
                     'username' => $request->username,
                     'email' => $request->email,
                     'firstname' => $firstname,
@@ -553,7 +522,7 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => 'Registration successful! Welcome to AlHilal Online Academy.',
+                'message' => 'Registration successful! Welcome to Al-Hilal Online Academy.',
                 'redirect_url' => '/student/dashboard',
             ]);
         }
@@ -671,7 +640,7 @@ class UserController extends Controller
             'email' => $request->email,
             'username' => $request->username,
             'password' => $request->password,
-            'title' => 'AlHilal Online Academy - User Account has been created successfully.',
+            'title' => 'Al-Hilal Online Academy - User Account has been created successfully.',
         ];
 
         return back()->with('success', 'User account has been created successfully');

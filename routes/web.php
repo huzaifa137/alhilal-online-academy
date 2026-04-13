@@ -1,66 +1,13 @@
 <?php
 
-use App\Http\Controllers\EmailController;
 use App\Http\Controllers\MasterDataController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Hash;
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
- */
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/set-student-session', function () {
-    session()->put('LoggedStudent', 1);
-
-    return redirect('/student/dashboard');
-});
-
-Route::get('/set-admin-session', function () {
-    session()->put('LoggedAdmin', 1);
-
-    return redirect('/dashboard');
-});
-
-Route::get('/hash-test', function () {
-    return dd(Hash::make('123456789'));
-});
-
-Route::get('/flush-session', function () {
-    // Flush all session data
-    session()->flush();
-
-    // Alternative: You can also use this
-    Session::flush();
-
-    return response()->json([
-        'status' => 'success',
-        'message' => 'All sessions have been flushed successfully!',
-        'redirect_url' => '/',
-    ]);
-})->name('flush.session');
-
-Route::get('/splash', function () {
-    return view('mobile.splash');
-})->name('splash');
-
-Route::get('send-mail', [EmailController::class, 'welcomeEmail']);
-
-// Teacher Dashboard Route
 Route::get('/teacher/dashboard', [TeacherController::class, 'index'])->name('teacher.dashboard');
-
-Route::get('/student/dashboard', [StudentController::class, 'myDashboard'])->name('student.dashboard');
-
-Route::get('demo-former-dashboard',[StudentController::class, 'demoFormerDashboard']);
 
 Route::controller(UserController::class)->group(function () {
 
@@ -82,6 +29,7 @@ Route::controller(UserController::class)->group(function () {
 
         // Admin protected routes
         Route::group(['middleware' => ['AdminAuth']], function () {
+
             Route::get('/dashboard', 'dashboard')->name('admin.dashboard');
             Route::get('/users-profile', 'userProfile')->name('users-profile');
             Route::get('/users-register', 'userRegister')->name('users.register');
@@ -89,6 +37,7 @@ Route::controller(UserController::class)->group(function () {
             Route::get('user-account-information/{id}', 'userAccountInformation');
             Route::get('delete-user/{id}', 'deleteUser');
             Route::get('/home-page', 'homePage')->name('home.page');
+            Route::get('/home-page', 'homePage')->name('home');
             Route::get('/edit-user-information', 'editUserInformation');
             Route::get('/edit-specific-user/{userid}', 'editSpecificUser');
             Route::get('/terms-and-conditions', 'user_terms_and_conditions')->name('users.terms-and-conditions');
@@ -115,10 +64,6 @@ Route::controller(MasterDataController::class)->group(function () {
         Route::get('/load-data', 'loadData')->name('load.data');
         Route::get('master-table', 'master_table')->name('master-table');
         Route::get('master-code', 'master_code')->name('master-code');
-        Route::get('requisition-documents', 'requisitionDocuments');
-        Route::get('travel-requisition-documents', 'travelRequisitionDocuments');
-        Route::get('supplier-prequalification-criteria', 'supplierPrequalificationEvaluationCriteria');
-        Route::post('store-prequalification-criteria', 'storePrequalificationCriteria')->name('store-prequalification-criteria');
 
         Route::get('edit-record/{id}', 'editRecord');
         Route::get('add-record', 'addRecord')->name('add-record');
@@ -126,8 +71,6 @@ Route::controller(MasterDataController::class)->group(function () {
         Route::get('edit-code/{id}', 'editMasterCode');
         Route::get('master-code-list/{id}', 'masterCodeList')->name('master-code-list');
         Route::get('master-code-list', 'masterCodeList');
-        Route::get('edit-supplier-document/{id}', 'editSupplierDocument');
-        Route::post('/store-requisition-document', 'storeRequisitionDocument')->name('master-data/store-requisition-document');
 
     });
 
@@ -146,172 +89,19 @@ Route::controller(MasterDataController::class)->group(function () {
 
 Route::controller(StudentController::class)->group(function () {
 
-    Route::group(['prefix' => '/users'], function () {
-        Route::group(['middleware' => ['AdminAuth']], function () {
+    Route::group(['middleware' => ['AdminAuth']], function () {
+
+        Route::get('/', 'homePage');
+
+        Route::group(['prefix' => '/users'], function () {
             Route::get('/register', 'register')->name('users.register');
             Route::get('/terms-and-conditions', 'user_terms_and_conditions')->name('users.terms-and-conditions');
         });
 
-        Route::post('contact-message-information', 'contactMessageInformation')->name('contact-message-information');
-
-    });
-    Route::get('/clear-session', 'flushSession');
-});
-
-// REMOVED: OTP routes - No longer needed
-
-Route::controller(CourseController::class)->group(function () {
-
-    Route::group(['prefix' => '/courses'], function () {
-
-        Route::group(['middleware' => ['AdminAuth']], function () {
-            Route::get('/add-course', 'addCourse')->name('users.register');
-            Route::get('/all-courses', 'allCourses')->name('all.courses');
-            Route::post('/store-course', 'storeCourse')->name('store.course');
-            Route::get('/course-information/{course}', 'courseInformation')->name('courses.show');
-            Route::get('/edit-course-information/{course}', 'editcourseInformation')->name('edit.courses.show');
-            Route::get('/course-module', 'courseModule')->name('courses.module');
-            Route::get('/add-course-module', 'addCourseModule')->name('all.courses.module');
-            Route::get('/contact-us', 'contactUs')->name('contact.us');
-
-            Route::delete('/delete-course/{course}', 'deletecourseInformation')->name('delete.course');
-            Route::delete('/delete-module/{id}', 'deleteModuleInformation')->name('delete.course.module');
-
-            Route::post('/admin/messages/{id}/response', 'updateMessageResponse')->name('admin.updateMessageResponse');
-            Route::post('/update-course-information', 'updateCourseInformation')->name('update.course.information');
-            Route::post('/save-course-module', 'saveCourseModule')->name('save.course.module');
-            Route::put('/update-module/{id}', 'updateModule')->name('update.course.module');
-
-        });
-    });
-});
-
-Route::controller(ModuleController::class)->group(function () {
-
-    Route::group(['prefix' => '/courses'], function () {
-
-        Route::group(['middleware' => ['AdminAuth']], function () {
-
-            Route::get('/add-course-module', 'addCourseModule')->name('all.courses.module');
-            Route::get('/module-information/{couresId}', 'moduleInformation')->name('module.information');
-
-            Route::put('/update-module/{id}', 'updateModule')->name('update.course.module');
-            Route::post('/save-course-module', 'saveCourseModule')->name('save.course.module');
-            Route::delete('/delete-module/{id}', 'deleteModuleInformation')->name('delete.course.module');
-        });
-    });
-});
-
-Route::controller(LessonController::class)->group(function () {
-
-    Route::group(['prefix' => '/lessons'], function () {
-
-        Route::group(['middleware' => ['AdminAuth']], function () {
-
-            Route::get('/lesson-details/{id}', 'showLesson')->name('lessons.details');
-            Route::get('/module-details/{LessonId}', 'moduleDetails')->name('module.details');
-
-            Route::put('/update-lesson/{id}', 'updateModuleLesson')->name('update.module.lesson');
-            Route::post('/save-module-lesson', 'saveModuleLesson')->name('save.module.lesson');
-            Route::post('/{lesson}/complete', 'lessonComplete')->name('lessons.complete');
-
-            Route::delete('/delete-lesson/{id}', 'deleteModuleLesson')->name('delete.module.lesson');
-
-        });
-    });
-});
-
-Route::controller(QuizController::class)->group(function () {
-
-    Route::group(['middleware' => ['AdminAuth']], function () {
-Route::get('/', 'homePage');
-        Route::group(['prefix' => '/quiz'], function () {
-            Route::get('/create-quiz', 'createQuiz')->name('quizzes.create.quiz');
-            Route::post('/store-quiz', 'storeQuiz')->name('quizzes.store.quiz');
-            Route::get('/all-quizze-and-assignments', 'allQuizzesAndAssignments')->name('all.quizzes');
-
-            Route::get('/all-quizzes', 'allQuizzes')->name('all.quizzes');
-            Route::get('/questions/create/{quiz}', 'createQuestions')->name('questions.create');
-
-            Route::post('/questions/{quiz}', 'storeQuestions')->name('questions.store');
-            Route::get('/show-questions/{quiz}', 'showQuizQuestions')->name('quizzes.show.questions');
-
-            Route::get('/on-take/{quiz}', 'showQuizForm')->name('quizzes.ontake');
-            Route::post('/{quiz}/submit', 'submitQuiz')->name('quizzes.submit');
-            Route::get('/attempts/{quiz}', 'attempts')->name('quizzes.attempts');
-            Route::get('/show/{quiz}', 'showQuizForm')->name('quizzes.show');
-            Route::delete('/delete-quiz-questions/{id}', 'deleteQuizQuestion')->name('questions.destroy');
-            Route::delete('/delete-quiz/{quiz}', 'deleteQuiz');
-
-        });
-
-        Route::group(['prefix' => '/assignments'], function () {
-            Route::get('/create-assignment', 'createAssignment')->name('create.assignments');
-            Route::get('/all-assignments', 'allAssignment')->name('all.assignments');
-            Route::post('/storeAssignment', 'storeAssignment')->name('store.assignments');
-        });
-
-        Route::get('/get-course-modules/{course_id}', 'getCourseModules');
-        Route::get('/get-course-lessons/{module_id}', 'getModuleLesson');
-
-    });
-});
-
-Route::controller(codEditorController::class)->group(function () {
-
-    Route::group(['middleware' => ['AdminAuth']], function () {
-
-        Route::group(['prefix' => '/code-editor'], function () {
-
-            Route::get('/programming', 'programmingCodeEditor');
-        });
-
-        Route::group(['prefix' => '/certificates'], function () {
-
-            Route::get('/{course}/certificate/preview', 'preview')->name('certificate.preview');
-            Route::get('/certificate/template/{course}', 'template')->name('certificate.template');
-            Route::get('/all-preview', 'previewAllCertificates')->name('certificates.all');
-
-        });
-
-    });
-});
-
-Route::controller(StudentController::class)->group(function () {
-
-    Route::group(['middleware' => ['StudentAuth']], function () {
-
         Route::group(['prefix' => '/student'], function () {
-
             Route::get('/dashboard', 'studentDashboard')->name('student.dashboard');
-            Route::get('/profile', 'studentProfile')->name('student.profile');
-            Route::get('/edit-student-profile', 'editStudentProfile');
-            Route::get('/courses-and-lessons', 'coursesAndLessons')->name('student.courses.lessons');
-            Route::get('/lessons-and-study', 'lessonsAndStudy')->name('student.lesson.study');
-            Route::get('/cart', 'addCart')->name('student.cart');
-            Route::get('/cart/remove/{id}', 'removeCart')->name('cart.remove');
-            Route::get('/checkout', 'checkout')->name('student.checkout');
-            Route::get('/courses/filter', 'filterCourses')->name('student.courses.filter');
-            Route::get('/course-details/{id}', 'courseDetails')->name('course.details');
-            Route::get('/course-study/{id}', 'courseStudy')->name('course.study');
-            Route::get('/ongoing-lesson/{id}', 'lessonStudying')->name('lesson.ongoing');
-            Route::get('/lesson-details/{id}', 'showLesson')->name('student.lessons.details');
-            Route::get('/show/{quiz}', 'showQuizForm')->name('student.quizzes.show');
-            Route::get('/all-preview', 'previewAllCertificates')->name('certificates.all');
-            Route::get('/{course}/certificate/download', 'download')->name('certificate.download');
-            Route::get('/contact-us', 'contactUs')->name('contact.us');
-
-            Route::post('/submit-message', 'submitMesage')->name('student.submit.message');
-            Route::post('/{lesson}/complete', 'lessonComplete')->name('student.lessons.complete');
-            Route::post('/{quiz}/submit', 'submitQuiz')->name('student.quizzes.submit');
-            Route::post('/checkout-process', 'processCheckout')->name('checkout.process');
-            Route::post('/add-to-cart/{id}', 'addToCartAction')->name('student.add.cart');
-            Route::post('/enroll-course-cart-action/{id}', 'enrollCourseCartAction')->name('student.enroll.course.action');
-            Route::post('/cart/update-quantity', 'updateQuantity')->name('cart.updateQuantity');
         });
 
     });
-
-    Route::get('/student/view-course-information/{id}', 'viewCourseInformation')->name('view.course.information');
-
 });
+

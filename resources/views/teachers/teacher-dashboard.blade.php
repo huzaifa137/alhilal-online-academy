@@ -1016,6 +1016,82 @@ h1,h2,h3,h4 { font-family: 'Playfair Display', serif; line-height: 1.2; }
     .quick-actions-grid { grid-template-columns: repeat(2, 1fr); }
     .welcome-title { font-size: 1.4rem; }
 }
+
+/* ── ADD LESSON MODAL STYLES ── */
+.sd-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: rgba(26, 10, 46, 0.8);
+    backdrop-filter: blur(6px);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.sd-modal.open { display: flex; }
+.sd-modal-box {
+    background: white;
+    border-radius: 24px;
+    padding: 32px;
+    max-width: 600px;
+    width: 100%;
+    position: relative;
+    animation: modal-pop 0.3s ease;
+    max-height: 85vh;
+    overflow-y: auto;
+    border-top: 4px solid var(--purple);
+}
+@keyframes modal-pop {
+    from { transform: translateY(-20px) scale(0.97); opacity: 0; }
+    to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+.sd-modal-close {
+    position: absolute; top: 16px; right: 16px;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--cream2); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
+}
+.sd-modal-close:hover { background: var(--red-light); color: var(--red); }
+.sd-modal-icon { font-size: 2.5rem; color: var(--purple); margin-bottom: 12px; text-align: center; }
+.sd-modal-title { font-size: 1.3rem; font-weight: 700; color: var(--ink); text-align: center; margin-bottom: 6px; font-family: 'Playfair Display', serif; }
+.sd-modal-sub { font-size: 0.85rem; color: var(--muted); text-align: center; margin-bottom: 24px; }
+.form-group { margin-bottom: 18px; }
+.form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+.form-control {
+    width: 100%; padding: 10px 14px;
+    border: 1.5px solid var(--border); border-radius: 12px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+    transition: all 0.2s; background: var(--cream);
+}
+.form-control:focus { outline: none; border-color: var(--purple); box-shadow: 0 0 0 3px rgba(107,70,193,0.1); }
+select.form-control { cursor: pointer; }
+textarea.form-control { resize: vertical; }
+.upload-area {
+    border: 2px dashed var(--border2); border-radius: 16px; padding: 24px;
+    text-align: center; background: var(--cream); cursor: pointer; transition: all 0.2s;
+}
+.upload-area:hover { border-color: var(--purple); background: var(--purple-light); }
+.form-row { display: flex; gap: 16px; margin-bottom: 18px; }
+.form-row .form-group { flex: 1; margin-bottom: 0; }
+.btn-cancel, .btn-save {
+    flex: 1; padding: 12px; border-radius: 50px;
+    font-size: 0.85rem; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+}
+.btn-cancel { background: var(--cream2); border: 1px solid var(--border); color: var(--muted); }
+.btn-cancel:hover { background: var(--red-light); color: var(--red); border-color: var(--red-light); }
+.btn-save { background: var(--gradient); border: none; color: white; box-shadow: 0 4px 12px rgba(107,70,193,0.3); }
+.btn-save:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(107,70,193,0.4); }
+.text-muted-sm { color: var(--muted); font-size: 0.7rem; margin-top: 4px; display: block; }
+.file-alert {
+    padding: 10px 12px; border-radius: 12px;
+    background: var(--purple-light); color: var(--purple); font-size: 0.8rem;
+    display: flex; align-items: center; justify-content: space-between; margin-top: 8px;
+}
+.file-alert-close { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--purple); }
+
 </style>
 @endsection
 
@@ -1035,7 +1111,7 @@ h1,h2,h3,h4 { font-family: 'Playfair Display', serif; line-height: 1.2; }
                 <i class="fas fa-graduation-cap"></i>
             </div>
             <div class="sidebar-brand-text">
-                <div class="sidebar-brand-name">AlHilal Academy</div>
+                <div class="sidebar-brand-name">Al-Hilal Online Academy</div>
                 <div class="sidebar-brand-sub">Teacher Portal</div>
             </div>
         </a>
@@ -1213,7 +1289,7 @@ h1,h2,h3,h4 { font-family: 'Playfair Display', serif; line-height: 1.2; }
                 <div class="profile-dropdown-role">Senior Teacher · Islamic Studies</div>
             </div>
             <a href="#" class="profile-dropdown-item"><i class="fas fa-user"></i> My Profile</a>
-            <a href="#" class="profile-dropdown-item"><i class="fas fa-cog"></i> Settings</a>
+            <a href="#" class="profile-dropdown-item"><i class="fas fa-cog"></i> Logout</a>
             <a href="#" class="profile-dropdown-item"><i class="fas fa-question-circle"></i> Help Center</a>
             <form method="POST" action="{{ url('logout') }}">
                 @csrf
@@ -1243,9 +1319,9 @@ h1,h2,h3,h4 { font-family: 'Playfair Display', serif; line-height: 1.2; }
                     </div>
                 </div>
                 <div class="welcome-actions">
-                    <a href="#" class="btn-banner btn-banner-primary">
-                        <i class="fas fa-plus"></i> New Session
-                    </a>
+<a href="#" class="btn-banner btn-banner-primary" id="addLessonBtn">
+    <i class="fas fa-plus"></i> Add Lesson
+</a>
                     <a href="#" class="btn-banner btn-banner-ghost">
                         <i class="fas fa-calendar-alt"></i> View Schedule
                     </a>
@@ -1831,10 +1907,225 @@ h1,h2,h3,h4 { font-family: 'Playfair Display', serif; line-height: 1.2; }
 </div>
 {{-- /dash-shell --}}
 
+{{-- ADD LESSON MODAL --}}
+<div class="sd-modal" id="addLessonModal">
+    <div class="sd-modal-box">
+        <button class="sd-modal-close" onclick="closeAddLessonModal()"><i class="fas fa-times"></i></button>
+        <div class="sd-modal-icon"><i class="fas fa-plus-circle"></i></div>
+        <div class="sd-modal-title">Add New Lesson</div>
+        <div class="sd-modal-sub">Create a new lesson for your students</div>
+
+        <form id="addLessonForm" enctype="multipart/form-data">
+            @csrf
+            <div class="form-group">
+                <label><strong>Lesson Number *</strong></label>
+                <input type="text" class="form-control" id="lessonNumber" placeholder="e.g., Lesson 1, Chapter 2" required>
+                <span class="text-muted-sm">Enter the lesson sequence number</span>
+            </div>
+            <div class="form-group">
+                <label><strong>Lesson Title *</strong></label>
+                <input type="text" class="form-control" id="lessonTitle" placeholder="Enter lesson title" required>
+            </div>
+            <div class="form-group">
+                <label><strong>Subject *</strong></label>
+                <select class="form-control" id="lessonSubject" required>
+                    <option value="">Select Subject</option>
+                    <option value="Quran & Tafsir">Quran & Tafsir</option>
+                    <option value="Hadith Studies">Hadith Studies</option>
+                    <option value="Fiqh">Fiqh</option>
+                    <option value="Seerah">Seerah</option>
+                    <option value="Arabic Language">Arabic Language</option>
+                    <option value="Aqeedah">Aqeedah</option>
+                    <option value="Tajweed">Tajweed</option>
+                    <option value="Akhlaq (Islamic Manners)">Akhlaq (Islamic Manners)</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label><strong>Level *</strong></label>
+                    <select class="form-control" id="lessonLevel" required>
+                        <option value="">Select Level</option>
+                        <option value="Level 1">Level 1 (P.1–P.4)</option>
+                        <option value="Level 2">Level 2 (P.5–P.7)</option>
+                        <option value="Level 3">Level 3 (S.1–S.3)</option>
+                        <option value="Level 4">Level 4 (S.4–S.5)</option>
+                        <option value="Level 5">Level 5 (S.6)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><strong>Class *</strong></label>
+                    <select class="form-control" id="lessonClass" required>
+                        <option value="">Select Class</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label><strong>Lesson Type *</strong></label>
+                <select class="form-control" id="lessonType" required>
+                    <option value="video">Video Lesson</option>
+                    <option value="audio">Audio Lesson</option>
+                    <option value="pdf">PDF Notes</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label><strong>Content URL</strong></label>
+                <input type="text" class="form-control" id="contentUrl" placeholder="YouTube URL, audio link, or PDF link">
+                <span class="text-muted-sm">Provide a direct link to your content</span>
+            </div>
+            <div class="form-group">
+                <label><strong>Or Upload File</strong></label>
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-cloud-upload-alt fa-2x" style="margin-bottom:8px;color:var(--purple);"></i>
+                    <p>Click to browse or drag & drop</p>
+                    <span class="text-muted-sm">Supported: MP4, MP3, PDF (Max 50MB)</span>
+                    <input type="file" id="fileInput" name="lesson_file" style="display:none" accept=".mp4,.mp3,.pdf">
+                </div>
+                <div id="fileInfo" style="display:none;">
+                    <div class="file-alert">
+                        <span><i class="fas fa-file"></i> <span id="fileName"></span></span>
+                        <button type="button" class="file-alert-close" onclick="clearFile()">&times;</button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label><strong>Description</strong></label>
+                <textarea class="form-control" id="lessonDesc" rows="3" placeholder="Brief description of the lesson..."></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label><strong>Duration (minutes)</strong></label>
+                    <input type="number" class="form-control" id="lessonDuration" placeholder="e.g., 15" value="15" min="1" max="60">
+                </div>
+                <div class="form-group">
+                    <label><strong>Price (UGX)</strong></label>
+                    <input type="number" class="form-control" id="lessonPrice" placeholder="0" value="0" step="1000">
+                </div>
+            </div>
+            <div class="form-group">
+                <label><strong>Status</strong></label>
+                <select class="form-control" id="lessonStatus">
+                    <option value="published">Published</option>
+                    <option value="draft">Draft</option>
+                </select>
+            </div>
+            <div style="display:flex; gap:12px; margin-top:20px;">
+                <button type="button" class="btn-cancel" onclick="closeAddLessonModal()">Cancel</button>
+                <button type="submit" class="btn-save"><i class="fas fa-save"></i> Save Lesson</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @endsection
 
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+    // ── ADD LESSON MODAL ──────────────────────────────────────
+const levelClassesMap = {
+    "Level 1": ["P.1","P.2","P.3","P.4"],
+    "Level 2": ["P.5","P.6","P.7"],
+    "Level 3": ["S.1","S.2","S.3"],
+    "Level 4": ["S.4","S.5"],
+    "Level 5": ["S.6"]
+};
+let selectedFile = null;
+
+function openAddLessonModal() {
+    document.getElementById('addLessonForm').reset();
+    document.getElementById('lessonClass').innerHTML = '<option value="">Select Class</option>';
+    clearFile();
+    document.getElementById('addLessonModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeAddLessonModal() {
+    document.getElementById('addLessonModal').classList.remove('open');
+    document.body.style.overflow = '';
+    document.getElementById('addLessonForm').reset();
+    document.getElementById('lessonClass').innerHTML = '<option value="">Select Class</option>';
+    clearFile();
+}
+
+document.getElementById('addLessonBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    openAddLessonModal();
+});
+
+document.getElementById('lessonLevel').addEventListener('change', function() {
+    const classSelect = document.getElementById('lessonClass');
+    classSelect.innerHTML = '<option value="">Select Class</option>';
+    if (this.value && levelClassesMap[this.value]) {
+        levelClassesMap[this.value].forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = `${this.value} (${c})`;
+            opt.textContent = c;
+            classSelect.appendChild(opt);
+        });
+    }
+});
+
+document.getElementById('fileInput').addEventListener('change', function() {
+    if (this.files && this.files[0]) {
+        selectedFile = this.files[0];
+        if (selectedFile.size > 50 * 1024 * 1024) {
+            alert('File size exceeds 50MB limit');
+            this.value = ''; selectedFile = null;
+            document.getElementById('fileInfo').style.display = 'none';
+            return;
+        }
+        document.getElementById('fileName').textContent =
+            `${selectedFile.name} (${(selectedFile.size/(1024*1024)).toFixed(2)} MB)`;
+        document.getElementById('fileInfo').style.display = 'block';
+    }
+});
+
+function clearFile() {
+    selectedFile = null;
+    document.getElementById('fileInput').value = '';
+    document.getElementById('fileInfo').style.display = 'none';
+}
+
+// Close modal when clicking backdrop
+document.getElementById('addLessonModal').addEventListener('click', function(e) {
+    if (e.target === this) closeAddLessonModal();
+});
+
+document.getElementById('addLessonForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append('lesson_number',  document.getElementById('lessonNumber').value);
+    formData.append('lesson_title',   document.getElementById('lessonTitle').value);
+    formData.append('lesson_subject', document.getElementById('lessonSubject').value);
+    formData.append('lesson_level',   document.getElementById('lessonLevel').value);
+    formData.append('lesson_class',   document.getElementById('lessonClass').value);
+    formData.append('lesson_type',    document.getElementById('lessonType').value);
+    formData.append('content_url',    document.getElementById('contentUrl').value);
+    formData.append('lesson_desc',    document.getElementById('lessonDesc').value);
+    formData.append('lesson_duration',document.getElementById('lessonDuration').value);
+    formData.append('lesson_price',   document.getElementById('lessonPrice').value);
+    formData.append('lesson_status',  document.getElementById('lessonStatus').value);
+    formData.append('_token', document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '');
+    if (selectedFile) formData.append('lesson_file', selectedFile);
+
+    fetch('/teacher/upload-lesson', {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            closeAddLessonModal();
+            alert('Lesson saved successfully!');
+        } else {
+            alert(data.message || 'Something went wrong');
+        }
+    })
+    .catch(() => alert('Failed to save lesson. Please try again.'));
+});
+</script>
+
 <script>
 // ── Engagement Line Chart ──────────────────────────────────
 const engCtx = document.getElementById('engagementChart').getContext('2d');

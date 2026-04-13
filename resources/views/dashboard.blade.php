@@ -1200,7 +1200,7 @@ h1,h2,h3,h4,h5 { font-family: 'Playfair Display', serif; line-height: 1.15; }
         </div>
 
         {{-- Brand --}}
-        <a href="{{ route('home') }}" class="sidebar-brand">
+        <a href="{{ url('home') }}" class="sidebar-brand">
             <div class="brand-logomark"><i class="fas fa-graduation-cap"></i></div>
             <div class="brand-text-wrap">
                 <div class="brand-name">AlHilal Academy</div>
@@ -1234,94 +1234,94 @@ h1,h2,h3,h4,h5 { font-family: 'Playfair Display', serif; line-height: 1.15; }
 
         {{-- OVERVIEW --}}
         <div class="nav-section-label">Overview</div>
-        <a href="{{ route('admin.dashboard') }}" class="nav-item active">
+        <a href="{{ url('admin.dashboard') }}" class="nav-item active">
             <i class="fas fa-th-large nav-ico"></i> Command Centre
         </a>
-        <a href="{{ route('admin.analytics') ?? '#' }}" class="nav-item">
+        <a href="{{ url('admin.analytics') ?? '#' }}" class="nav-item">
             <i class="fas fa-chart-area nav-ico"></i> Analytics
             <span class="nav-new">New</span>
         </a>
-        <a href="{{ route('admin.reports') ?? '#' }}" class="nav-item">
+        <a href="{{ url('admin.reports') ?? '#' }}" class="nav-item">
             <i class="fas fa-file-chart-line nav-ico"></i> Reports
         </a>
 
         {{-- PEOPLE --}}
         <div class="nav-section-label">People</div>
-        <a href="{{ route('admin.students') ?? '#' }}" class="nav-item">
+        <a href="{{ url('admin.students') ?? '#' }}" class="nav-item">
             <i class="fas fa-user-graduate nav-ico"></i> Students
             <span class="nav-badge nb-purple">{{ $totalStudents ?? '142' }}</span>
         </a>
-        <a href="{{ route('admin.teachers') ?? '#' }}" class="nav-item">
+        <a href="{{ url('admin.teachers') ?? '#' }}" class="nav-item">
             <i class="fas fa-chalkboard-teacher nav-ico"></i> Teachers
             <span class="nav-badge nb-purple">{{ $totalTeachers ?? '18' }}</span>
         </a>
-        <a href="{{ route('admin.parents') ?? '#' }}" class="nav-item">
+        <a href="{{ url('admin.parents') ?? '#' }}" class="nav-item">
             <i class="fas fa-users nav-ico"></i> Parents / Guardians
         </a>
-        <a href="{{ route('admin.enrollments') ?? '#' }}" class="nav-item">
+        <a href="{{ url('admin.enrollments') ?? '#' }}" class="nav-item">
             <i class="fas fa-user-plus nav-ico"></i> Enrollments
             <span class="nav-badge nb-green">7</span>
         </a>
 
         {{-- ACADEMICS --}}
         <div class="nav-section-label">Academics</div>
-        <a href="{{ route('admin.classes') ?? '#' }}" class="nav-item">
+        <a href="{{ url('admin.classes') ?? '#' }}" class="nav-item">
             <i class="fas fa-chalkboard nav-ico"></i> Classes
         </a>
-        <a href="{{ route('admin.curriculum') ?? '#' }}" class="nav-item">
+        <a href="{{ url('admin.curriculum') ?? '#' }}" class="nav-item">
             <i class="fas fa-book-open nav-ico"></i> Curriculum
         </a>
-        <a href="{{ route('admin.assignments') ?? '#' }}" class="nav-item">
+        <a href="{{ url('admin.assignments') ?? '#' }}" class="nav-item">
             <i class="fas fa-tasks nav-ico"></i> Assignments
         </a>
-        <a href="{{ route('admin.exams') ?? '#' }}" class="nav-item">
+        <a href="{{ url('admin.exams') ?? '#' }}" class="nav-item">
             <i class="fas fa-clipboard-list nav-ico"></i> Exams & Quizzes
             <span class="nav-badge nb-gold">3</span>
         </a>
-        <a href="{{ route('admin.attendance') ?? '#' }}" class="nav-item">
+        <a href="{{ url('admin.attendance') ?? '#' }}" class="nav-item">
             <i class="fas fa-calendar-check nav-ico"></i> Attendance
         </a>
 
         {{-- PLATFORM --}}
         <div class="nav-section-label">Platform</div>
-        <a href="{{ route('admin.content') ?? '#' }}" class="nav-item">
+        <a href="{{ url('admin.content') ?? '#' }}" class="nav-item">
             <i class="fas fa-photo-video nav-ico"></i> Content Library
         </a>
-        <a href="{{ route('admin.announcements') ?? '#' }}" class="nav-item">
+        <a href="{{ url('admin.announcements') ?? '#' }}" class="nav-item">
             <i class="fas fa-bullhorn nav-ico"></i> Announcements
         </a>
-        <a href="{{ route('admin.messages') ?? '#' }}" class="nav-item">
+        <a href="{{ url('admin.messages') ?? '#' }}" class="nav-item">
             <i class="fas fa-comment-dots nav-ico"></i> Messages
             <span class="nav-badge nb-red">12</span>
         </a>
-        <a href="{{ route('admin.payments') ?? '#' }}" class="nav-item">
+        <a href="{{ url('admin.payments') ?? '#' }}" class="nav-item">
             <i class="fas fa-credit-card nav-ico"></i> Payments
         </a>
 
         {{-- SYSTEM --}}
         <div class="nav-section-label">System</div>
-        <a href="{{ route('admin.settings') ?? '#' }}" class="nav-item">
+        <a href="{{ url('admin.settings') ?? '#' }}" class="nav-item">
             <i class="fas fa-cog nav-ico"></i> Settings
         </a>
-        <a href="{{ route('admin.permissions') ?? '#' }}" class="nav-item">
+        <a href="{{ url('admin.permissions') ?? '#' }}" class="nav-item">
             <i class="fas fa-shield-alt nav-ico"></i> Roles & Permissions
         </a>
-        <a href="{{ route('admin.logs') ?? '#' }}" class="nav-item">
+        <a href="{{ url('admin.logs') ?? '#' }}" class="nav-item">
             <i class="fas fa-history nav-ico"></i> Audit Logs
         </a>
-        <a href="{{ route('admin.backup') ?? '#' }}" class="nav-item">
+        <a href="{{ url('admin.backup') ?? '#' }}" class="nav-item">
             <i class="fas fa-database nav-ico"></i> Backup & System
         </a>
 
         {{-- Footer --}}
         <div class="sidebar-footer">
-            <a href="{{ route('admin.profile') ?? '#' }}" class="sidebar-foot-btn">
+            <a href="{{ url('admin.profile') ?? '#' }}" class="sidebar-foot-btn">
                 <i class="fas fa-user-circle" style="width:16px;text-align:center;"></i> My Profile
             </a>
-            <a href="{{ route('admin.help') ?? '#' }}" class="sidebar-foot-btn">
+            <a href="{{ url('admin.help') ?? '#' }}" class="sidebar-foot-btn">
                 <i class="fas fa-question-circle" style="width:16px;text-align:center;"></i> Help & Support
             </a>
-            <form method="POST" action="{{ route('logout') }}">
+            <form method="POST" action="{{ url('logout') }}">
                 @csrf
                 <button type="submit" class="sidebar-foot-btn danger">
                     <i class="fas fa-sign-out-alt" style="width:16px;text-align:center;"></i> Sign Out
@@ -1451,7 +1451,7 @@ h1,h2,h3,h4,h5 { font-family: 'Playfair Display', serif; line-height: 1.15; }
             <a href="#" class="pdh-item"><i class="fas fa-shield-alt"></i> Security</a>
             <a href="#" class="pdh-item"><i class="fas fa-question-circle"></i> Help Center</a>
             <div class="pdh-divider"></div>
-            <form method="POST" action="{{ route('logout') }}">
+            <form method="POST" action="{{ url('logout') }}">
                 @csrf
                 <button type="submit" class="pdh-item danger"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
             </form>
