@@ -21,7 +21,7 @@ class StudentController extends Controller
 
     public function studentDashboard()
     {
-        return view('student.dashboard');
+        return view('Student.dashboard');
     }
 
     public function user_terms_and_conditions(Request $request)
