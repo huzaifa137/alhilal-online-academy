@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $subject }}</title>
+    <title>{{ $title ?? 'Al-Hilal Academy' }}</title>
     <style>
         /* Reset styles for email clients */
         * {
@@ -302,93 +302,14 @@
 
 <body>
     <div class="email-wrapper">
-        <!-- Header -->
         <div class="email-header">
-            <div class="logo">🎓</div>
-            <h1>Welcome to Al-Hilal Online Academy!</h1>
-            <p>Your journey to excellence begins here</p>
+            <div class="logo">{{ $logo ?? '🎓' }}</div>
+            <h1>{{ $header_title ?? 'Al-Hilal Online Academy' }}</h1>
+            <p>{{ $header_subtitle ?? '' }}</p>
         </div>
 
-        <!-- Content -->
         <div class="email-content">
-
-            <div class="welcome-message">
-                <h2>Dear {{ $firstname }} {{ $lastname }},</h2>
-                <p>{{ $welcome_text }}</p>
-            </div>
-
-            <div class="details-card">
-                <h3>Account Details</h3>
-
-                <div class="detail-row">
-                    <div class="detail-label">Full Name:</div>
-                    <div class="detail-value">{{ $firstname }} {{ $lastname }}</div>
-                </div>
-
-                <div class="detail-row">
-                    <div class="detail-label">Username:</div>
-                    <div class="detail-value"><strong>{{ $username }}</strong></div>
-                </div>
-
-                <div class="detail-row">
-                    <div class="detail-label">Email Address:</div>
-                    <div class="detail-value">{{ $email }}</div>
-                </div>
-
-                @if(isset($phone))
-                    <div class="detail-row">
-                        <div class="detail-label">Phone Number:</div>
-                        <div class="detail-value">{{ $phone }}</div>
-                    </div>
-                @endif
-
-                @if(isset($reg_number))
-                    <div class="detail-row">
-                        <div class="detail-label">Registration No:</div>
-                        <div class="detail-value"><strong>{{ $reg_number }}</strong></div>
-                    </div>
-                @endif
-
-                @if(isset($role_name))
-                    <div class="detail-row">
-                        <div class="detail-label">Role:</div>
-                        <div class="detail-value">{{ $role_name }}</div>
-                    </div>
-                @endif
-
-                <div class="detail-row">
-                    <div class="detail-label">Account Status:</div>
-                    <div class="detail-value"><span style="color: #10B981;">✓ Active</span></div>
-                </div>
-            </div>
-
-            <!-- Important Notes -->
-            <div class="important-notes">
-                <h4>Important Information</h4>
-                <ul>
-                    <li><strong>Keep your credentials secure</strong> - Never share your password with anyone</li>
-                    <li><strong>First login</strong> - You can change your password after logging in</li>
-                    <li><strong>Support available</strong> - Contact us if you need any assistance</li>
-                    <li><strong>Complete your profile</strong> - Add more details to enhance your learning experience
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Action Button -->
-            <div class="action-button">
-                <a href="{{ url('/users/login') }}" class="btn">🎯 Login to Your Account</a>
-            </div>
-
-            <!-- Help Section -->
-            <div class="help-section">
-                <h4>Need Help?</h4>
-                <p>Our support team is here to assist you with any questions</p>
-                <div class="contact-info">
-                    <span class="contact-item">📧 support@alhilalacademy.com</span>
-                    <span class="contact-item">📞 +256 700 123456</span>
-                    <span class="contact-item">💬 Live Chat</span>
-                </div>
-            </div>
+            {{ $slot }}
         </div>
 
         <!-- Footer -->

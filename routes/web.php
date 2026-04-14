@@ -17,12 +17,8 @@ Route::controller(UserController::class)->group(function () {
         Route::get('/student-logout', 'studentLogout')->name('student-logout');
         Route::get('/teacher-logout', 'teacherLogout')->name('teacher-logout');
 
-        // Public routes (no auth required)
-        Route::get('/login', 'login')->name('users.login');
-        Route::get('/login', 'login')->name('login');
         Route::post('auth-user-check', 'checkUser')->name('auth-user-check');
         Route::post('user-account-creation', 'userAccountCreation')->name('user-account-creation');
-        Route::get('/register', 'register')->name('users.register');
         Route::get('/forgot-password', 'forgotPassword')->name('forgot-password');
         Route::post('user-generate-forgot-password-link', 'generateForgotPasswordLink')->name('user-generate-forgot-password-link');
         Route::post('user-store-new-password', 'store_new_password')->name('user-store-new-password');
@@ -32,7 +28,6 @@ Route::controller(UserController::class)->group(function () {
 
             Route::get('/dashboard', 'dashboard')->name('admin.dashboard');
             Route::get('/users-profile', 'userProfile')->name('users-profile');
-            Route::get('/users-register', 'userRegister')->name('users.register');
             Route::get('/users-information', 'userInformation')->name('users.user-information');
             Route::get('user-account-information/{id}', 'userAccountInformation');
             Route::get('delete-user/{id}', 'deleteUser');
@@ -74,14 +69,11 @@ Route::controller(MasterDataController::class)->group(function () {
 
     });
 
-    Route::post('store-travel-requisition-document', 'storeTravelRequisitionDocument')->name('store-travel-requisition-document');
-    Route::post('update-supplier-document', 'updateSupplierDocument')->name('update-supplier-document');
     Route::post('update-master-record', 'updateMasterrecord')->name('update-master-record');
     Route::post('update-master-code', 'updateMasterCode')->name('update-master-code');
     Route::post('send-master-code', 'sendMasterCode')->name('send-master-code');
     Route::post('add-new-record', 'addNewRecord')->name('add-new-record');
 
-    Route::get('delete-supplier-document/{id}', 'deleteSupplierDocument');
     Route::get('delete-record/{id}', 'deleteRecord');
     Route::get('delete-code/{id}', 'deleteCode');
 
@@ -94,12 +86,15 @@ Route::controller(StudentController::class)->group(function () {
         Route::get('/', 'homePage');
 
         Route::group(['prefix' => '/users'], function () {
+            Route::get('/login', 'login')->name('users.login');
+            Route::get('/login', 'login')->name('login');
             Route::get('/register', 'register')->name('users.register');
             Route::get('/terms-and-conditions', 'user_terms_and_conditions')->name('users.terms-and-conditions');
         });
 
         Route::group(['prefix' => '/student'], function () {
             Route::get('/dashboard', 'studentDashboard')->name('student.dashboard');
+            Route::get('/student-profile', 'studentProfile')->name('student.profile');
         });
 
     });

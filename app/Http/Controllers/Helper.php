@@ -12,9 +12,29 @@ class Helper extends Controller
         return $user = Session::get('LoggedAdmin');
     }
 
+    public static function getLoggedInUser()
+    {
+        $sessions = [
+            'LoggedAdmin' => 'admin',
+            'LoggedStudent' => 'student',
+            'LoggedTeacher' => 'teacher',
+        ];
+
+        foreach ($sessions as $sessionKey => $role) {
+            if (session()->has($sessionKey)) {
+                return [
+                    'id' => session($sessionKey),
+                    'role' => $role,
+                    'session_key' => $sessionKey,
+                ];
+            }
+        }
+        return null;
+    }
+
     public static function instructor_name($user = "")
     {
-        $user  = (int) $user;
+        $user = (int) $user;
         $admin = DB::table('users')->where('id', '=', $user)->where('user_role', '!=', 1)->first();
 
         return $user = @$admin->firstname . ' ' . @$admin->lastname;
@@ -22,7 +42,7 @@ class Helper extends Controller
 
     public static function student_name($user = "")
     {
-        $user  = (int) $user;
+        $user = (int) $user;
         $admin = DB::table('users')
             ->where('id', $user)
             ->where('user_role', 1)
@@ -42,7 +62,7 @@ class Helper extends Controller
 
     public static function category_name($user = "")
     {
-        $user  = (int) $user;
+        $user = (int) $user;
         $admin = DB::table('users')->where('id', '=', $user)->where('user_role', '!=', 1)->first();
 
         return $user = @$admin->firstname . ' ' . @$admin->lastname;
@@ -50,7 +70,7 @@ class Helper extends Controller
 
     public static function language_name($user = "")
     {
-        $user  = (int) $user;
+        $user = (int) $user;
         $admin = DB::table('users')->where('id', '=', $user)->where('user_role', '!=', 1)->first();
 
         return $user = @$admin->firstname . ' ' . @$admin->lastname;
@@ -59,7 +79,7 @@ class Helper extends Controller
     public static function active_user()
     {
 
-        $admin       = DB::table('users')->where('id', '=', Session('LoggedAdmin'))->first();
+        $admin = DB::table('users')->where('id', '=', Session('LoggedAdmin'))->first();
         return $user = @$admin->firstname . ' ' . @$admin->lastname;
     }
 
@@ -93,7 +113,7 @@ class Helper extends Controller
     public static function DropMasterData($code_id = "", $selected = "", $id = "", $part = 2, $disabled = 0)
     {
 
-        if (! $code_id) {
+        if (!$code_id) {
             $select = DB::table("master_datas")->get();
         } else {
             $select = DB::table("master_datas")->where("md_master_code_id", $code_id)->orderBy("md_name", "asc")->get();

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\password_reset_table;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Controllers\Helper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\User;
@@ -15,7 +16,7 @@ class UserController extends Controller
 
     public function createNewPassword($id)
     {
-        $generated_id = url('password/reset/'.$id);
+        $generated_id = url('password/reset/' . $id);
         $resetEntry = DB::table('password_reset_tables')->where('token', $generated_id)->first();
 
         if ($resetEntry) {
@@ -66,7 +67,7 @@ class UserController extends Controller
                 $message->to($data['email'], $data['email'])->subject($data['title']);
             });
 
-            return back()->with('success', 'Link has been sent to your email : '.' '.$email);
+            return back()->with('success', 'Link has been sent to your email : ' . ' ' . $email);
         }
     }
 
@@ -142,16 +143,6 @@ class UserController extends Controller
         return view('users.forgot-password');
     }
 
-    public function login(Request $request)
-    {
-        return view('users.login');
-    }
-
-    public function courseInformation(Request $request)
-    {
-        return view('users.login');
-    }
-
     public function dashboard()
     {
         return view('dashboard');
@@ -175,7 +166,7 @@ class UserController extends Controller
         $loginField = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
         $userInfo = User::where($loginField, '=', $request->login)->first();
 
-        if (! $userInfo) {
+        if (!$userInfo) {
             return response()->json([
                 'status' => false,
                 'message' => 'We don\'t recognise the provided username or password',
@@ -231,20 +222,18 @@ class UserController extends Controller
 
     public function userProfile()
     {
+        $loggedInUser = Helper::getLoggedInUser();
+        
+        if (!$loggedInUser) {
+            return redirect('/users/home-page')
+                ->with('fail', 'You must be logged in');
+        }
 
-        $user = DB::table('users')->where('id', session('LoggedAdmin'))->first();
+        $user = DB::table('users')
+            ->where('id', $loggedInUser['id'])
+            ->first();
 
-        return view('users.user-profile', compact(['user']));
-    }
-
-    public function userRegister()
-    {
-
-        $user_supervisors = DB::table('users')
-            ->select('firstname', 'lastname')
-            ->get();
-
-        return view('users.user-register', compact(['user_supervisors']));
+        return view('users.user-profile', compact('user'));
     }
 
     public function homePage()
@@ -279,16 +268,16 @@ class UserController extends Controller
             return datatables()->of($users)
                 ->addColumn('action', function ($user) {
                     $links = [];
-                    $links[] = '<a class="dropdown-item" href="user-account-information/'.$user->id.'"><i class="fa fa-fw fa-eye"></i> View</a>';
-                    $links[] = '<a class="dropdown-item" href="/users/edit-specific-user/'.$user->id.'"><i class="fa fa-fw fa-edit"></i> Edit</a>';
-                    $links[] = '<a onclick="return confirm(\'Are you sure you want to delete '.$user->firstname.' '.$user->lastname.'?\'); " class="dropdown-item" href="delete-user/'.$user->id.'"><i class="fa fa-fw fa-times"></i> Delete</a>';
+                    $links[] = '<a class="dropdown-item" href="user-account-information/' . $user->id . '"><i class="fa fa-fw fa-eye"></i> View</a>';
+                    $links[] = '<a class="dropdown-item" href="/users/edit-specific-user/' . $user->id . '"><i class="fa fa-fw fa-edit"></i> Edit</a>';
+                    $links[] = '<a onclick="return confirm(\'Are you sure you want to delete ' . $user->firstname . ' ' . $user->lastname . '?\'); " class="dropdown-item" href="delete-user/' . $user->id . '"><i class="fa fa-fw fa-times"></i> Delete</a>';
 
                     return '<div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton'.$user->id.'" data-bs-toggle="dropdown" aria-expanded="false">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton' . $user->id . '" data-bs-toggle="dropdown" aria-expanded="false">
                                 Actions
                             </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton'.$user->id.'">
-                                '.implode('', $links).'
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton' . $user->id . '">
+                                ' . implode('', $links) . '
                             </ul>
                         </div>';
                 })
@@ -415,18 +404,9 @@ class UserController extends Controller
 
         $data->delete();
 
-        return back()->with('success', 'user '.$data->username.' has been deleted successfully');
+        return back()->with('success', 'user ' . $data->username . ' has been deleted successfully');
     }
 
-    /**
-     * UPDATED: User Account Creation Method - NO OTP REQUIRED
-     * Direct registration without email verification
-     */
-
-    /**
-     * UPDATED: User Account Creation Method - NO OTP REQUIRED
-     * Fixed to use firstname and lastname instead of fullname
-     */
     public function userAccountCreation(Request $request)
     {
         $request->validate([
@@ -463,61 +443,65 @@ class UserController extends Controller
             'terms.accepted' => 'You must agree to the terms and policies.',
         ]);
 
-        // Split fullname into firstname and lastname
-        $fullname = $request->fullname;
-        $nameParts = explode(' ', $fullname, 2);
-        $firstname = $nameParts[0];
-        $lastname = isset($nameParts[1]) ? $nameParts[1] : '';
+        try {
+            DB::beginTransaction();
 
-        // Determine role (default to student - role 1)
-        $userRole = $request->role ?? 1;
+            $nameParts = explode(' ', trim($request->fullname), 2);
+            $firstname = $nameParts[0];
+            $lastname = $nameParts[1] ?? '';
 
-        // Create user - using correct column names (firstname, lastname, NOT fullname)
-        $user = new User;
-        $user->firstname = $firstname;
-        $user->lastname = $lastname;
-        $user->username = $request->username;
-        $user->email = $request->email; // Can be null
-        $user->phonenumber = $request->phone;
-        $user->password = Hash::make($request->password);
-        $user->registration_status = 1; // 1 = verified/active (no OTP needed)
-        $user->user_role = $userRole;
-        $user->account_status = 10; // 10 = active
+            $userRole = $request->role ?? 1;
 
-        $save = $user->save();
+            $user = new User();
+            $user->firstname = $firstname;
+            $user->lastname = $lastname;
+            $user->username = $request->username;
+            $user->email = $request->email;
+            $user->phonenumber = $request->phone;
+            $user->password = Hash::make($request->password);
+            $user->registration_status = 1;
+            $user->user_role = $userRole;
+            $user->account_status = 10;
 
-        if ($save) {
-            // Generate registration number after user is saved
-            try {
-                $regNumber = $this->generateRegistrationNumber($user->id, $userRole);
-                DB::table('users')->where('id', $user->id)->update(['reg_number' => $regNumber]);
-            } catch (\Exception $e) {
-                // Log error but continue - registration still successful
-                \Log::error('Reg number generation failed: '.$e->getMessage());
-            }
+            $user->save();
 
-            // Send welcome email (optional, no OTP)
-            if ($request->email) {
-                $data = [
-                    'subject' => 'Al-Hilal Online Academy - Welcome!',
-                    'username' => $request->username,
-                    'email' => $request->email,
-                    'firstname' => $firstname,
-                    'lastname' => $lastname,
-                    'message' => 'Your account has been created successfully. You can now login to start learning!',
-                ];
+            $user->reg_number = $this->generateRegistrationNumber($user->id, $userRole);
+            $user->save();
 
+            DB::commit();
+
+            if (!empty($user->email)) {
                 try {
-                    Mail::send('emails.welcome', $data, function ($message) use ($data) {
-                        $message->to($data['email'], $data['email'])->subject($data['subject']);
+
+                    $roleNames = [
+                        1 => 'Student',
+                        2 => 'Teacher',
+                        3 => 'Admin'
+                    ];
+
+                    $data = [
+                        'subject' => 'Welcome to Al-Hilal Online Academy! 🎓',
+                        'username' => (string) $user->username,
+                        'email' => (string) $user->email,
+                        'firstname' => (string) $firstname,
+                        'lastname' => (string) $lastname,
+                        'phone' => (string) $user->phonenumber,
+                        'reg_number' => (string) ($user->reg_number ?? ''),
+                        'role_name' => (string) ($roleNames[$userRole] ?? 'Student'),
+                        'welcome_text' => 'Your account has been created successfully! We\'re excited to have you join our learning community.',
+                    ];
+
+                    Mail::send('emails.user-account-created', $data, function ($message) use ($user) {
+                        $message->to($user->email)
+                            ->subject('Welcome to Al-Hilal Online Academy! 🎓');
                     });
+
                 } catch (\Exception $e) {
-                    // Log error but continue
-                    \Log::error('Welcome email failed: '.$e->getMessage());
+                    \Log::error('Welcome email failed: ' . $e->getMessage());
+                    \Log::error('Email error trace: ' . $e->getTraceAsString());
                 }
             }
 
-            // Auto-login after registration
             session()->put('LoggedStudent', $user->id);
 
             return response()->json([
@@ -525,17 +509,18 @@ class UserController extends Controller
                 'message' => 'Registration successful! Welcome to Al-Hilal Online Academy.',
                 'redirect_url' => '/student/dashboard',
             ]);
-        }
+        } catch (\Exception $e) {
+            DB::rollBack();
 
-        return response()->json([
-            'status' => false,
-            'message' => 'Registration failed. Please try again.',
-        ]);
+            \Log::error('User registration failed: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Registration failed. Please try again.',
+            ], 500);
+        }
     }
 
-    /**
-     * Generate registration number based on user role and ID
-     */
     private function generateRegistrationNumber($userId, $role)
     {
         $prefix = '';
@@ -554,7 +539,7 @@ class UserController extends Controller
                 $prefix = 'USR';
         }
 
-        return $prefix.'-'.date('Y').'-'.str_pad($userId, 4, '0', STR_PAD_LEFT);
+        return $prefix . '-' . date('Y') . '-' . str_pad($userId, 4, '0', STR_PAD_LEFT);
     }
 
     public function editRecord($md_id)
@@ -691,7 +676,8 @@ class UserController extends Controller
                     'gender' => $request->gender,
                     'phonenumber' => $request->phonenumber,
                     'country' => $request->country,
-                ]);
+                ]
+            );
 
             return back()->with('success', 'User account has been updated successfully');
 
@@ -707,7 +693,8 @@ class UserController extends Controller
                     'gender' => $request->gender,
                     'phonenumber' => $request->phonenumber,
                     'country' => $request->country,
-                ]);
+                ]
+            );
 
             return back()->with('success', 'User account has been updated successfully');
         }

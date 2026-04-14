@@ -346,18 +346,6 @@ class MasterDataController extends Controller
     public function addNewRecord(Request $request)
     {
 
-        $recordsave = new MasterData();
-
-        // $date = time();
-        // $session = Helper::user_id();
-        // $recordsave->md_master_code_id = $request->master_code_id;
-        // $recordsave->md_code = $request->md_code;
-        // $recordsave->md_name = $request->md_name;
-        // $recordsave->md_description = $request->md_description;
-        // $recordsave->md_date_added = $date;
-        // $recordsave->md_added_by = $session;
-        // $recordsave->save();
-
         $date           = time();
         $session        = Helper::user_id();
         $master_code_id = $request->master_code_id;
@@ -388,27 +376,6 @@ class MasterDataController extends Controller
         $masterCode   = DB::table('master_datas')->where('md_id', $md_id)->value('md_master_code_id');
 
         $list_id = $this->rgf('master_codes', $masterCode, "id", "mc_code");
-
-        if ($masterCode == config('constants.options.PROCUREMENT_CATEGORY')) {
-
-            $md_code = 'ppd_' . str_replace(' ', '_', strtolower($masterRecord->md_code));
-            $md_name = 'ppd_' . str_replace(' ', '_', strtolower($masterRecord->md_name));
-
-            $md_code1 = 'ppt_' . str_replace(' ', '_', strtolower($masterRecord->md_code));
-            $md_name2 = 'ppt_' . str_replace(' ', '_', strtolower($masterRecord->md_name));
-
-            if (Schema::hasColumn('procurement_dates', $md_code) || Schema::hasColumn('procurement_dates', $md_name)) {
-                Schema::table('procurement_dates', function (Blueprint $table) use ($md_name) {
-                    $table->dropColumn($md_name);
-                });
-            }
-
-            if (Schema::hasColumn('procurement_plan_thresholds', $md_code1) || Schema::hasColumn('procurement_plan_thresholds', $md_name2)) {
-                Schema::table('procurement_plan_thresholds', function (Blueprint $table) use ($md_name2) {
-                    $table->dropColumn($md_name);
-                });
-            }
-        }
 
         DB::table('master_datas')
             ->where('md_id', $md_id)
@@ -474,85 +441,5 @@ class MasterDataController extends Controller
             ->update(['mc_id' => $master_code, 'mc_code' => $master_code, 'mc_name' => $request->mc_name, 'mc_description' => $request->mc_description, 'mc_date_added' => $date, 'mc_added_by' => $session]);
 
         return redirect('master-data/master-code-to-data')->with('success', 'Master Code has been updated successfully');
-    }
-
-    public function storeRequisitionDocument(Request $request)
-    {
-
-        $select = DB::table('master_datas')->where('md_master_code_id', 30075)->where('md_code', 'REQ_DOC')->where('md_name', $request->supplier_document)->where('md_misc1', $request->category_of_procurement)->get();
-
-        if (count($select)) {
-            Alert::error('Error', 'Document already exists');
-            return back();
-        }
-
-        DB::table('master_datas')->insert(
-            [
-                'md_master_code_id' => 30075,
-                'md_code'           => "REQ_DOC",
-                'md_name'           => $request->supplier_document,
-                'md_misc1'          => $request->category_of_procurement,
-                'md_misc2'          => $request->mandatory,
-            ]
-        );
-
-        Alert::success('Success', 'New Document has been added successfully');
-        return back();
-    }
-
-    public function deleteSupplierDocument($id)
-    {
-        DB::table('master_datas')
-            ->where('md_id', '=', $id)
-            ->delete();
-
-        Alert::success('Success', 'Document has been deleted successfully');
-        return back();
-    }
-
-    public function updateSupplierDocument(Request $request)
-    {
-
-        $md_md     = $request->md_id;
-        $doc       = $request->supplier_document;
-        $doc       = $request->supplier_document;
-        $category  = $request->category_of_procurement;
-        $mandatory = $request->mandatory;
-
-        DB::table('master_datas')
-            ->where('md_id', $md_md)
-            ->update([
-                'md_name'  => $doc,
-                'md_misc2' => $mandatory,
-                'md_misc1' => $category,
-            ]);
-
-        Alert::success('Success', 'Successfully Saved');
-
-        return redirect('master-data/requisition-documents')->with('success', 'Master Code has been updated successfully');
-    }
-
-    public function storeTravelRequisitionDocument(Request $request)
-    {
-
-        $select = DB::table('master_datas')->where('md_code', 'TRA_DOC')
-            ->where('md_name', $request->supplier_document)->get();
-
-        if (count($select)) {
-            Alert::error('Error', 'Document already exists');
-            return back();
-        }
-
-        DB::table('master_datas')->insert(
-            [
-                'md_master_code_id' => 0001,
-                'md_code'           => "TRA_DOC",
-                'md_name'           => $request->supplier_document,
-                'md_misc2'          => $request->mandatory,
-            ]
-        );
-
-        Alert::success('Success', 'New Document has been added successfully');
-        return back();
     }
 }
