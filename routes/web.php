@@ -7,9 +7,23 @@ use App\Http\Controllers\UserController;
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/teacher/dashboard', [TeacherController::class, 'index'])->name('teacher.dashboard');
+
+Route::controller(TeacherController::class)->group(function () {
+    Route::group(['middleware' => ['AdminAuth']], function () {
+
+
+        Route::get('/teacher/dashboard', 'teacherDashboard')->name('teacher.dashboard');
+
+
+    });
+});
 
 Route::controller(UserController::class)->group(function () {
+
+    Route::group(['middleware' => ['AdminAuth']], function () {
+        Route::get('/user-profile', 'userProfile')->name('user.profile');
+        Route::post('/profile/update', 'updateProfile')->name('profile.update');
+    });
 
     Route::group(['prefix' => '/users'], function () {
 
@@ -94,7 +108,6 @@ Route::controller(StudentController::class)->group(function () {
 
         Route::group(['prefix' => '/student'], function () {
             Route::get('/dashboard', 'studentDashboard')->name('student.dashboard');
-            Route::get('/student-profile', 'studentProfile')->name('student.profile');
         });
 
     });

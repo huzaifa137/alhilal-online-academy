@@ -8,8 +8,11 @@ use App\Http\Controllers\Helper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Mail;
-use DB;
+
 
 class UserController extends Controller
 {
@@ -218,22 +221,6 @@ class UserController extends Controller
                 ]);
             }
         }
-    }
-
-    public function userProfile()
-    {
-        $loggedInUser = Helper::getLoggedInUser();
-        
-        if (!$loggedInUser) {
-            return redirect('/users/home-page')
-                ->with('fail', 'You must be logged in');
-        }
-
-        $user = DB::table('users')
-            ->where('id', $loggedInUser['id'])
-            ->first();
-
-        return view('users.user-profile', compact('user'));
     }
 
     public function homePage()
@@ -699,5 +686,141 @@ class UserController extends Controller
             return back()->with('success', 'User account has been updated successfully');
         }
 
+    }
+
+
+    public function userProfile()
+    {
+        $loggedInUser = Helper::getLoggedInUser();
+
+        if (!$loggedInUser) {
+            return redirect('/users/home-page')
+                ->with('fail', 'You must be logged in');
+        }
+
+        $user = DB::table('users')
+            ->where('id', $loggedInUser['id'])
+            ->first();
+
+        return view('users.user-profile', compact('user'));
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $loggedInUser = session()->get('LoggedStudent');
+
+        if (!$loggedInUser) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Session expired. Please login again.'
+            ], 401);
+        }
+
+        $user = DB::table('users')->where('id', $loggedInUser)->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found.'
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'firstname' => 'required|string|min:2|max:255',
+            'lastname' => 'required|string|min:2|max:255',
+            'username' => [
+                'required',
+                'string',
+                'min:3',
+                'max:255',
+                'regex:/^[a-zA-Z0-9_]+$/',
+                Rule::unique('users')->ignore($user->id)
+            ],
+            'email' => 'nullable|email|unique:users,email,' . $user->id,
+            'phonenumber' => 'required|string|regex:/^[\+]?[0-9\s\-\(\)]{10,20}$/',
+            'current_password' => 'nullable|required_with:new_password',
+            'new_password' => 'nullable|min:8|confirmed|regex:/[A-Z]/|regex:/[a-z]/|regex:/[0-9]/|regex:/[@$!%*?&]/',
+            'new_password_confirmation' => 'nullable'
+        ], [
+            'firstname.required' => 'First name is required.',
+            'lastname.required' => 'Last name is required.',
+            'username.required' => 'Username is required.',
+            'username.unique' => 'This username is already taken.',
+            'username.regex' => 'Username can only contain letters, numbers, and underscores.',
+            'email.email' => 'Please enter a valid email address.',
+            'email.unique' => 'This email is already registered.',
+            'phonenumber.required' => 'Phone number is required.',
+            'phonenumber.regex' => 'Please enter a valid phone number.',
+            'current_password.required_with' => 'Current password is required to change password.',
+            'new_password.min' => 'New password must be at least 8 characters.',
+            'new_password.confirmed' => 'Password confirmation does not match.',
+            'new_password.regex' => 'Password must include uppercase, lowercase, number, and special character.'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Verify current password if changing password
+        if ($request->filled('new_password')) {
+            if (!Hash::check($request->current_password, $user->password)) {
+                return response()->json([
+                    'status' => false,
+                    'errors' => ['current_password' => ['Current password is incorrect.']]
+                ], 422);
+            }
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $updateData = [
+                'firstname' => $request->firstname,
+                'lastname' => $request->lastname,
+                'username' => $request->username,
+                'email' => $request->email,
+                'phonenumber' => $request->phonenumber,
+                'updated_at' => now()
+            ];
+
+            if ($request->filled('new_password')) {
+                $updateData['password'] = Hash::make($request->new_password);
+            }
+
+            DB::table('users')->where('id', $user->id)->update($updateData);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Profile updated successfully!',
+                'user' => (object) array_merge((array) $user, $updateData)
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Profile update failed: ' . $e->getMessage());
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to update profile. Please try again.'
+            ], 500);
+        }
+    }
+
+    private function getUserStats($userId)
+    {
+        $stats = [
+            'total_lessons_completed' => 2,
+            'total_quizzes_passed' => 3,
+            'certificates_earned' => 3,
+            'current_level' => 4,
+            'join_date' => 25 - 12 - 22025,
+        ];
+
+        return $stats;
     }
 }
