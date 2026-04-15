@@ -11,10 +11,7 @@ use Illuminate\Support\Facades\Route;
 Route::controller(TeacherController::class)->group(function () {
     Route::group(['middleware' => ['AdminAuth']], function () {
 
-
         Route::get('/teacher/dashboard', 'teacherDashboard')->name('teacher.dashboard');
-
-
     });
 });
 
