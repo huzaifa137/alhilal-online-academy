@@ -4,9 +4,47 @@ use App\Http\Controllers\MasterDataController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\Admin\SectionController;
 
 use Illuminate\Support\Facades\Route;
 
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+// Authentication routes (if using Laravel Breeze/Jetstream)
+// Route::middleware('auth')->group(function () {
+//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+// });
+
+// Redirect based on user role after login
+// Route::get('/dashboard', function () {
+//     $user = auth()->user();
+    
+//     if ($user->hasRole('admin')) {
+//         return redirect()->route('admin.dashboard');
+//     } elseif ($user->hasRole('teacher')) {
+//         return redirect()->route('teacher.dashboard');
+//     } elseif ($user->hasRole('student')) {
+//         return redirect()->route('student.dashboard');
+//     }
+    
+//     return redirect('/');
+// })->middleware(['auth'])->name('dashboard');
+
+// require __DIR__.'/auth.php';
+
+// Route::middleware('web')->group(base_path('routes/admin.php'));
+// Route::middleware('web')->group(base_path('routes/teacher.php'));
+// Route::middleware('web')->group(base_path('routes/student.php'));
 
 Route::controller(TeacherController::class)->group(function () {
     Route::group(['middleware' => ['AdminAuth']], function () {
@@ -108,5 +146,19 @@ Route::controller(StudentController::class)->group(function () {
         });
 
     });
+});
+
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    
+    // Sections Routes
+    Route::get('/sections', [SectionController::class, 'index'])->name('sections.index');
+    Route::get('/sections/create', [SectionController::class, 'create'])->name('sections.create');
+    Route::post('/sections', [SectionController::class, 'store'])->name('sections.store');
+    Route::get('/sections/{section}', [SectionController::class, 'show'])->name('sections.show');
+    Route::get('/sections/{section}/edit', [SectionController::class, 'edit'])->name('sections.edit');
+    Route::put('/sections/{section}', [SectionController::class, 'update'])->name('sections.update');
+    Route::delete('/sections/{section}', [SectionController::class, 'destroy'])->name('sections.destroy');
+    
 });
 

@@ -148,7 +148,8 @@ class UserController extends Controller
 
     public function dashboard()
     {
-        return view('dashboard');
+       
+        return view('Admin.dashboard');
     }
 
     public function checkUser(Request $request)
@@ -182,9 +183,9 @@ class UserController extends Controller
 
                 // Set session based on role
                 if ($userRole == 2) {
-                    $request->session()->put('LoggedAdmin', $userId);
-                } elseif ($userRole == 3) {
                     $request->session()->put('LoggedTeacher', $userId);
+                } elseif ($userRole == 3) {
+                    $request->session()->put('LoggedAdmin', $userId);
                 } else {
                     $request->session()->put('LoggedStudent', $userId);
                 }
@@ -199,13 +200,13 @@ class UserController extends Controller
                     return response()->json([
                         'status' => true,
                         'message' => 'Login successful',
-                        'redirect_url' => '/users/dashboard',
+                        'redirect_url' => '/teacher/dashboard',
                     ]);
                 } elseif ($userRole == 3) {
                     return response()->json([
                         'status' => true,
                         'message' => 'Login successful',
-                        'redirect_url' => '/teacher/dashboard',
+                        'redirect_url' => '/users/dashboard',
                     ]);
                 } else {
                     return response()->json([
