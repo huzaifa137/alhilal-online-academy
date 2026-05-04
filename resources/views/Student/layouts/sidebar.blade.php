@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         /* ═══════════════════════════════════════════════
-                   ALHILAL DESIGN SYSTEM — STUDENT DASHBOARD
-                ═══════════════════════════════════════════════ */
+                       ALHILAL DESIGN SYSTEM — STUDENT DASHBOARD
+                    ═══════════════════════════════════════════════ */
         :root {
             --purple: #6B46C1;
             --purple-dark: #4C2E8A;
@@ -1598,7 +1598,7 @@
 
         {{-- Brand --}}
         <div class="sd-brand">
-            <img src="{{ asset('assets/images/alhilal_logo.jpeg') }}" alt="Al-Hilal Online Academy">
+            <img src="{{ asset('assets/images/al-hilaal_update.png') }}" alt="Al-Hilal Online Academy">
             <div class="sd-brand-text">
                 <div class="sd-brand-name">Al-Hilal Online Academy</div>
                 <div class="sd-brand-sub">Student Portal</div>
@@ -1619,29 +1619,29 @@
         <nav class="sd-nav">
             <div class="sd-nav-section">Main Menu</div>
 
-            <a href="#" class="sd-nav-item active" data-section="overview">
+            <a href="{{ url('/student/dashboard') }}" class="sd-nav-item active" data-section="overview">
                 <i class="fas fa-grid-2"></i> Dashboard
             </a>
-            <a href="#" class="sd-nav-item" data-section="lessons">
-                <i class="fas fa-play-circle"></i> My Lessons
+            <a href="{{ route('student.lessons.lists') }}" class="sd-nav-item" data-section="lessons">
+                <i class="fas fa-play-circle"></i> My Classes
             </a>
-            <a href="#" class="sd-nav-item" data-section="quizzes">
+            {{-- <a href="#" class="sd-nav-item" data-section="quizzes">
                 <i class="fas fa-question-circle"></i> Quizzes
                 <span class="sd-nav-badge">3</span>
-            </a>
-            <a href="#" class="sd-nav-item" data-section="exams">
+            </a> --}}
+            {{-- <a href="#" class="sd-nav-item" data-section="exams">
                 <i class="fas fa-pen-to-square"></i> Exams
             </a>
             <a href="#" class="sd-nav-item" data-section="reports">
                 <i class="fas fa-chart-bar"></i> My Reports
-            </a>
+            </a> --}}
             <a href="#" class="sd-nav-item" data-section="certificates">
                 <i class="fas fa-award"></i> Certificates
             </a>
 
-            <div class="sd-nav-section">Resources</div>
+            {{-- <div class="sd-nav-section">Resources</div> --}}
 
-            <a href="#" class="sd-nav-item" data-section="curriculum">
+            {{-- <a href="#" class="sd-nav-item" data-section="curriculum">
                 <i class="fas fa-layer-group"></i> Curriculum
             </a>
             <a href="#" class="sd-nav-item" data-section="schedule">
@@ -1663,15 +1663,15 @@
             <a href="https://wa.me/256702082209?text={{ urlencode('Assalamu Alaikum! I need help with my lessons.') }}"
                 target="_blank" class="sd-nav-item">
                 <i class="fab fa-whatsapp" style="color:#4ade80;"></i> Ask Teacher
-            </a>
+            </a> --}}
         </nav>
 
         {{-- Sidebar footer --}}
-        <div class="sd-sidebar-footer">
+        {{-- <div class="sd-sidebar-footer">
             <a href="{{ route('user-logout') }}" class="sd-logout-btn" id="logout-form">
                 <i class="fas fa-arrow-right-from-bracket"></i> Sign Out
             </a>
-        </div>
+        </div> --}}
 
     </aside>
 
@@ -1722,7 +1722,7 @@
                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
                 <script>
-                    document.getElementById('logoutLink').addEventListener('click', function (event) {
+                    document.getElementById('logoutLink').addEventListener('click', function(event) {
                         event.preventDefault();
 
                         Swal.fire({
@@ -1859,7 +1859,8 @@
                         display: none;
                     }
                 </style>
-                <script>// ── PROFILE DROPDOWN TOGGLE ─────────────────────────────
+                <script>
+                    // ── PROFILE DROPDOWN TOGGLE ─────────────────────────────
 
                     function toggleProfileMenu(e) {
                         e.stopPropagation();
@@ -1896,7 +1897,8 @@
                             document.getElementById('profileMenu')?.classList.remove('open');
                             document.getElementById('profileDropdown')?.classList.remove('active');
                         }
-                    });</script>
+                    });
+                </script>
             </div>
         </header>
 
@@ -1905,6 +1907,4 @@
         </main>
 
     </div>{{-- /sd-main --}}
-
 @endsection
-

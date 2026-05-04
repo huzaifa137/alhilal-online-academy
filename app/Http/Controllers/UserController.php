@@ -468,7 +468,7 @@ class UserController extends Controller
                     ];
 
                     $data = [
-                        'subject' => 'Welcome to Al-Hilal Online Academy! 🎓',
+                        'subject' => 'Welcome to Al-Hilaal Online Academy! 🎓',
                         'username' => (string) $user->username,
                         'email' => (string) $user->email,
                         'firstname' => (string) $firstname,
@@ -481,7 +481,7 @@ class UserController extends Controller
 
                     Mail::send('emails.user-account-created', $data, function ($message) use ($user) {
                         $message->to($user->email)
-                            ->subject('Welcome to Al-Hilal Online Academy! 🎓');
+                            ->subject('Welcome to Al-Hilaal Online Academy! 🎓');
                     });
 
                 } catch (\Exception $e) {
@@ -494,7 +494,7 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => 'Registration successful! Welcome to Al-Hilal Online Academy.',
+                'message' => 'Registration successful! Welcome to Al-Hilaal Online Academy.',
                 'redirect_url' => '/student/dashboard',
             ]);
         } catch (\Exception $e) {
@@ -613,7 +613,7 @@ class UserController extends Controller
             'email' => $request->email,
             'username' => $request->username,
             'password' => $request->password,
-            'title' => 'Al-Hilal Online Academy - User Account has been created successfully.',
+            'title' => 'Al-Hilaal Online Academy - User Account has been created successfully.',
         ];
 
         return back()->with('success', 'User account has been created successfully');

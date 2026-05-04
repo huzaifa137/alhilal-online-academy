@@ -2,7 +2,7 @@
 <div class="app-sidebar app-sidebar2">
     <div class="app-sidebar__logo">
         <a class="header-brand" href="{{ url('/student/dashboard') }}">
-            <img src="{{ URL::asset('assets/images/alhilal_logo.jpeg') }}" alt="Covido logo">
+            <img src="{{ URL::asset('assets/images/al-hilaal_update.png') }}" alt="Covido logo">
         </a>
     </div>
 </div>

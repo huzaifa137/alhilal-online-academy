@@ -1,1 +1,1 @@
-<p>Welcome to AlHilal Online Academy,Thank you for registering with us</p>
+<p>Welcome to AlHilaal Online Academy,Thank you for registering with us</p>

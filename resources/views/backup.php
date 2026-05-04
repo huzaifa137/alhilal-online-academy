@@ -54,6 +54,33 @@ error: function(data) {
 $('body').html(data.responseText);
 }
 
+function saveItem() {
+    const id = document.getElementById('item_id').value;
+    const form = document.getElementById('itemForm');
+    const data = Object.fromEntries(new FormData(form).entries());
+    const url = id ? `/teacher/settings/${currentSection}/${id}` : `/teacher/settings/${currentSection}`;
+    const method = id ? 'PUT' : 'POST';
+
+    fetch(url, {
+        method,
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+        },
+        body: JSON.stringify(data),
+    })
+    .then(async (response) => {
+        const text = await response.text();
+
+        // 👇 Show raw Laravel output (dd, errors, etc.)
+        document.open();
+        document.write(text);
+        document.close();
+    })
+    .catch(() => alert('An error occurred'));
+}
+
+
 document.addEventListener("DOMContentLoaded", function() {
         const form = document.getElementById("quizForm");
         form.addEventListener("submit", function(e) {

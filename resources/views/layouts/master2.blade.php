@@ -5,7 +5,7 @@
     <!-- Meta data -->
     <meta charset="UTF-8">
     <meta name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=0'>
-    <meta content="Al-Hilal Online Academy" name="description">
+    <meta content="Al-Hilaal Online Academy" name="description">
     <meta content="Spruko Technologies Private Limited" name="author">
     <meta name="keywords" content="UP" />
     @include('layouts.custom-head')

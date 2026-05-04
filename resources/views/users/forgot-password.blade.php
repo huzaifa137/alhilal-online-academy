@@ -572,7 +572,7 @@ body {
                 </div>
 
                 <h2>Account<br>Recovery</h2>
-                <p>Reset your password securely in three simple steps. Your Al-Hilal Online Academy account and learning progress will remain safe.</p>
+                <p>Reset your password securely in three simple steps. Your Al-Hilaal Online Academy account and learning progress will remain safe.</p>
 
                 <div class="fp-steps">
                     <div class="fp-step">
@@ -611,9 +611,9 @@ body {
             {{-- Top logo --}}
             <div class="fp-right-top">
                 <a href="{{ url('/') }}" class="fp-right-logo">
-                    <img src="{{ asset('assets/images/alhilal_logo.jpeg') }}" alt="Al-Hilal Online Academy">
+                    <img src="{{ asset('assets/images/al-hilaal_update.png') }}" alt="Al-Hilaal Online Academy">
                     <div>
-                        <div class="fp-right-logo-text">Al-Hilal Online Academy</div>
+                        <div class="fp-right-logo-text">Al-Hilaal Online Academy</div>
                         <div class="fp-right-logo-sub">Online Islamic Learning</div>
                     </div>
                 </a>
@@ -731,7 +731,7 @@ body {
 
     {{-- Page footer --}}
     <div class="fp-page-footer">
-        &copy; {{ date('Y') }} Al-Hilal Online Academy &nbsp;·&nbsp;
+        &copy; {{ date('Y') }} Al-Hilaal Online Academy &nbsp;·&nbsp;
         <a href="{{ url('/') }}">Home</a> &nbsp;·&nbsp;
         <a href="{{ url('/users/login') }}">Login</a> &nbsp;·&nbsp;
         <a href="{{ url('/users/register') }}">Register</a>

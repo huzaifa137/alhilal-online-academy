@@ -305,7 +305,7 @@
         <!-- Header -->
         <div class="email-header">
             <div class="logo">🎓</div>
-            <h1>Welcome to Al-Hilal Online Academy!</h1>
+            <h1>Welcome to Al-Hilaal Online Academy!</h1>
             <p>Your journey to excellence begins here</p>
         </div>
 
@@ -400,7 +400,7 @@
                 <a href="#" style="text-decoration: none;">💼</a>
             </div>
             <div class="copyright">
-                © {{ date('Y') }} Al-Hilal Online Academy. All rights reserved.
+                © {{ date('Y') }} Al-Hilaal Online Academy. All rights reserved.
             </div>
             <div class="address">
                 Kampala, Uganda | info@alhilalacademy.com | +256 700 123456

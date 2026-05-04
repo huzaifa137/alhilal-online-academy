@@ -5,8 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up()
     {
         Schema::create('lessons', function (Blueprint $table) {
@@ -25,6 +24,10 @@ return new class extends Migration
             $table->integer('lesson_order')->default(0);
             $table->enum('status', ['draft', 'published', 'archived'])->default('draft');
             $table->timestamp('published_at')->nullable();
+            $table->string('lesson_amount')->nullable()->after('published_at');
+            $table->enum('lesson_payment_status', ['Not Paid', 'Paid'])
+                ->default('Not Paid')
+                ->after('lesson_amount');
             $table->timestamps();
         });
     }

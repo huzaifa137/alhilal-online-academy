@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Progress;
+namespace App\Models\Academic;
 
 use App\Models\Academic\Lesson;
 use App\Models\User;

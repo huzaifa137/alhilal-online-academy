@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Assessment;
+namespace App\Models\Academic;
 
 use App\Models\Academic\ClassModel;
 use App\Models\Academic\Lesson;

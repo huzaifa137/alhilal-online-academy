@@ -57,4 +57,20 @@ class Subject extends Model
     {
         return $query->orderBy('sort_order')->orderBy('name');
     }
+
+    // Add this relationship to the Subject model
+public function teachers()
+{
+    return $this->belongsToMany(User::class, 'class_subjects', 'subject_id', 'teacher_id')
+                ->withPivot(['class_id', 'periods_per_week', 'is_compulsory', 'passing_marks', 'full_marks'])
+                ->withTimestamps();
+}
+
+// Also add this to get classes with teacher info
+public function taughtClasses()
+{
+    return $this->belongsToMany(ClassModel::class, 'class_subjects', 'subject_id', 'class_id')
+                ->withPivot(['teacher_id', 'periods_per_week', 'is_compulsory'])
+                ->withTimestamps();
+}
 }

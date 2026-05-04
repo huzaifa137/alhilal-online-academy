@@ -10,17 +10,19 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Lesson extends Model
 {
-    protected $fillable = [
-        'topic_id', 'teacher_id', 'title', 'title_arabic', 'description',
-        'notes', 'lesson_type', 'video_url', 'audio_url', 'pdf_file',
-        'duration', 'lesson_order', 'status', 'published_at'
-    ];
+protected $fillable = [
+    'topic_id', 'teacher_id', 'title', 'title_arabic', 'description',
+    'notes', 'lesson_type', 'video_url', 'audio_url', 'pdf_file',
+    'duration', 'lesson_order', 'status', 'published_at',
+    'lesson_amount', 'lesson_payment_status'
+];
     
-    protected $casts = [
-        'status' => 'string',
-        'lesson_type' => 'string',
-        'published_at' => 'datetime',
-    ];
+protected $casts = [
+    'status' => 'string',
+    'lesson_type' => 'string',
+    'lesson_payment_status' => 'string',
+    'published_at' => 'datetime',
+];
     
     // Relationships
     public function topic(): BelongsTo

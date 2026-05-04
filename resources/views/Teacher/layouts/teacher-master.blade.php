@@ -13,7 +13,6 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.css">
-
     @yield('css')
 
     <style>
@@ -1905,34 +1904,35 @@
             cursor: pointer;
             color: var(--purple);
         }
+
         .logout-confirm-btn {
-    background: #ffffff;
-    color: #ff0000;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 6px;
-    font-weight: 600;
-    margin-right: 10px;
-    cursor: pointer;
-}
+            background: #ffffff;
+            color: #ff0000;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-right: 10px;
+            cursor: pointer;
+        }
 
-.logout-cancel-btn {
-    background: gray;
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-}
+        .logout-cancel-btn {
+            background: gray;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
 
-.logout-confirm-btn:hover {
-    opacity: 0.9;
-}
+        .logout-confirm-btn:hover {
+            opacity: 0.9;
+        }
 
-.logout-cancel-btn:hover {
-    opacity: 0.9;
-}
+        .logout-cancel-btn:hover {
+            opacity: 0.9;
+        }
     </style>
 </head>
 
@@ -1946,12 +1946,12 @@
         <aside class="sidebar" id="sidebar">
 
             {{-- Brand --}}
-            <a href="{{ url('home') }}" class="sidebar-brand">
+            <a href="{{ url('/teacher/dashboard') }}" class="sidebar-brand">
                 <div class="sidebar-brand-icon">
                     <i class="fas fa-graduation-cap"></i>
                 </div>
                 <div class="sidebar-brand-text">
-                    <div class="sidebar-brand-name">Al-Hilal Online Academy</div>
+                    <div class="sidebar-brand-name">Al-Hilaal Online Academy</div>
                     <div class="sidebar-brand-sub">Teacher Portal</div>
                 </div>
             </a>
@@ -1968,25 +1968,41 @@
                 <div class="teacher-status"></div>
             </div>
 
-            {{-- Nav: Core --}}
             <div class="nav-label">Core</div>
-            <a href="{{ url('teacher.dashboard') }}"
+            <a href="{{ route('teacher.dashboard') }}"
                 class="nav-link {{ request()->routeIs('teacher.dashboard') ? 'active' : '' }}">
                 <i class="fas fa-th-large nav-icon"></i>
                 Dashboard
             </a>
-            <a href="{{ url('teacher.classes') }}"
-                class="nav-link {{ request()->routeIs('teacher.classes') ? 'active' : '' }}">
+            <a href="{{ route('teacher.lessons.lists') }}"
+                class="nav-link {{ request()->routeIs('teacher.lessons.lists') ? 'active' : '' }}">
                 <i class="fas fa-chalkboard nav-icon"></i>
                 My Classes
-                <span class="nav-badge">6</span>
+                {{-- <span class="nav-badge">10</span> --}}
             </a>
-            <a href="{{ url('teacher.students') }}"
-                class="nav-link {{ request()->routeIs('teacher.students') ? 'active' : '' }}">
+            <a href="{{ route('teacher.lessons.index') }}"
+                class="nav-link {{ request()->routeIs('teacher.lessons.index') ? 'active' : '' }}">
                 <i class="fas fa-users nav-icon"></i>
-                Students
+                Lessons
             </a>
-            <a href="{{ url('teacher.schedule') }}"
+
+            <a href="{{ route('teacher.settings.index') }}"
+                class="nav-link {{ request()->routeIs('teacher.settings.index') ? 'active' : '' }}">
+                <i class="fas fa-cogs nav-icon"></i>
+                Settings
+            </a>
+
+            <a href="{{ route('teacher.enrollments.index') }}" class="nav-link">
+                <i class="fas fa-user-graduate"></i>
+                <span>Enrollment</span>
+            </a>
+
+            <a href="{{ route('teacher.quizzes.index') }}" class="nav-link">
+                <i class="fas fa-question-circle"></i>
+                <span>Quiz Management</span>
+            </a>
+
+            {{-- <a href="{{ url('teacher.schedule') }}"
                 class="nav-link {{ request()->routeIs('teacher.schedule') ? 'active' : '' }}">
                 <i class="fas fa-calendar-alt nav-icon"></i>
                 Schedule
@@ -1997,7 +2013,6 @@
                 Attendance
             </a>
 
-            {{-- Nav: Content --}}
             <div class="nav-label">Content</div>
             <a href="{{ url('teacher.lessons') }}"
                 class="nav-link {{ request()->routeIs('teacher.lessons') ? 'active' : '' }}">
@@ -2021,7 +2036,6 @@
                 Resources
             </a>
 
-            {{-- Nav: Communication --}}
             <div class="nav-label">Communication</div>
             <a href="{{ url('teacher.messages') }}"
                 class="nav-link {{ request()->routeIs('teacher.messages') ? 'active' : '' }}">
@@ -2038,10 +2052,10 @@
                 class="nav-link {{ request()->routeIs('teacher.reports') ? 'active' : '' }}">
                 <i class="fas fa-chart-bar nav-icon"></i>
                 Reports
-            </a>
+            </a> --}}
 
             {{-- Footer --}}
-            <div class="sidebar-footer">
+            {{-- <div class="sidebar-footer">
                 <a href="{{ route('user.profile') }}" class="sidebar-footer-btn">
                     <i class="fas fa-user-cog"></i> Profile Settings
                 </a>
@@ -2051,7 +2065,7 @@
                         <i class="fas fa-sign-out-alt"></i> Sign Out
                     </button>
                 </form>
-            </div>
+            </div> --}}
 
         </aside>
         {{-- /sidebar --}}
@@ -2144,40 +2158,41 @@
                 </div>
                 <a href="{{ route('user.profile') }}" class="profile-dropdown-item"><i class="fas fa-user"></i>
                     My Profile</a>
-                <a href="#" class="profile-dropdown-item danger" id="logoutLink"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+                <a href="#" class="profile-dropdown-item danger" id="logoutLink"><i class="fas fa-sign-out-alt"></i>
+                    Sign Out</a>
             </div>
 
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    document.getElementById('logoutLink').addEventListener('click', function (event) {
-        event.preventDefault();
+            <script>
+                document.getElementById('logoutLink').addEventListener('click', function (event) {
+                    event.preventDefault();
 
-        Swal.fire({
-            title: "Are you sure?",
-            text: "Do you really want to sign out?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Yes, Sign out",
-            cancelButtonText: "Cancel",
+                    Swal.fire({
+                        title: "Are you sure?",
+                        text: "Do you really want to sign out?",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Yes, Sign out",
+                        cancelButtonText: "Cancel",
 
-            background: "#783896",
-            color: "#ffffff",
+                        background: "#783896",
+                        color: "#ffffff",
 
-            customClass: {
-                confirmButton: 'logout-confirm-btn',
-                cancelButton: 'logout-cancel-btn',
-                popup: 'logout-popup'
-            },
+                        customClass: {
+                            confirmButton: 'logout-confirm-btn',
+                            cancelButton: 'logout-cancel-btn',
+                            popup: 'logout-popup'
+                        },
 
-            buttonsStyling: false
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = '{{ route('user-logout') }}';
-            }
-        });
-    });
-</script>
+                        buttonsStyling: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '{{ route('user-logout') }}';
+                        }
+                    });
+                });
+            </script>
 
             {{-- ═══ PAGE BODY ═══ --}}
             <div class="page-body">

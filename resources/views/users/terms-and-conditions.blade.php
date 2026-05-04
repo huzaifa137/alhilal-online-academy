@@ -480,9 +480,9 @@ h1, h2, h3, h4 { font-family: 'Playfair Display', serif; line-height: 1.2; }
 <header class="site-header">
     <div class="header-inner">
         <a href="{{ url('/') }}" class="header-logo">
-            <img src="{{ asset('assets/images/alhilal_logo.jpeg') }}" alt="Al-Hilal Online Academy">
+            <img src="{{ asset('assets/images/al-hilaal_update.png') }}" alt="Al-Hilaal Online Academy">
             <div>
-                <div class="header-logo-text">Al-Hilal Online Academy</div>
+                <div class="header-logo-text">Al-Hilaal Online Academy</div>
                 <div class="header-logo-sub">Online Islamic Learning</div>
             </div>
         </a>
@@ -503,7 +503,7 @@ h1, h2, h3, h4 { font-family: 'Playfair Display', serif; line-height: 1.2; }
             <span>Legal & Policies</span>
         </div>
         <h1>Terms and <span style="background: linear-gradient(135deg, #C084FC, #F87171); -webkit-background-clip: text; background-clip: text; color: transparent;">Policies</span></h1>
-        <p>Welcome to Al-Hilal Online Academy. By accessing our platform, you agree to these terms and conditions. Please read them carefully before using our services.</p>
+        <p>Welcome to Al-Hilaal Online Academy. By accessing our platform, you agree to these terms and conditions. Please read them carefully before using our services.</p>
         <div class="last-updated">
             <i class="fas fa-calendar-alt"></i> Last Updated: January 15, 2026
         </div>
@@ -540,8 +540,8 @@ h1, h2, h3, h4 { font-family: 'Playfair Display', serif; line-height: 1.2; }
                     <div class="section-icon">
                         <i class="fas fa-home"></i>
                     </div>
-                    <h2>Welcome to Al-Hilal Online Academy</h2>
-                    <p>Al-Hilal Online Academy is a premier online Islamic educational platform dedicated to providing quality Islamic education to students from Primary 1 through Senior 6. Our mission is to make authentic Islamic learning accessible, engaging, and effective for every Muslim student.</p>
+                    <h2>Welcome to Al-Hilaal Online Academy</h2>
+                    <p>Al-Hilaal Online Academy is a premier online Islamic educational platform dedicated to providing quality Islamic education to students from Primary 1 through Senior 6. Our mission is to make authentic Islamic learning accessible, engaging, and effective for every Muslim student.</p>
                     <p>By registering for and using our platform, you agree to be bound by these Terms and Policies. Please review them carefully. If you do not agree with any part of these terms, you may not use our services.</p>
                     <div class="highlight-box">
                         <p><strong>📖 Faith-Based Learning:</strong> Our curriculum is rooted in the Quran and Sunnah, following the teachings of Ahlus Sunnah wal Jama'ah. All content is reviewed by qualified Islamic scholars to ensure authenticity and accuracy.</p>
@@ -554,7 +554,7 @@ h1, h2, h3, h4 { font-family: 'Playfair Display', serif; line-height: 1.2; }
                         <i class="fas fa-book"></i>
                     </div>
                     <h2>Using Our Services</h2>
-                    <p>Al-Hilal Online Academy provides a comprehensive learning management system (LMS) that includes:</p>
+                    <p>Al-Hilaal Online Academy provides a comprehensive learning management system (LMS) that includes:</p>
                     <ul>
                         <li><strong>📹 Video Lessons</strong> - Pre-recorded lectures by qualified Islamic teachers</li>
                         <li><strong>🎧 Audio Tracks</strong> - Audio versions of lessons for listening on the go</li>
@@ -607,9 +607,9 @@ h1, h2, h3, h4 { font-family: 'Playfair Display', serif; line-height: 1.2; }
                         <li>Graphics, logos, and design elements</li>
                         <li>Course structures and curriculum layouts</li>
                     </ul>
-                    <p>is the exclusive property of Al-Hilal Online Academy or its content contributors and is protected by international copyright laws and Islamic ethical guidelines regarding knowledge sharing.</p>
+                    <p>is the exclusive property of Al-Hilaal Online Academy or its content contributors and is protected by international copyright laws and Islamic ethical guidelines regarding knowledge sharing.</p>
                     <div class="highlight-box">
-                        <p><strong>⚠️ Prohibited Actions:</strong> You may not reproduce, distribute, modify, create derivative works from, publicly display, or sell any content from our platform without explicit written permission from Al-Hilal Online Academy.</p>
+                        <p><strong>⚠️ Prohibited Actions:</strong> You may not reproduce, distribute, modify, create derivative works from, publicly display, or sell any content from our platform without explicit written permission from Al-Hilaal Online Academy.</p>
                     </div>
                     <p><strong>Personal Use Exception:</strong> You may download PDF notes for your personal study and offline revision. You may not share these materials with non-registered users or upload them to any other platform.</p>
                 </section>
@@ -639,7 +639,7 @@ h1, h2, h3, h4 { font-family: 'Playfair Display', serif; line-height: 1.2; }
                         <i class="fas fa-user-circle"></i>
                     </div>
                     <h2>Account Responsibilities</h2>
-                    <p>As a registered user of Al-Hilal Online Academy, you agree to:</p>
+                    <p>As a registered user of Al-Hilaal Online Academy, you agree to:</p>
                     <ul>
                         <li><strong>Secure Your Account:</strong> Keep your password confidential and notify us immediately of any unauthorized access to your account.</li>
                         <li><strong>Complete Lessons Honestly:</strong> Complete quizzes and assessments independently without external help to ensure accurate progress tracking.</li>
@@ -656,7 +656,7 @@ h1, h2, h3, h4 { font-family: 'Playfair Display', serif; line-height: 1.2; }
                         <i class="fas fa-credit-card"></i>
                     </div>
                     <h2>Payments & Refunds</h2>
-                    <p>Al-Hilal Online Academy offers both free and paid learning options:</p>
+                    <p>Al-Hilaal Online Academy offers both free and paid learning options:</p>
                     <ul>
                         <li><strong>Free Access:</strong> Basic access to select lessons and sample materials is available at no cost.</li>
                         <li><strong>Premium Subscription:</strong> Full access to all lessons, quizzes, progress tracking, and certificates requires a paid subscription.</li>
@@ -666,7 +666,7 @@ h1, h2, h3, h4 { font-family: 'Playfair Display', serif; line-height: 1.2; }
                         <li><strong>Refund Policy:</strong> We do not offer refunds for partially used subscription periods. However, we may provide refunds on a case-by-case basis for technical issues that prevented access.</li>
                     </ul>
                     <div class="highlight-box">
-                        <p><strong>💡 Need-Based Scholarships:</strong> Al-Hilal Online Academy offers limited need-based scholarships for deserving students. Contact our admissions team for more information.</p>
+                        <p><strong>💡 Need-Based Scholarships:</strong> Al-Hilaal Online Academy offers limited need-based scholarships for deserving students. Contact our admissions team for more information.</p>
                     </div>
                 </section>
 
@@ -786,7 +786,7 @@ backBtn.addEventListener('click', (e) => {
             <a href="#">FAQ</a>
         </div>
         <div class="footer-copyright">
-            <p>© {{ date('Y') }} Al-Hilal Online Academy. All rights reserved.</p>
+            <p>© {{ date('Y') }} Al-Hilaal Online Academy. All rights reserved.</p>
             <p style="margin-top: 8px;">Dedicated to authentic Islamic education for all — P.1 through S.6</p>
         </div>
     </div>

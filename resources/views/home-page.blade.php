@@ -1015,9 +1015,9 @@ textarea.form-control-alhilal {
 <header class="site-header" id="siteHeader">
     <div class="header-inner">
         <a href="{{ url('/') }}" class="header-logo">
-            <img src="{{ asset('assets/images/alhilal_logo.jpeg') }}" alt="Al-Hilal Online Academy">
+            <img src="{{ asset('assets/images/al-hilaal_update.png') }}" alt="Al-Hilaal Online Academy">
             <div>
-                <div class="header-logo-text">Al-Hilal Online Academy</div>
+                <div class="header-logo-text">Al-Hilaal Online Academy</div>
                 <div class="header-logo-sub">Online Islamic Learning</div>
             </div>
         </a>
@@ -1084,7 +1084,7 @@ textarea.form-control-alhilal {
         <div class="hero-visual">
             <div class="hero-card-main" style="position: relative;">
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
-                    <img src="{{ asset('assets/images/alhilal_logo.jpeg') }}" style="width: 44px; height: 44px; border-radius: 12px; object-fit: cover;">
+                    <img src="{{ asset('assets/images/al-hilaal_update.png') }}" style="width: 44px; height: 44px; border-radius: 12px; object-fit: cover;">
                     <div>
                         <div style="font-size: 0.85rem; font-weight: 600; color: white;">Student Progress</div>
                         <div style="font-size: 0.72rem; color: rgba(255,255,255,0.5);">2026/2027 Academic Year</div>
@@ -1183,7 +1183,7 @@ textarea.form-control-alhilal {
             <div class="about-text">
                 <span class="eyebrow">Our Learning Model</span>
                 <h2 class="section-heading">Learn, Test,<br>Then Succeed</h2>
-                <p>Al-Hilal Online Academy brings structured Islamic education to students from Primary 1 through Senior 6. Every lesson is carefully crafted by qualified teachers and comes with assessments to ensure genuine understanding.</p>
+                <p>Al-Hilaal Online Academy brings structured Islamic education to students from Primary 1 through Senior 6. Every lesson is carefully crafted by qualified teachers and comes with assessments to ensure genuine understanding.</p>
                 <p>Our platform serves students, parents, and teachers with dedicated dashboards — providing full visibility into progress, quiz results, reports, and certificates.</p>
                 <a href="#curriculum" class="btn btn-primary" style="margin-top: 8px;">
                     <i class="fas fa-book-open"></i> Browse All Levels
@@ -1307,7 +1307,7 @@ textarea.form-control-alhilal {
             <div class="progress-card progress-card-3">
                 <div class="progress-card-icon"><i class="fas fa-award"></i></div>
                 <h3>Certifications</h3>
-                <p>Earn an official Al-Hilal Online Academy certificate upon completing each level with all quizzes passed. Share your achievement and advance to the next level.</p>
+                <p>Earn an official Al-Hilaal Online Academy certificate upon completing each level with all quizzes passed. Share your achievement and advance to the next level.</p>
             </div>
         </div>
     </div>
@@ -1455,7 +1455,7 @@ backBtn.addEventListener('click', (e) => {
                         <div class="contact-detail-icon"><i class="fas fa-envelope"></i></div>
                         <div>
                             <div class="contact-detail-label">Email</div>
-                            <div class="contact-detail-value">info@alhilalacademy.org</div>
+                            <div class="contact-detail-value">info@alhilaalacademy.org</div>
                         </div>
                     </div>
                     <div class="contact-detail-row">
@@ -1466,7 +1466,7 @@ backBtn.addEventListener('click', (e) => {
                         </div>
                     </div>
                 </div>
-                <a href="https://wa.me/256702082209?text=Assalamu+Alaikum!+I'd+like+to+enroll+at+AlHilal+Academy." target="_blank" class="btn btn-primary" style="margin-top: 12px;">
+                <a href="https://wa.me/256702082209?text=Assalamu+Alaikum!+I'd+like+to+enroll+at+AlHilaal+Academy." target="_blank" class="btn btn-primary" style="margin-top: 12px;">
                     <i class="fab fa-whatsapp"></i> Chat on WhatsApp
                 </a>
             </div>
@@ -1505,8 +1505,8 @@ backBtn.addEventListener('click', (e) => {
         <div class="footer-grid">
             <div class="footer-brand">
                 <div class="footer-logo-row">
-                    <img src="{{ asset('assets/images/alhilal_logo.jpeg') }}" alt="Al-Hilal Online Academy" class="footer-logo-img">
-                    <div class="footer-logo-name">Al-Hilal Online Academy</div>
+                    <img src="{{ asset('assets/images/al-hilaal_update.png') }}" alt="Al-Hilaal Online Academy" class="footer-logo-img">
+                    <div class="footer-logo-name">Al-Hilaal Online Academy</div>
                 </div>
                 <p>Delivering structured Islamic education from P.1 to S.6 — with video, audio, PDF, quizzes, and certification. Learning made accessible for every Muslim student.</p>
                 <div class="footer-social">
@@ -1531,13 +1531,13 @@ backBtn.addEventListener('click', (e) => {
                 <ul>
                     <li><a href="#contact">Contact Us</a></li>
                     <li><a href="https://wa.me/256702082209" target="_blank">WhatsApp Chat</a></li>
-                    <li><a href="mailto:info@alhilalacademy.org">Email Us</a></li>
+                    <li><a href="mailto:info@alhilaalacademy.org">Email Us</a></li>
                     <li><a href="#">Privacy Policy</a></li>
                 </ul>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>© {{ date('Y') }} Al-Hilal Online Academy. All rights reserved.</p>
+            <p>© {{ date('Y') }} Al-Hilaal Online Academy. All rights reserved.</p>
             <p>Made with <i class="fas fa-heart" style="color: var(--red);"></i> for Islamic Education</p>
         </div>
     </div>
@@ -1803,7 +1803,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 // ── WhatsApp ──────────────────────────────────────────────
 document.getElementById('whatsappChat').addEventListener('click', e => {
     e.preventDefault();
-    window.open('https://wa.me/256702082209?text=' + encodeURIComponent('Assalamu Alaikum! I need assistance with my lessons on Al-Hilal Online Academy.'), '_blank');
+    window.open('https://wa.me/256702082209?text=' + encodeURIComponent('Assalamu Alaikum! I need assistance with my lessons on Al-Hilaal Online Academy.'), '_blank');
 });
 
 // ── Contact form ──────────────────────────────────────────

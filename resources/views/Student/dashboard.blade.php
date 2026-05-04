@@ -1176,14 +1176,18 @@
         }
 
         // ── NAV ACTIVE STATE ─────────────────────────────────────
-        document.querySelectorAll('.sd-nav-item[data-section]').forEach(item => {
-            item.addEventListener('click', e => {
-                e.preventDefault();
-                document.querySelectorAll('.sd-nav-item').forEach(n => n.classList.remove('active'));
-                item.classList.add('active');
-                if (window.innerWidth < 768) toggleSidebar();
-            });
-        });
+document.querySelectorAll('.sd-nav-item').forEach(item => {
+    item.addEventListener('click', function(e) {
+
+        const hasSection = this.dataset.section;
+
+        // Only prevent if you're actually using SPA sections
+        if (hasSection && this.getAttribute('href') === '#') {
+            e.preventDefault();
+        }
+
+    });
+});
 
         // ── LESSON DATA ──────────────────────────────────────────
         const lessonData = {

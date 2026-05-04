@@ -304,7 +304,7 @@
     <div class="email-wrapper">
         <div class="email-header">
             <div class="logo">{{ $logo ?? '🎓' }}</div>
-            <h1>{{ $header_title ?? 'Al-Hilal Online Academy' }}</h1>
+            <h1>{{ $header_title ?? 'Al-Hilaal Online Academy' }}</h1>
             <p>{{ $header_subtitle ?? '' }}</p>
         </div>
 
@@ -321,7 +321,7 @@
                 <a href="#" style="text-decoration: none;">💼</a>
             </div>
             <div class="copyright">
-                © {{ date('Y') }} Al-Hilal Online Academy. All rights reserved.
+                © {{ date('Y') }} Al-Hilaal Online Academy. All rights reserved.
             </div>
             <div class="address">
                 Kampala, Uganda | info@alhilalacademy.com | +256 700 123456
