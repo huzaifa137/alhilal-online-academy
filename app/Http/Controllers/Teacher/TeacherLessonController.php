@@ -15,7 +15,7 @@ use App\Models\Academic\ClassStudent;
 use App\Models\Academic\StudentProgress;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
-
+use App\Models\Academic\Exam;
 
 
 class TeacherLessonController extends Controller
@@ -181,6 +181,7 @@ class TeacherLessonController extends Controller
 
     public function createLesson()
     {
+
         $teacherId = Session('LoggedTeacher');
 
         // Get teacher's assigned classes with subjects for the form
@@ -217,7 +218,6 @@ class TeacherLessonController extends Controller
     public function showLesson(Lesson $lesson)
     {
         $teacherId = session('LoggedTeacher');
-
         // Authorize - check if the logged-in teacher owns this lesson or is admin
         // if ($lesson->teacher_id != $teacherId && session('role') !== 'admin') {
         //     abort(403, 'Unauthorized access.');
@@ -262,7 +262,12 @@ class TeacherLessonController extends Controller
             ->limit(5)
             ->get();
 
-        return view('Teacher.lessons.show', compact('lesson', 'prevLesson', 'nextLesson', 'totalStudents', 'completedCount', 'recentCompletions'));
+        $lessonQuizzes = Exam::where('lesson_id', $lesson->id)
+            ->where('exam_type', 'quiz')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('Teacher.lessons.show', compact('lesson', 'prevLesson', 'nextLesson', 'totalStudents', 'completedCount', 'recentCompletions','lessonQuizzes'));
     }
 
 
@@ -320,7 +325,7 @@ class TeacherLessonController extends Controller
     }
 
     public function lessonList()
-    {        
+    {
         $teacherId = session('LoggedTeacher');
         // Get all lessons taught by this teacher with proper relationships
         $lessons = Lesson::with([

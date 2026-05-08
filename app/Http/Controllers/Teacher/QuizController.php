@@ -12,7 +12,7 @@ use App\Models\Academic\Topic;
 // use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Schema;
 
 class QuizController extends Controller
 {
@@ -22,7 +22,7 @@ class QuizController extends Controller
     public function index()
     {
         $teacherId = Session('LoggedTeacher');
-        
+
         // Get lesson quizzes
         $lessonQuizzes = Exam::where('teacher_id', $teacherId)
             ->where('exam_type', 'quiz')
@@ -30,7 +30,7 @@ class QuizController extends Controller
             ->with(['lesson', 'class', 'subject'])
             ->orderBy('created_at', 'desc')
             ->get();
-        
+
         // Get class quizzes (general quizzes)
         $classQuizzes = Exam::where('teacher_id', $teacherId)
             ->where('exam_type', 'quiz')
@@ -38,55 +38,59 @@ class QuizController extends Controller
             ->with(['class', 'subject'])
             ->orderBy('created_at', 'desc')
             ->get();
-        
+
         // Get teacher's classes for creating new quizzes
-        $classes = ClassModel::whereHas('subjects', function($query) use ($teacherId) {
+        $classes = ClassModel::whereHas('subjects', function ($query) use ($teacherId) {
             $query->where('class_subjects.teacher_id', $teacherId);
         })->with(['level', 'subjects'])->get();
-        
+
         // Get all subjects
         $subjects = Subject::where('status', 'active')->get();
-        
+
         return view('Teacher.quizzes.index', compact('lessonQuizzes', 'classQuizzes', 'classes', 'subjects'));
     }
-    
-    /**
-     * Show form to create a new quiz
-     */
-/**
- * Show form to create a new quiz
- */
-/**
- * Show form to create a new quiz
- */
-public function create(Request $request)
-{
-    $teacherId = Session('LoggedTeacher');
-    $type = $request->type; // 'lesson' or 'class'
-    $lessonId = $request->lesson_id;
-    
-    $lesson = null;
-    if ($lessonId) {
-        $lesson = Lesson::with(['topic.class', 'topic.subject'])->findOrFail($lessonId);
-    }
-    
-    // Get classes assigned to this teacher with their subjects
-    $classes = ClassModel::whereHas('subjects', function($query) use ($teacherId) {
-        $query->where('class_subjects.teacher_id', $teacherId);
-    })
-    ->with(['level', 'subjects' => function($query) use ($teacherId) {
-        $query->where('class_subjects.teacher_id', $teacherId);
-    }])
-    ->where('status', 'active')
-    ->orderBy('name')
-    ->get();
 
-    
-    $subjects = Subject::where('status', 'active')->orderBy('name')->get();
-    
-    return view('Teacher.quizzes.create', compact('type', 'lesson', 'classes', 'subjects'));
-}
-    
+    public function createLesson(Request $request)
+    {
+        $teacherId = Session('LoggedTeacher');
+        $type = $request->type; // 'lesson' or 'class'
+        $lessonId = $request->lesson_id; // Get lesson_id from query parameter
+
+        $lesson = null;
+        $selectedTopicId = null;
+        $selectedClassId = null;
+        $selectedSubjectId = null;
+
+        // If it's a lesson type and lesson_id is provided, fetch the lesson
+        if ($type === 'lesson' && $lessonId) {
+            $lesson = Lesson::with(['topic.class', 'topic.subject'])->findOrFail($lessonId);
+            $selectedTopicId = $lesson->topic_id;
+            $selectedClassId = $lesson->topic->class_id ?? null;
+            $selectedSubjectId = $lesson->topic->subject_id ?? null;
+        }
+
+        // Get classes assigned to this teacher with their subjects
+        $classes = ClassModel::whereHas('subjects', function ($query) use ($teacherId) {
+            $query->where('class_subjects.teacher_id', $teacherId);
+        })
+            ->with([
+                'level',
+                'subjects' => function ($query) use ($teacherId) {
+                    $query->where('class_subjects.teacher_id', $teacherId);
+                }
+            ])
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->get();
+
+        $subjects = Subject::where('status', 'active')->orderBy('name')->get();
+
+        return view('Teacher.quizzes.create', compact('type', 'lesson', 'classes', 'subjects', 'selectedTopicId', 'selectedClassId', 'selectedSubjectId'));
+    }
+
+    /**
+     * Store a new quiz
+     */
     /**
      * Store a new quiz
      */
@@ -97,6 +101,7 @@ public function create(Request $request)
             'class_id' => 'required|exists:classes,id',
             'subject_id' => 'required|exists:subjects,id',
             'lesson_id' => 'nullable|exists:lessons,id',
+            'topic_id' => 'nullable|exists:topics,id',  // ADD THIS
             'total_marks' => 'required|integer|min:1',
             'pass_mark' => 'required|integer|min:0|max:100',
             'duration_minutes' => 'nullable|integer|min:1|max:180',
@@ -105,19 +110,19 @@ public function create(Request $request)
             'instructions' => 'nullable|string',
             'max_attempts' => 'nullable|integer|min:1|max:10',
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'errors' => $validator->errors()
             ], 422);
         }
-        
+
         $exam = Exam::create([
             'class_id' => $request->class_id,
             'subject_id' => $request->subject_id,
-            'lesson_id' => $request->lesson_id,
-            'topic_id' => $request->topic_id ?? null,
+            'lesson_id' => $request->lesson_id,  // THIS WILL NOW SAVE
+            'topic_id' => $request->topic_id ?? null,  // THIS WILL NOW SAVE
             'teacher_id' => Session('LoggedTeacher'),
             'title' => $request->title,
             'exam_type' => 'quiz',
@@ -132,14 +137,7 @@ public function create(Request $request)
             'status' => 'draft',
             'max_attempts' => $request->max_attempts ?? 3,
         ]);
-        
-        // Add custom fields to exams table if not exists
-        if (!Schema::hasColumn('exams', 'max_attempts')) {
-            Schema::table('exams', function ($table) {
-                $table->integer('max_attempts')->default(3)->after('shuffle_questions');
-            });
-        }
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Quiz created successfully!',
@@ -147,30 +145,30 @@ public function create(Request $request)
             'redirect' => route('teacher.quizzes.add-questions', $exam->id)
         ]);
     }
-    
+
     /**
      * Show form to add questions to quiz
      */
     public function addQuestions($examId)
     {
         $exam = Exam::with(['class', 'subject', 'lesson'])->findOrFail($examId);
-        
+
         if ($exam->teacher_id != Session('LoggedTeacher')) {
             abort(403);
         }
-        
+
         $existingQuestions = $exam->questions()->orderBy('sort_order')->get();
-        
+
         return view('Teacher.quizzes.add-questions', compact('exam', 'existingQuestions'));
     }
-    
+
     /**
      * Save questions for quiz
      */
     public function saveQuestions(Request $request, $examId)
     {
         $exam = Exam::findOrFail($examId);
-        
+
         $validator = Validator::make($request->all(), [
             'questions' => 'required|array|min:1',
             'questions.*.type' => 'required|in:mcq,true_false,short_answer,essay',
@@ -179,17 +177,17 @@ public function create(Request $request)
             'questions.*.options' => 'required_if:questions.*.type,mcq|nullable|array',
             'questions.*.answer' => 'required_if:questions.*.type,mcq,true_false|nullable|string',
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'errors' => $validator->errors()
             ], 422);
         }
-        
+
         // Delete existing questions
         $exam->questions()->delete();
-        
+
         // Save new questions
         foreach ($request->questions as $index => $qData) {
             Question::create([
@@ -205,41 +203,41 @@ public function create(Request $request)
                 'sort_order' => $index,
             ]);
         }
-        
+
         // Update exam status to published
         $exam->update(['status' => 'published']);
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Questions added successfully! Quiz is now published.',
             'redirect' => $exam->lesson_id ? route('teacher.lessons.show', $exam->lesson_id) : route('teacher.quizzes.index')
         ]);
     }
-    
+
     /**
      * Edit quiz
      */
     public function edit($examId)
     {
         $exam = Exam::with(['questions', 'class', 'subject', 'lesson'])->findOrFail($examId);
-        
+
         if ($exam->teacher_id != Session('LoggedTeacher')) {
             abort(403);
         }
-        
+
         $classes = ClassModel::where('status', 'active')->get();
         $subjects = Subject::where('status', 'active')->get();
-        
+
         return view('Teacher.quizzes.edit', compact('exam', 'classes', 'subjects'));
     }
-    
+
     /**
      * Update quiz
      */
     public function update(Request $request, $examId)
     {
         $exam = Exam::findOrFail($examId);
-        
+
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'total_marks' => 'required|integer|min:1',
@@ -251,14 +249,14 @@ public function create(Request $request)
             'status' => 'required|in:draft,published,closed',
             'max_attempts' => 'nullable|integer|min:1|max:10',
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'errors' => $validator->errors()
             ], 422);
         }
-        
+
         $exam->update([
             'title' => $request->title,
             'total_marks' => $request->total_marks,
@@ -271,53 +269,55 @@ public function create(Request $request)
             'status' => $request->status,
             'max_attempts' => $request->max_attempts ?? 3,
         ]);
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Quiz updated successfully!',
             'redirect' => route('teacher.quizzes.index')
         ]);
     }
-    
+
     /**
      * Delete quiz
      */
     public function destroy($examId)
     {
         $exam = Exam::findOrFail($examId);
-        
+
         if ($exam->teacher_id != Session('LoggedTeacher')) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized'
             ], 403);
         }
-        
+
         // Delete related questions and attempts
         $exam->questions()->delete();
         $exam->attempts()->delete();
         $exam->delete();
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Quiz deleted successfully!'
         ]);
     }
-    
+
     /**
      * Get quiz statistics
      */
     public function statistics($examId)
     {
-        $exam = Exam::with(['attempts' => function($q) {
-            $q->with('student');
-        }])->findOrFail($examId);
-        
+        $exam = Exam::with([
+            'attempts' => function ($q) {
+                $q->with('student');
+            }
+        ])->findOrFail($examId);
+
         $totalAttempts = $exam->attempts->count();
         $completedAttempts = $exam->attempts->where('status', 'graded')->count();
         $passedAttempts = $exam->attempts->where('is_passed', true)->count();
         $avgScore = $exam->attempts->avg('percentage') ?? 0;
-        
+
         return view('Teacher.quizzes.statistics', compact('exam', 'totalAttempts', 'completedAttempts', 'passedAttempts', 'avgScore'));
     }
 }

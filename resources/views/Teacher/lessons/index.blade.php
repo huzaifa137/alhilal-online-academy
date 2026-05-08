@@ -1844,28 +1844,7 @@
         }
 
         // Update the action dropdown links in your table
-        // Replace the existing action dropdown HTML with these updated links
 
-        // For Edit link:
-        // <a href="#" onclick="event.preventDefault(); editLesson({{ $lesson->id }});">
-        //     <i class="fas fa-edit"></i> Edit Lesson
-        // </a>
-
-        // For Publish/Unpublish:
-        // @if($lesson->status === 'published')
-            //     <a href="#" onclick="event.preventDefault(); unpublishLesson({{ $lesson->id }});">
-            //         <i class="fas fa-arrow-down"></i> Unpublish
-            //     </a>
-        // @else
-            //     <a href="#" onclick="event.preventDefault(); publishLesson({{ $lesson->id }});">
-            //         <i class="fas fa-check-circle"></i> Publish
-            //     </a>
-        // @endif
-
-        // For Delete:
-        // <a href="#" class="danger" onclick="event.preventDefault(); deleteLesson({{ $lesson->id }}, '{{ addslashes($lesson->title) }}');">
-        //     <i class="fas fa-trash-alt"></i> Delete
-        // </a>
     </script>
 
     <script>

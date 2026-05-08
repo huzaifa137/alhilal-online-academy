@@ -1,5 +1,4 @@
 <?php
-// app/Http/Controllers/Teacher/ExamController.php
 
 namespace App\Http\Controllers\Teacher;
 
@@ -15,6 +14,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Log;
 
 class ExamController extends Controller
 {
@@ -22,15 +22,15 @@ class ExamController extends Controller
     public function createLessonQuiz($lessonId)
     {
         $lesson = Lesson::with(['topic.class', 'topic.subject'])->findOrFail($lessonId);
-        
+
         // Verify teacher owns this lesson
         if ($lesson->teacher_id != Session('LoggedTeacher')) {
             abort(403, 'Unauthorized access.');
         }
-        
+
         return view('Teacher.exams.create-quiz', compact('lesson'));
     }
-    
+
     /**
      * Store exam/quiz
      */
@@ -51,14 +51,14 @@ class ExamController extends Controller
             'allow_retake' => 'boolean',
             'max_attempts' => 'nullable|integer|min:1|max:10',
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'errors' => $validator->errors()
             ], 422);
         }
-        
+
         $exam = Exam::create([
             'class_id' => $request->class_id,
             'subject_id' => $request->subject_id,
@@ -76,7 +76,7 @@ class ExamController extends Controller
             'shuffle_questions' => $request->shuffle_questions ?? false,
             'status' => 'draft',
         ]);
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Quiz created successfully!',
@@ -84,31 +84,31 @@ class ExamController extends Controller
             'redirect' => route('teacher.exams.add-questions', $exam->id)
         ]);
     }
-    
+
     /**
      * Add questions to exam
      */
     public function addQuestions($examId)
     {
         $exam = Exam::with(['class', 'subject', 'lesson'])->findOrFail($examId);
-        
+
         // Verify teacher owns this exam
         if ($exam->teacher_id != Session('LoggedTeacher')) {
             abort(403, 'Unauthorized access.');
         }
-        
+
         $existingQuestions = $exam->questions;
-        
+
         return view('Teacher.exams.add-questions', compact('exam', 'existingQuestions'));
     }
-    
+
     /**
      * Store questions for an exam
      */
     public function storeQuestions(Request $request, $examId)
     {
         $exam = Exam::findOrFail($examId);
-        
+
         $validator = Validator::make($request->all(), [
             'questions' => 'required|array|min:1',
             'questions.*.type' => 'required|in:mcq,true_false,short_answer,essay',
@@ -117,17 +117,17 @@ class ExamController extends Controller
             'questions.*.options' => 'required_if:questions.*.type,mcq|nullable|array',
             'questions.*.answer' => 'required_if:questions.*.type,mcq,true_false|nullable|string',
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'errors' => $validator->errors()
             ], 422);
         }
-        
+
         // Delete existing questions if any
         $exam->questions()->delete();
-        
+
         // Store new questions
         foreach ($request->questions as $index => $qData) {
             Question::create([
@@ -143,188 +143,266 @@ class ExamController extends Controller
                 'sort_order' => $index,
             ]);
         }
-        
+
         // Update exam status to published
         $exam->update(['status' => 'published']);
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Questions added successfully! Quiz is now published.',
             'redirect' => route('teacher.lessons.show', $exam->lesson_id)
         ]);
     }
-    
+
     /**
-     * Take quiz (for students)
+     * Submit quiz answers
      */
-    public function takeQuiz($examId, $studentId = null)
-    {
-        $exam = Exam::with(['questions', 'class', 'subject'])->findOrFail($examId);
-        
-        // For teacher viewing/student preview
-        
-        return view('Teacher.exams.take-quiz', compact('exam'));
-    }
-    
     /**
      * Submit quiz answers
      */
     public function submitQuiz(Request $request, $examId)
     {
-        $studentId = $request->student_id ?? Session('LoggedStudent');
-        $exam = Exam::with('questions')->findOrFail($examId);
-        
-        $validator = Validator::make($request->all(), [
-            'answers' => 'required|array',
-            'answers.*.question_id' => 'required|exists:questions,id',
-            'answers.*.answer' => 'nullable|string',
-        ]);
-        
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-        
-        // Check if student has attempts left
-        $attemptCount = ExamResult::where('exam_id', $examId)
-            ->where('student_id', $studentId)
-            ->count();
-        
-        $maxAttempts = $exam->max_attempts ?? 3;
-        
-        if ($attemptCount >= $maxAttempts) {
-            return response()->json([
-                'success' => false,
-                'message' => "You have reached the maximum number of attempts ($maxAttempts)."
+        try {
+            // $studentId = $request->student_id ?? Session('LoggedStudent');
+            $studentId = Session('LoggedStudent') ?? Session('LoggedTeacher');
+            $exam = Exam::with('questions')->findOrFail($examId);
+
+            \Log::info('Submitting quiz', ['exam_id' => $examId, 'student_id' => $studentId]);
+
+            $validator = Validator::make($request->all(), [
+                'answers' => 'required|array',
+                'answers.*.question_id' => 'required|exists:questions,id',
+                'answers.*.answer' => 'nullable|string',
             ]);
-        }
-        
-        // Create exam attempt
-        $attempt = ExamAttempt::create([
-            'exam_id' => $examId,
-            'student_id' => $studentId,
-            'started_at' => now(),
-            'submitted_at' => now(),
-            'time_spent_seconds' => $request->time_spent ?? 0,
-            'status' => 'submitted',
-        ]);
-        
-        // Calculate score
-        $totalMarks = 0;
-        $obtainedMarks = 0;
-        $answersData = [];
-        
-        foreach ($request->answers as $answerData) {
-            $question = $exam->questions->find($answerData['question_id']);
-            if (!$question) continue;
-            
-            $totalMarks += $question->marks;
-            $isCorrect = false;
-            
-            // Auto-grade MCQ and True/False questions
-            if (in_array($question->type, ['mcq', 'true_false'])) {
-                $isCorrect = $question->checkAnswer($answerData['answer']);
-                if ($isCorrect) {
-                    $obtainedMarks += $question->marks;
-                }
-            } else {
-                // For essay/short answer, marks to be assigned by teacher
-                $obtainedMarks += 0;
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $validator->errors()
+                ], 422);
             }
-            
-            $answersData[] = [
-                'question_id' => $question->id,
-                'student_answer' => $answerData['answer'],
-                'is_correct' => $isCorrect,
-                'marks_obtained' => $isCorrect ? $question->marks : 0,
-            ];
-        }
-        
-        $percentage = $totalMarks > 0 ? ($obtainedMarks / $totalMarks) * 100 : 0;
-        $isPassed = $percentage >= $exam->pass_mark;
-        
-        // Store results
-        $result = ExamResult::create([
-            'exam_id' => $examId,
-            'student_id' => $studentId,
-            'exam_attempt_id' => $attempt->id,
-            'score' => $obtainedMarks,
-            'percentage' => $percentage,
-            'is_passed' => $isPassed,
-            'attempt_number' => $attemptCount + 1,
-            'answers' => $answersData,
-            'started_at' => now(),
-            'completed_at' => now(),
-        ]);
-        
-        // Update attempt with results
-        $attempt->update([
-            'marks_obtained' => $obtainedMarks,
-            'percentage' => $percentage,
-            'is_passed' => $isPassed,
-            'status' => 'graded',
-            'graded_at' => now(),
-        ]);
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Quiz submitted successfully!',
-            'result' => [
+
+            // Check how many attempts the student has already made
+            $attemptCount = ExamResult::where('exam_id', $examId)
+                ->where('student_id', $studentId)
+                ->count();
+
+            $maxAttempts = $exam->max_attempts ?? 3;
+
+            if ($attemptCount >= $maxAttempts) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "You have reached the maximum number of attempts ($maxAttempts)."
+                ], 403);
+            }
+
+            // Create exam attempt (no unique constraint issue now)
+            $attempt = ExamAttempt::create([
+                'exam_id' => $examId,
+                'student_id' => $studentId,
+                'started_at' => now(),
+                'submitted_at' => now(),
+                'time_spent_seconds' => $request->time_spent ?? 0,
+                'status' => 'submitted',
+            ]);
+
+            // Calculate score
+            $totalMarks = 0;
+            $obtainedMarks = 0;
+            $answersData = [];
+
+            // Create a map of questions by ID for quick lookup
+            $questionsMap = [];
+            foreach ($exam->questions as $question) {
+                $questionsMap[$question->id] = $question;
+            }
+
+            foreach ($request->answers as $answerData) {
+                $questionId = $answerData['question_id'];
+                $question = $questionsMap[$questionId] ?? null;
+
+                if (!$question)
+                    continue;
+
+                $totalMarks += $question->marks;
+                $isCorrect = false;
+                $studentAnswer = $answerData['answer'] ?? '';
+
+                // Auto-grade MCQ and True/False questions
+                if (in_array($question->type, ['mcq', 'true_false'])) {
+                    $isCorrect = strtolower(trim($studentAnswer)) == strtolower(trim($question->answer));
+                    if ($isCorrect) {
+                        $obtainedMarks += $question->marks;
+                    }
+                } else {
+                    // For essay/short answer, marks to be assigned by teacher later
+                    $obtainedMarks += 0;
+                }
+
+                $answersData[] = [
+                    'question_id' => $question->id,
+                    'question_text' => $question->question,
+                    'student_answer' => $studentAnswer,
+                    'correct_answer' => $question->answer,
+                    'is_correct' => $isCorrect,
+                    'marks_obtained' => $isCorrect ? $question->marks : 0,
+                    'explanation' => $question->explanation
+                ];
+            }
+
+            $percentage = $totalMarks > 0 ? ($obtainedMarks / $totalMarks) * 100 : 0;
+            $isPassed = $percentage >= $exam->pass_mark;
+
+            // Store results
+            $result = ExamResult::create([
+                'exam_id' => $examId,
+                'student_id' => $studentId,
+                'exam_attempt_id' => $attempt->id,
                 'score' => $obtainedMarks,
-                'total_marks' => $totalMarks,
                 'percentage' => round($percentage, 2),
                 'is_passed' => $isPassed,
                 'attempt_number' => $attemptCount + 1,
-                'max_attempts' => $maxAttempts,
-            ]
-        ]);
+                'answers' => $answersData,
+                'started_at' => now(),
+                'completed_at' => now(),
+            ]);
+
+            // Update attempt with results
+            $attempt->update([
+                'marks_obtained' => $obtainedMarks,
+                'percentage' => round($percentage, 2),
+                'is_passed' => $isPassed,
+                'status' => 'graded',
+                'graded_at' => now(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Quiz submitted successfully!',
+                'result' => [
+                    'score' => $obtainedMarks,
+                    'total_marks' => $totalMarks,
+                    'percentage' => round($percentage, 2),
+                    'is_passed' => $isPassed,
+                    'attempt_number' => $attemptCount + 1,
+                    'max_attempts' => $maxAttempts,
+                    'answers' => $answersData
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Quiz submission error: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to submit quiz: ' . $e->getMessage()
+            ], 500);
+        }
     }
-    
+
     /**
      * Show quiz results
      */
-    public function showResults($examId, $studentId = null)
+    public function showResults($examId)
     {
-        $exam = Exam::with('questions')->findOrFail($examId);
-        $studentId = $studentId ?? Session('LoggedStudent');
-        
-        $results = ExamResult::where('exam_id', $examId)
-            ->where('student_id', $studentId)
-            ->with('examAttempt')
-            ->orderBy('attempt_number', 'desc')
-            ->get();
-        
-        $bestResult = $results->where('is_passed', true)->first() ?? $results->first();
-        
-        return response()->json([
-            'success' => true,
-            'results' => $results,
-            'best_result' => $bestResult,
-            'exam' => $exam
-        ]);
+        try {
+            $studentId = Session('LoggedStudent');
+            $exam = Exam::findOrFail($examId);
+
+            $results = ExamResult::where('exam_id', $examId)
+                ->where('student_id', $studentId)
+                ->orderBy('attempt_number', 'desc')
+                ->get();
+
+            $formattedResults = [];
+            foreach ($results as $result) {
+                $formattedResults[] = [
+                    'id' => $result->id,
+                    'attempt_number' => $result->attempt_number,
+                    'score' => $result->score,
+                    'percentage' => $result->percentage,
+                    'is_passed' => $result->is_passed,
+                    'time_spent' => $result->examAttempt ? $result->examAttempt->time_spent_seconds : null,
+                    'created_at' => $result->created_at,
+                    'answers' => $result->answers
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'exam' => [
+                    'id' => $exam->id,
+                    'title' => $exam->title,
+                    'total_marks' => $exam->total_marks,
+                    'pass_mark' => $exam->pass_mark
+                ],
+                'results' => $formattedResults
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Results error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load results: ' . $e->getMessage()
+            ], 500);
+        }
     }
-    
+
     /**
      * Get quizzes for a lesson
      */
+    /**
+     * Get quizzes for a specific lesson (for teacher view)
+     */
     public function getLessonQuizzes($lessonId)
     {
-        $quizzes = Exam::where('lesson_id', $lessonId)
-            ->where('exam_type', 'quiz')
-            ->whereIn('status', ['published', 'closed'])
-            ->with(['results' => function($q) {
-                $q->where('student_id', Session('LoggedStudent'));
-            }])
-            ->get();
-        
-        return response()->json([
-            'success' => true,
-            'quizzes' => $quizzes
-        ]);
+        try {
+            $teacherId = Session('LoggedTeacher');
+
+            \Log::info('Fetching quizzes for lesson: ' . $lessonId);
+            \Log::info('Teacher ID: ' . $teacherId);
+
+            // Get quizzes for this lesson
+            $quizzes = Exam::where('lesson_id', $lessonId)
+                ->where('teacher_id', $teacherId)
+                ->where('exam_type', 'quiz')
+                ->with(['questions'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            \Log::info('Found quizzes count: ' . $quizzes->count());
+            \Log::info('Quizzes: ' . $quizzes->toJson());
+
+            $formattedQuizzes = [];
+            foreach ($quizzes as $quiz) {
+                $formattedQuizzes[] = [
+                    'id' => $quiz->id,
+                    'title' => $quiz->title,
+                    'total_marks' => $quiz->total_marks,
+                    'pass_mark' => $quiz->pass_mark,
+                    'duration_minutes' => $quiz->duration_minutes,
+                    'status' => $quiz->status,
+                    'questions_count' => $quiz->questions->count(),
+                    'max_attempts' => $quiz->max_attempts ?? 3,
+                    'results' => []
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'quizzes' => $formattedQuizzes
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error loading quizzes: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load quizzes: ' . $e->getMessage()
+            ], 500);
+        }
     }
-    
+
     /**
      * Get class quizzes (general quizzes for a class)
      */
@@ -334,14 +412,78 @@ class ExamController extends Controller
             ->where('exam_type', 'quiz')
             ->whereNull('lesson_id')
             ->whereIn('status', ['published', 'closed'])
-            ->with(['results' => function($q) {
-                $q->where('student_id', Session('LoggedStudent'));
-            }])
+            ->with([
+                'results' => function ($q) {
+                    $q->where('student_id', Session('LoggedStudent'));
+                }
+            ])
             ->get();
-        
+
         return response()->json([
             'success' => true,
             'quizzes' => $quizzes
         ]);
+    }
+
+    /**
+     * Get quiz questions for taking
+     */
+    /**
+     * Get quiz questions for taking
+     */
+    public function takeQuiz($examId)
+    {
+        try {
+            $studentId = Session('LoggedStudent');
+            $exam = Exam::with([
+                'questions' => function ($q) {
+                    $q->orderBy('sort_order');
+                }
+            ])->findOrFail($examId);
+
+            // Check if student has reached max attempts using ExamResult
+            $attemptCount = ExamResult::where('exam_id', $examId)
+                ->where('student_id', $studentId)
+                ->count();
+
+            $maxAttempts = $exam->max_attempts ?? 3;
+
+            if ($attemptCount >= $maxAttempts) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You have reached the maximum number of attempts for this quiz.',
+                    'max_attempts' => $maxAttempts,
+                    'attempts_made' => $attemptCount
+                ], 403);
+            }
+
+            return response()->json([
+                'success' => true,
+                'quiz' => [
+                    'id' => $exam->id,
+                    'title' => $exam->title,
+                    'total_marks' => $exam->total_marks,
+                    'pass_mark' => $exam->pass_mark,
+                    'duration_minutes' => $exam->duration_minutes,
+                    'instructions' => $exam->instructions,
+                ],
+                'questions' => $exam->questions->map(function ($question) {
+                    return [
+                        'id' => $question->id,
+                        'question' => $question->question,
+                        'question_arabic' => $question->question_arabic,
+                        'type' => $question->type,
+                        'marks' => $question->marks,
+                        'options' => $question->options,
+                    ];
+                })
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Take quiz error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load quiz: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

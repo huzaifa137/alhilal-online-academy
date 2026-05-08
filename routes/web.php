@@ -254,7 +254,7 @@ Route::middleware(['AdminAuth'])
         // Quiz Management Routes
         Route::prefix('quizzes')->name('quizzes.')->controller(QuizController::class)->group(function () {
             Route::get('/', 'index')->name('index');
-            Route::get('/create', 'create')->name('create');
+            Route::get('/create', 'createLesson')->name('create');
             Route::post('/store', 'store')->name('store');
             Route::get('/{examId}/add-questions', 'addQuestions')->name('add-questions');
             Route::post('/{examId}/save-questions', 'saveQuestions')->name('save-questions');
@@ -275,6 +275,6 @@ Route::middleware(['AdminAuth'])->prefix('exams')->name('exams.')->controller(Ex
     Route::get('/{examId}/take', 'takeQuiz')->name('take');
     Route::post('/{examId}/submit', 'submitQuiz')->name('submit');
     Route::get('/{examId}/results', 'showResults')->name('results');
-    Route::get('/lesson/{lessonId}/quizzes', 'getLessonQuizzes')->name('lesson-quizzes');
+    Route::get('/lesson/{lessonId}/quizzes', 'getLessonQuizzes')->name('lesson-quizzes');  // <-- ADD THIS LINE
     Route::get('/class/{classId}/quizzes', 'getClassQuizzes')->name('class-quizzes');
 });

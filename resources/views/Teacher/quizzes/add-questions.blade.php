@@ -172,22 +172,41 @@
             align-items: center;
         }
 
-        .qz-question-type-select {
-            padding: 6px 12px;
+        .qz-question-type-badge {
+            background: var(--c-accent-lt);
+            color: var(--c-accent);
+            padding: 6px 14px;
             border-radius: var(--radius-pill);
-            border: 1.5px solid var(--c-border);
-            background: var(--c-surface);
-            font-family: 'DM Sans', sans-serif;
             font-size: .75rem;
-            font-weight: 500;
-            color: var(--c-ink);
-            cursor: pointer;
-            transition: all .15s;
+            font-weight: 600;
+            letter-spacing: .02em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .qz-question-type-select:focus {
-            outline: none;
-            border-color: var(--c-accent);
+        .qz-question-type-badge i {
+            font-size: .7rem;
+        }
+
+        .btn-remove-question {
+            background: transparent;
+            border: 1.5px solid var(--c-border);
+            padding: 6px 12px;
+            border-radius: var(--radius-pill);
+            cursor: pointer;
+            color: var(--c-red);
+            font-size: .7rem;
+            font-weight: 600;
+            transition: all .15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-remove-question:hover {
+            background: var(--c-red-lt);
+            border-color: var(--c-red);
         }
 
         .qz-question-body {
@@ -321,26 +340,6 @@
         .btn-add-option:hover {
             background: var(--c-accent);
             color: white;
-        }
-
-        .btn-remove-question {
-            background: transparent;
-            border: 1.5px solid var(--c-border);
-            padding: 6px 12px;
-            border-radius: var(--radius-pill);
-            cursor: pointer;
-            color: var(--c-red);
-            font-size: .7rem;
-            font-weight: 600;
-            transition: all .15s;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .btn-remove-question:hover {
-            background: var(--c-red-lt);
-            border-color: var(--c-red);
         }
 
         .btn-add-question {
@@ -484,7 +483,7 @@
             <div>
                 <div class="qz-page-eyebrow"><i class="fas fa-question-circle"></i> Quiz Builder</div>
                 <h1 class="qz-page-title">Add <em>Questions</em></h1>
-                <div class="qz-page-subtitle">Create and manage questions for your quiz</div>
+                <div class="qz-page-subtitle">Create multiple choice questions for your quiz</div>
             </div>
         </div>
 
@@ -517,16 +516,10 @@
                                     Question #{{ $index + 1 }}
                                 </div>
                                 <div class="qz-question-actions">
-                                    <select name="questions[{{ $index }}][type]" class="qz-question-type-select"
-                                        onchange="updateQuestionType(this, {{ $index }})">
-                                        <option value="mcq" {{ $question->type == 'mcq' ? 'selected' : '' }}>📝 Multiple Choice
-                                        </option>
-                                        <option value="true_false" {{ $question->type == 'true_false' ? 'selected' : '' }}>✓/✗
-                                            True/False</option>
-                                        <option value="short_answer" {{ $question->type == 'short_answer' ? 'selected' : '' }}>📋
-                                            Short Answer</option>
-                                        <option value="essay" {{ $question->type == 'essay' ? 'selected' : '' }}>📄 Essay</option>
-                                    </select>
+                                    <div class="qz-question-type-badge">
+                                        <i class="fas fa-check-circle"></i> Multiple Choice
+                                    </div>
+                                    <input type="hidden" name="questions[{{ $index }}][type]" value="mcq">
                                     <button type="button" class="btn-remove-question" onclick="removeQuestion(this)">
                                         <i class="fas fa-trash-alt"></i> Remove
                                     </button>
@@ -552,14 +545,13 @@
                                             value="{{ $question->marks }}" min="1" required>
                                     </div>
                                     <div class="fg">
-                                        <label>Correct Answer</label>
+                                        <label>Correct Answer (Option Letter: A, B, C, D, etc.)</label>
                                         <input type="text" name="questions[{{ $index }}][answer]" class="form-control"
-                                            value="{{ $question->answer }}" placeholder="Correct answer">
+                                            value="{{ $question->answer }}" placeholder="e.g., A" maxlength="1" style="text-transform: uppercase">
                                     </div>
                                 </div>
 
-                                <div id="options-container-{{ $index }}"
-                                    style="display: {{ in_array($question->type, ['mcq']) ? 'block' : 'none' }}">
+                                <div id="options-container-{{ $index }}" style="display: block;">
                                     <div class="qz-options-container">
                                         <div class="qz-options-title">
                                             <i class="fas fa-list-ul"></i> Answer Options (MCQ)
@@ -633,12 +625,10 @@
                             Question #${index + 1}
                         </div>
                         <div class="qz-question-actions">
-                            <select name="questions[${index}][type]" class="qz-question-type-select" onchange="updateQuestionType(this, ${index})">
-                                <option value="mcq">📝 Multiple Choice</option>
-                                <option value="true_false">✓/✗ True/False</option>
-                                <option value="short_answer">📋 Short Answer</option>
-                                <option value="essay">📄 Essay</option>
-                            </select>
+                            <div class="qz-question-type-badge">
+                                <i class="fas fa-check-circle"></i> Multiple Choice
+                            </div>
+                            <input type="hidden" name="questions[${index}][type]" value="mcq">
                             <button type="button" class="btn-remove-question" onclick="removeQuestion(this)">
                                 <i class="fas fa-trash-alt"></i> Remove
                             </button>
@@ -661,12 +651,12 @@
                                 <input type="number" name="questions[${index}][marks]" class="form-control" value="1" min="1" required>
                             </div>
                             <div class="fg">
-                                <label>Correct Answer</label>
-                                <input type="text" name="questions[${index}][answer]" class="form-control" placeholder="Correct answer">
+                                <label>Correct Answer (Option Letter: A, B, C, D, etc.)</label>
+                                <input type="text" name="questions[${index}][answer]" class="form-control" placeholder="e.g., A" maxlength="1" style="text-transform: uppercase">
                             </div>
                         </div>
 
-                        <div id="options-container-${index}" style="display: none;">
+                        <div id="options-container-${index}" style="display: block;">
                             <div class="qz-options-container">
                                 <div class="qz-options-title">
                                     <i class="fas fa-list-ul"></i> Answer Options (MCQ)
@@ -687,6 +677,9 @@
             `;
 
             container.insertAdjacentHTML('beforeend', questionHtml);
+            // Add two default options for new question
+            addOption(index);
+            addOption(index);
             questionCounter++;
             reindexQuestions();
         }
@@ -708,23 +701,10 @@
             }
         }
 
-        function updateQuestionType(select, index) {
-            const type = select.value;
-            const optionsContainer = document.getElementById(`options-container-${index}`);
-
-            if (type === 'mcq') {
-                optionsContainer.style.display = 'block';
-                if (document.getElementById(`options-list-${index}`).children.length === 0) {
-                    addOption(index);
-                    addOption(index);
-                }
-            } else {
-                optionsContainer.style.display = 'none';
-            }
-        }
-
         function addOption(index) {
             const optionsList = document.getElementById(`options-list-${index}`);
+            if (!optionsList) return;
+            
             const optionLetter = String.fromCharCode(65 + optionsList.children.length);
 
             const optionHtml = `
@@ -739,7 +719,24 @@
         }
 
         function removeOption(btn) {
-            btn.closest('.qz-option-row').remove();
+            const optionRow = btn.closest('.qz-option-row');
+            const optionsList = optionRow.parentElement;
+            optionRow.remove();
+            
+            // Renumber remaining options (A, B, C, ...)
+            const remainingOptions = optionsList.querySelectorAll('.qz-option-row');
+            remainingOptions.forEach((row, idx) => {
+                const newLetter = String.fromCharCode(65 + idx);
+                const labelSpan = row.querySelector('.qz-option-label');
+                const inputField = row.querySelector('input');
+                
+                if (labelSpan) labelSpan.textContent = newLetter;
+                if (inputField) {
+                    const oldName = inputField.getAttribute('name');
+                    const newName = oldName.replace(/options\[[A-Z]\]/, `options[${newLetter}]`);
+                    inputField.setAttribute('name', newName);
+                }
+            });
         }
 
         function reindexQuestions() {
@@ -767,6 +764,21 @@
                     const optionsList = optionsContainer.querySelector('[id^="options-list-"]');
                     if (optionsList) {
                         optionsList.id = `options-list-${idx}`;
+                        
+                        // Renumber options within this question
+                        const optionRows = optionsList.querySelectorAll('.qz-option-row');
+                        optionRows.forEach((row, optIdx) => {
+                            const newLetter = String.fromCharCode(65 + optIdx);
+                            const labelSpan = row.querySelector('.qz-option-label');
+                            const inputField = row.querySelector('input');
+                            
+                            if (labelSpan) labelSpan.textContent = newLetter;
+                            if (inputField) {
+                                const oldName = inputField.getAttribute('name');
+                                const newName = oldName.replace(/options\[[A-Z]\]/, `options[${newLetter}]`);
+                                inputField.setAttribute('name', newName);
+                            }
+                        });
                     }
 
                     // Update add option button onclick
@@ -778,6 +790,13 @@
             });
             questionCounter = questions.length;
         }
+
+        // Auto-uppercase the answer field
+        document.addEventListener('input', function(e) {
+            if (e.target && e.target.name && e.target.name.includes('[answer]')) {
+                e.target.value = e.target.value.toUpperCase();
+            }
+        });
 
         document.getElementById('questionsForm').addEventListener('submit', async function (e) {
             e.preventDefault();
@@ -793,6 +812,55 @@
                 });
                 return;
             }
+
+            // Validate each question has options and correct answer
+            let hasError = false;
+            questions.forEach((question, idx) => {
+                const optionsList = question.querySelector('[id^="options-list-"]');
+                if (optionsList) {
+                    const options = optionsList.querySelectorAll('.qz-option-row input');
+                    if (options.length < 2) {
+                        hasError = true;
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validation Error',
+                            text: `Question #${idx + 1} must have at least 2 options.`,
+                            confirmButtonColor: '#DC2626'
+                        });
+                        return;
+                    }
+                    
+                    const answerInput = question.querySelector('input[name*="[answer]"]');
+                    if (answerInput && answerInput.value.trim() === '') {
+                        hasError = true;
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validation Error',
+                            text: `Please specify the correct answer for Question #${idx + 1} (e.g., A, B, C).`,
+                            confirmButtonColor: '#DC2626'
+                        });
+                        return;
+                    }
+                    
+                    // Check if answer letter is valid
+                    if (answerInput) {
+                        const answerLetter = answerInput.value.trim().toUpperCase();
+                        const validLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+                        if (!validLetters.includes(answerLetter)) {
+                            hasError = true;
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Validation Error',
+                                text: `Question #${idx + 1}: Correct answer must be a letter (A, B, C, etc.)`,
+                                confirmButtonColor: '#DC2626'
+                            });
+                            return;
+                        }
+                    }
+                }
+            });
+            
+            if (hasError) return;
 
             const submitBtn = document.getElementById('submitBtn');
             const originalText = submitBtn.innerHTML;
@@ -850,3 +918,4 @@
         });
     </script>
 @endsection
+```

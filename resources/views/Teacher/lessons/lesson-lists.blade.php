@@ -5,1540 +5,1289 @@
 @section('breadcrumb', 'Lessons')
 
 @section('content')
-    <style>
-        /* Additional styles for lessons page - complements master layout */
-        .lessons-container {
-            max-width: 100%;
-            margin: 0 auto;
-        }
-
-        /* Stats Cards */
-        .stat-card {
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--border);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--gradient);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        /* THREE COLUMN GRID for Class Cards - NOW USING CSS GRID WITH 3 COLUMNS */
-        .class-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 28px;
-            margin-top: 16px;
-        }
-
-        /* Each class card becomes a vertical column card */
-        .class-card {
-            background: white;
-            border-radius: 28px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-            transition: all 0.25s ease;
-            height: fit-content;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-        }
-
-        .class-card:hover {
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
-            transform: translateY(-3px);
-        }
-
-        /* Class header - gradient */
-        .class-header {
-            background: linear-gradient(135deg, var(--purple-dark) 0%, var(--purple) 100%);
-            padding: 20px 20px;
-            color: white;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .class-header:hover {
-            background: linear-gradient(135deg, var(--purple) 0%, var(--purple-light) 100%);
-        }
-
-        /* Class content scrollable */
-        .class-content {
-            display: none;
-            background: var(--cream);
-            padding: 8px 0 16px 0;
-            max-height: 70vh;
-            overflow-y: auto;
-        }
-
-        /* Subject inside a card */
-        .subject-section {
-            border-bottom: 1px solid var(--border);
-            background: white;
-            margin: 8px 12px;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-        }
-
-        .subject-header {
-            padding: 14px 18px;
-            background: #FFFFFF;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border-left: 4px solid var(--purple);
-            margin: 0;
-        }
-
-        .subject-header:hover {
-            background: var(--cream);
-            padding-left: 22px;
-        }
-
-        .subject-content {
-            display: none;
-            background: var(--cream2);
-            padding: 8px 12px 16px 12px;
-            border-top: 1px solid var(--border);
-        }
-
-        /* Topic section inside subject */
-        .topic-section {
-            padding: 14px 8px 8px 8px;
-            margin-bottom: 12px;
-            background: white;
-            border-radius: 18px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
-
-        .topic-title {
-            font-weight: 700;
-            color: var(--ink);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            font-size: 0.95rem;
-            padding-left: 8px;
-        }
-
-        .lesson-item:hover {
-            background: white;
-            border-color: var(--purple-light);
-            transform: translateX(4px);
-            box-shadow: 0 3px 10px rgba(107, 70, 193, 0.08);
-        }
-
-        .lesson-info {
-            flex: 1;
-        }
-
-        .lesson-title {
-            font-weight: 600;
-            color: var(--ink);
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-        }
-
-        .lesson-meta {
-            display: flex;
-            gap: 12px;
-            font-size: 0.7rem;
-            color: var(--muted);
-            flex-wrap: wrap;
-        }
-
-        .badge-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 4px 10px;
-            border-radius: 40px;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
-
-        .badge-published {
-            background: #C6F6D5;
-            color: #22543D;
-        }
-
-        .badge-draft {
-            background: #FEEBC8;
-            color: #7B341E;
-        }
-
-        .badge-archived {
-            background: #FED7D7;
-            color: #742A2A;
-        }
-
-        .lesson-type-icon {
-            width: 38px;
-            height: 38px;
-            background: white;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 14px;
-            color: var(--purple);
-            font-size: 1.1rem;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--purple);
-            line-height: 1;
-        }
-
-        .stat-label {
-            font-size: 0.8rem;
-            color: var(--muted);
-            margin-top: 4px;
-        }
-
-        .btn-create {
-            background: var(--gradient);
-            color: white;
-            padding: 12px 28px;
-            border-radius: 40px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-
-        .btn-create:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 18px rgba(107, 70, 193, 0.3);
-            color: white;
-        }
-
-        .search-box {
-            position: relative;
-            margin-bottom: 28px;
-            max-width: 500px;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 14px 20px 14px 48px;
-            border: 1px solid var(--border);
-            border-radius: 48px;
-            font-size: 0.9rem;
-            background: white;
-            transition: all 0.2s;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: var(--purple);
-            box-shadow: 0 0 0 3px rgba(107, 70, 193, 0.1);
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--muted);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            background: white;
-            border-radius: 32px;
-            border: 1px solid var(--border);
-            grid-column: 1 / -1;
-        }
-
-        .recent-lesson-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-        .recent-lesson-item:hover {
-            padding-left: 8px;
-            background: var(--cream);
-        }
-
-        /* Card for recent section */
-        .card {
-            background: white;
-            border-radius: 28px;
-            border: 1px solid var(--border);
-            margin-bottom: 36px;
-            overflow: hidden;
-        }
-
-        .card-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--border);
-            background: white;
-        }
-
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--ink);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .card-subtitle {
-            font-size: 0.8rem;
-            color: var(--muted);
-            margin-top: 6px;
-        }
-
-        .card-body {
-            padding: 8px 20px 20px 20px;
-        }
-
-        .fa-chevron-down {
-            transition: transform 0.25s ease;
-        }
-
-        /* Custom scrollbar */
-        .class-content::-webkit-scrollbar {
-            width: 5px;
-        }
-
-        .class-content::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-
-        .class-content::-webkit-scrollbar-thumb {
-            background: var(--purple-light);
-            border-radius: 10px;
-        }
-
-        /* Responsive: 2 columns on tablet, 1 column on mobile */
-        @media (max-width: 1100px) {
-            .class-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 24px;
-            }
-        }
-
-        @media (max-width: 700px) {
-            .class-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-        }
-
-        /* Class Header */
-        .class-header {
-            background: linear-gradient(135deg, var(--purple-dark) 0%, var(--purple) 100%);
-            padding: 18px 20px;
-            color: white;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px 20px 0 0;
-        }
-
-        .class-header:hover {
-            background: linear-gradient(135deg, var(--purple) 0%, var(--purple-light) 100%);
-        }
-
-        .class-header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .class-header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .class-icon {
-            width: 36px;
-            height: 36px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.1rem;
-        }
-
-        .class-info {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .class-name {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin: 0;
-            color: white;
-        }
-
-        .class-level {
-            font-size: 0.75rem;
-            opacity: 0.9;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .class-header-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .subjects-badge {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .chevron-icon {
-            font-size: 0.9rem;
-            transition: transform 0.25s ease;
-            transform: rotate(-90deg);
-        }
-
-        .lesson-payment-box {
-            margin-top: 6px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .lesson-price {
-            background: #f1f5f9;
-            color: #0f172a;
-            font-size: 0.75rem;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-weight: 600;
-        }
-
-        .lesson-payment-status {
-            font-size: 0.75rem;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-weight: 600;
-        }
-
-        /* Attention styles */
-        .lesson-payment-status.not-paid {
-            background: #fee2e2;
-            color: #b91c1c;
-            animation: pulse 1.5s infinite;
-        }
-
-        .lesson-payment-status.paid {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        /* subtle pulse animation */
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(185, 28, 28, 0.4);
-            }
-
-            70% {
-                box-shadow: 0 0 0 6px rgba(185, 28, 28, 0);
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(185, 28, 28, 0);
-            }
-        }
-
-        .lesson-item {
-            display: flex;
-            flex-direction: column;
-            /* 🔥 THIS FIXES YOUR ISSUE */
-            padding: 16px;
-            margin-bottom: 12px;
-            background: var(--cream2);
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            transition: all 0.25s ease;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        .lesson-status-section {
-            margin-top: 12px;
-            padding-top: 10px;
-            border-top: 1px dashed var(--border);
-            display: flex;
-            justify-content: flex-end;
-            /* aligns to right */
-        }
-
-        .lesson-item:hover {
-            background: white;
-            border-color: var(--purple-light);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(107, 70, 193, 0.1);
-        }
-
-        .lesson-main-content {
-            display: flex;
-            align-items: center;
-            flex: 1;
-            gap: 14px;
-        }
-
-        .lesson-icon-box {
-            width: 40px;
-            height: 40px;
-            background: white;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--purple);
-            font-size: 1.2rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            flex-shrink: 0;
-        }
-
-        .lesson-icon {
-            color: var(--purple);
-        }
-
-        .lesson-details {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            flex: 1;
-        }
-
-        .lesson-title-text {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--ink);
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .lesson-title-arabic {
-            font-size: 0.85rem;
-            color: var(--muted);
-        }
-
-        .lesson-meta-info {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            font-size: 0.75rem;
-            color: var(--muted);
-        }
-
-        .lesson-meta-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .meta-icon {
-            font-size: 0.75rem;
-        }
-
-        .lesson-payment-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .lesson-price-box,
-        .lesson-payment-status-box {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .lesson-price-box {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(107, 70, 193, 0.08);
-            padding: 6px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            color: var(--purple);
-        }
-
-        .price-icon {
-            font-size: 0.8rem;
-        }
-
-        .lesson-payment-status-box {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        .lesson-payment-status-box.paid {
-            background: rgba(72, 187, 120, 0.15);
-            color: var(--success);
-        }
-
-        .lesson-payment-status-box.not-paid {
-            background: rgba(237, 137, 54, 0.15);
-            color: var(--warning);
-        }
-
-        .status-icon {
-            font-size: 0.75rem;
-        }
-
-        .lesson-publish-status-box {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        .lesson-publish-status-box.published {
-            background: #C6F6D5;
-            color: #22543D;
-        }
-
-        .lesson-publish-status-box.draft {
-            background: #FEEBC8;
-            color: #7B341E;
-        }
-
-        .publish-icon {
-            font-size: 0.75rem;
-        }
-
-        /* Payment Modal Styles */
-        .payment-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .payment-modal-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-        }
-
-        .payment-modal-content {
-            position: relative;
-            background: white;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 480px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: modalSlideIn 0.3s ease-out;
-            overflow: hidden;
-        }
-
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-30px) scale(0.95);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .payment-modal-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .payment-modal-header h3 {
-            margin: 0;
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-
-        .close-modal {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-        }
-
-        .close-modal:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: rotate(90deg);
-        }
-
-        .payment-modal-body {
-            padding: 24px;
-        }
-
-        .lesson-info-section {
-            text-align: center;
-            margin-bottom: 24px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .lesson-info-section h4 {
-            color: #1f2937;
-            margin: 0 0 12px 0;
-            font-size: 1.1rem;
-        }
-
-        .amount-display {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            background: #f3f4f6;
-            padding: 12px 20px;
-            border-radius: 12px;
-        }
-
-        .amount-label {
-            color: #6b7280;
-            font-size: 0.9rem;
-        }
-
-        .amount-value {
-            color: #7c3aed;
-            font-weight: 700;
-            font-size: 1.3rem;
-        }
-
-        .payment-methods-section {
-            margin-bottom: 24px;
-        }
-
-        .payment-methods-section h5 {
-            color: #374151;
-            margin: 0 0 12px 0;
-            font-size: 0.95rem;
-        }
-
-        .payment-methods-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-        }
-
-        .payment-method-card {
-            background: #f9fafb;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 16px 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-        }
-
-        .payment-method-card:hover {
-            border-color: #7c3aed;
-            background: #f5f3ff;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
-        }
-
-        .payment-method-card.selected {
-            border-color: #7c3aed;
-            background: #f5f3ff;
-            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
-        }
-
-        .method-icon {
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<style>
+    :root {
+        --c-bg: #F0EEF8;
+        --c-surface: #FFFFFF;
+        --c-surface2: #F7F6FB;
+        --c-border: #E3E0F0;
+        --c-ink: #1A1628;
+        --c-muted: #7C748E;
+        --c-accent: #5B3FD9;
+        --c-accent-lt: #EAE6FF;
+        --c-emerald: #059669;
+        --c-green-lt: #D1FAE5;
+        --c-red: #DC2626;
+        --c-red-lt: #FEE2E2;
+        --c-gold: #D97706;
+        --c-gold-lt: #FEF3C7;
+        --radius-lg: 18px;
+        --radius-xl: 24px;
+        --radius-pill: 999px;
+        --shadow-sm: 0 1px 3px rgba(91, 63, 217, .07), 0 1px 2px rgba(0, 0, 0, .04);
+        --shadow-md: 0 4px 16px rgba(91, 63, 217, .10), 0 2px 6px rgba(0, 0, 0, .05);
+        --shadow-lg: 0 12px 40px rgba(91, 63, 217, .14), 0 4px 12px rgba(0, 0, 0, .06);
+        --gradient: linear-gradient(135deg, #5B3FD9 0%, #8B5CF6 100%);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: var(--c-bg);
+        font-family: 'DM Sans', sans-serif;
+    }
+
+    .ls-lessons-wrap {
+        width: 100%;
+        font-family: 'DM Sans', sans-serif;
+        color: var(--c-ink);
+    }
+
+    /* Page Header */
+    .ls-page-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .ls-page-eyebrow {
+        font-size: .72rem;
+        font-weight: 700;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        color: var(--c-accent);
+        margin-bottom: 6px;
+    }
+
+    .ls-page-title {
+        font-family: 'DM Serif Display', Georgia, serif;
+        font-size: 2rem;
+        font-weight: 400;
+        color: var(--c-ink);
+        line-height: 1.15;
+        margin: 0;
+    }
+
+    .ls-page-title em {
+        font-style: italic;
+        color: var(--c-accent);
+    }
+
+    .ls-page-subtitle {
+        margin-top: 6px;
+        font-size: .83rem;
+        color: var(--c-muted);
+        font-weight: 400;
+    }
+
+    /* Stats Grid */
+    .ls-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 32px;
+    }
+
+    .ls-stat-card {
+        background: var(--c-surface);
+        border: 1.5px solid var(--c-border);
+        border-radius: var(--radius-lg);
+        padding: 20px;
+        transition: all .22s ease;
+        cursor: default;
+    }
+
+    .ls-stat-card:hover {
+        transform: translateY(-2px);
+        border-color: var(--c-accent);
+        box-shadow: var(--shadow-md);
+    }
+
+    .ls-stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        margin-bottom: 16px;
+    }
+
+    .ls-stat-number {
+        font-family: 'DM Serif Display', serif;
+        font-size: 1.8rem;
+        font-weight: 400;
+        color: var(--c-ink);
+        line-height: 1.1;
+    }
+
+    .ls-stat-label {
+        font-size: .73rem;
+        font-weight: 600;
+        color: var(--c-muted);
+        margin-top: 6px;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+    }
+
+    /* Search Box */
+    .ls-search-box {
+        position: relative;
+        margin-bottom: 32px;
+        max-width: 500px;
+    }
+
+    .ls-search-box input {
+        width: 100%;
+        padding: 12px 20px 12px 48px;
+        border: 1.5px solid var(--c-border);
+        border-radius: var(--radius-pill);
+        font-size: .84rem;
+        font-family: 'DM Sans', sans-serif;
+        background: var(--c-surface);
+        transition: all .2s;
+    }
+
+    .ls-search-box input:focus {
+        outline: none;
+        border-color: var(--c-accent);
+        box-shadow: 0 0 0 3px rgba(91, 63, 217, .13);
+    }
+
+    .ls-search-box i {
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--c-muted);
+    }
+
+    /* Class Grid - 3 Columns */
+    .ls-class-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 28px;
+        margin-top: 16px;
+    }
+
+    /* Class Card */
+    .ls-class-card {
+        background: var(--c-surface);
+        border: 1.5px solid var(--c-border);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        transition: all .25s ease;
+        height: fit-content;
+        display: flex;
+        flex-direction: column;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .ls-class-card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-3px);
+    }
+
+    /* Class Header */
+    .ls-class-header {
+        background: var(--gradient);
+        padding: 20px;
+        cursor: pointer;
+        transition: all .2s ease;
+    }
+
+    .ls-class-header:hover {
+        background: linear-gradient(135deg, #4930C2 0%, #7C3AED 100%);
+    }
+
+    .ls-class-header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .ls-class-header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .ls-class-icon {
+        width: 36px;
+        height: 36px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1rem;
+    }
+
+    .ls-class-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .ls-class-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0;
+        color: white;
+    }
+
+    .ls-class-level {
+        font-size: .7rem;
+        opacity: 0.9;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: white;
+    }
+
+    .ls-class-header-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .ls-subjects-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 4px 10px;
+        border-radius: var(--radius-pill);
+        font-size: .7rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: white;
+    }
+
+    .ls-chevron-icon {
+        font-size: .85rem;
+        transition: transform .25s ease;
+        transform: rotate(-90deg);
+        color: white;
+    }
+
+    /* Class Content */
+    .ls-class-content {
+        display: none;
+        background: var(--c-surface2);
+        padding: 8px 0 16px 0;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    /* Custom scrollbar */
+    .ls-class-content::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .ls-class-content::-webkit-scrollbar-track {
+        background: var(--c-border);
+        border-radius: 10px;
+    }
+
+    .ls-class-content::-webkit-scrollbar-thumb {
+        background: var(--c-accent);
+        border-radius: 10px;
+    }
+
+    /* Subject Section */
+    .ls-subject-section {
+        border: 1px solid var(--c-border);
+        background: var(--c-surface);
+        margin: 8px 12px;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .ls-subject-header {
+        padding: 12px 16px;
+        background: var(--c-surface);
+        cursor: pointer;
+        transition: all .2s ease;
+        border-left: 3px solid var(--c-accent);
+    }
+
+    .ls-subject-header:hover {
+        background: var(--c-accent-lt);
+    }
+
+    .ls-subject-header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .ls-subject-name {
+        font-weight: 600;
+        color: var(--c-ink);
+        font-size: .85rem;
+    }
+
+    .ls-subject-code {
+        font-size: .65rem;
+        color: var(--c-muted);
+    }
+
+    .ls-subject-badge {
+        background: var(--c-accent-lt);
+        color: var(--c-accent);
+        padding: 3px 10px;
+        border-radius: var(--radius-pill);
+        font-size: .65rem;
+        font-weight: 600;
+    }
+
+    /* Subject Content */
+    .ls-subject-content {
+        display: none;
+        background: var(--c-surface2);
+        padding: 12px;
+        border-top: 1px solid var(--c-border);
+    }
+
+    /* Topic Section */
+    .ls-topic-section {
+        padding: 12px;
+        margin-bottom: 12px;
+        background: var(--c-surface);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--c-border);
+    }
+
+    .ls-topic-title {
+        font-weight: 700;
+        color: var(--c-ink);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        font-size: .85rem;
+        padding-left: 4px;
+    }
+
+    .ls-topic-badge {
+        background: var(--c-surface2);
+        color: var(--c-muted);
+        padding: 2px 8px;
+        border-radius: var(--radius-pill);
+        font-size: .65rem;
+    }
+
+    .ls-topic-description {
+        font-size: .7rem;
+        color: var(--c-muted);
+        margin-bottom: 12px;
+        padding-left: 4px;
+    }
+
+    /* Lesson Item */
+    .ls-lesson-item {
+        padding: 12px;
+        margin-bottom: 8px;
+        background: var(--c-surface2);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--c-border);
+        transition: all .2s ease;
+        cursor: pointer;
+    }
+
+    .ls-lesson-item:hover {
+        background: var(--c-surface);
+        border-color: var(--c-accent);
+        transform: translateX(4px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .ls-lesson-main {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .ls-lesson-icon {
+        width: 36px;
+        height: 36px;
+        background: var(--c-accent-lt);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--c-accent);
+        font-size: .9rem;
+        flex-shrink: 0;
+    }
+
+    .ls-lesson-details {
+        flex: 1;
+    }
+
+    .ls-lesson-title {
+        font-weight: 600;
+        color: var(--c-ink);
+        margin-bottom: 6px;
+        font-size: .85rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .ls-lesson-lock {
+        color: var(--c-red);
+        font-size: .7rem;
+    }
+
+    .ls-lesson-meta {
+        display: flex;
+        gap: 12px;
+        font-size: .65rem;
+        color: var(--c-muted);
+        flex-wrap: wrap;
+    }
+
+    .ls-lesson-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .ls-lesson-footer {
+        margin-top: 10px;
+        padding-top: 8px;
+        border-top: 1px dashed var(--c-border);
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .ls-lesson-price {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--c-accent-lt);
+        padding: 4px 10px;
+        border-radius: var(--radius-pill);
+        font-size: .7rem;
+        font-weight: 600;
+        color: var(--c-accent);
+    }
+
+    .ls-lesson-payment-status {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: var(--radius-pill);
+        font-size: .65rem;
+        font-weight: 600;
+    }
+
+    .ls-lesson-payment-status.paid {
+        background: var(--c-green-lt);
+        color: var(--c-emerald);
+    }
+
+    .ls-lesson-payment-status.not-paid {
+        background: var(--c-red-lt);
+        color: var(--c-red);
+    }
+
+    /* Buttons */
+    .btn-primary-custom {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--c-accent);
+        color: #fff;
+        font-family: 'DM Sans', sans-serif;
+        font-size: .82rem;
+        font-weight: 600;
+        padding: 9px 20px;
+        border-radius: var(--radius-pill);
+        border: none;
+        cursor: pointer;
+        transition: background .2s, box-shadow .2s, transform .15s;
+        letter-spacing: .02em;
+        text-decoration: none;
+    }
+
+    .btn-primary-custom:hover {
+        background: #4930C2;
+        box-shadow: 0 6px 20px rgba(91, 63, 217, .32);
+        transform: translateY(-1px);
+        color: white;
+    }
+
+    /* Empty State */
+    .ls-empty-state {
+        text-align: center;
+        padding: 72px 40px;
+        background: var(--c-surface);
+        border-radius: var(--radius-xl);
+        border: 1.5px solid var(--c-border);
+    }
+
+    .ls-empty-ring {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 20px;
+        border-radius: 50%;
+        background: var(--c-surface2);
+        border: 2px dashed var(--c-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        color: var(--c-muted);
+    }
+
+    /* Payment Modal */
+    .ls-payment-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ls-payment-modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(26, 22, 40, .6);
+        backdrop-filter: blur(4px);
+    }
+
+    .ls-payment-modal-content {
+        position: relative;
+        background: var(--c-surface);
+        border-radius: var(--radius-xl);
+        width: 90%;
+        max-width: 480px;
+        box-shadow: var(--shadow-lg);
+        animation: modalSlideIn .3s ease-out;
+        overflow: hidden;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-30px) scale(.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .ls-payment-modal-header {
+        background: var(--gradient);
+        color: white;
+        padding: 20px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .ls-payment-modal-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .ls-close-modal {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all .3s;
+    }
+
+    .ls-close-modal:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
+    }
+
+    .ls-payment-modal-body {
+        padding: 24px;
+    }
+
+    .ls-lesson-info-section {
+        text-align: center;
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--c-border);
+    }
+
+    .ls-amount-display {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: var(--c-surface2);
+        padding: 12px 20px;
+        border-radius: var(--radius-lg);
+        margin-top: 12px;
+    }
+
+    .ls-amount-label {
+        color: var(--c-muted);
+        font-size: .8rem;
+    }
+
+    .ls-amount-value {
+        color: var(--c-accent);
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+
+    .ls-payment-methods-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    .ls-payment-method-card {
+        background: var(--c-surface2);
+        border: 2px solid var(--c-border);
+        border-radius: var(--radius-lg);
+        padding: 16px 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: all .3s;
+        position: relative;
+    }
+
+    .ls-payment-method-card:hover {
+        border-color: var(--c-accent);
+        background: var(--c-accent-lt);
+        transform: translateY(-2px);
+    }
+
+    .ls-payment-method-card.selected {
+        border-color: var(--c-accent);
+        background: var(--c-accent-lt);
+    }
+
+    .ls-method-icon {
+        font-size: 1.3rem;
+        color: var(--c-accent);
+        margin-bottom: 8px;
+    }
+
+    .ls-selected-indicator {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        color: var(--c-accent);
+        font-size: 1rem;
+        display: none;
+    }
+
+    .ls-payment-method-card.selected .ls-selected-indicator {
+        display: block;
+    }
+
+    .ls-payment-amount-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1.5px solid var(--c-border);
+        border-radius: var(--radius-lg);
+        font-size: .9rem;
+        font-family: 'DM Sans', sans-serif;
+        transition: all .3s;
+    }
+
+    .ls-payment-amount-input:focus {
+        outline: none;
+        border-color: var(--c-accent);
+        box-shadow: 0 0 0 3px rgba(91, 63, 217, .13);
+    }
+
+    .ls-payment-modal-footer {
+        padding: 20px 24px;
+        background: var(--c-surface2);
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        border-top: 1px solid var(--c-border);
+    }
+
+    .btn-cancel-custom {
+        padding: 8px 20px;
+        border: 1.5px solid var(--c-border);
+        background: var(--c-surface);
+        color: var(--c-muted);
+        border-radius: var(--radius-pill);
+        cursor: pointer;
+        font-weight: 600;
+        font-size: .75rem;
+        transition: all .3s;
+    }
+
+    .btn-cancel-custom:hover {
+        background: var(--c-red-lt);
+        border-color: var(--c-red);
+        color: var(--c-red);
+    }
+
+    .btn-confirm-custom {
+        padding: 8px 24px;
+        background: var(--c-accent);
+        border: none;
+        color: white;
+        border-radius: var(--radius-pill);
+        cursor: pointer;
+        font-weight: 600;
+        font-size: .75rem;
+        transition: all .3s;
+    }
+
+    .btn-confirm-custom:hover {
+        background: #4930C2;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(91, 63, 217, .3);
+    }
+
+    /* Responsive */
+    @media (max-width: 1100px) {
+        .ls-class-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .ls-page-title {
             font-size: 1.5rem;
-            color: #7c3aed;
-            margin-bottom: 8px;
         }
 
-        .payment-method-card span {
-            font-size: 0.85rem;
-            color: #374151;
-            font-weight: 500;
+        .ls-stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
         }
 
-        .selected-indicator {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            color: #7c3aed;
-            font-size: 1.1rem;
-            display: none;
+        .ls-class-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
         }
 
-        .payment-method-card.selected .selected-indicator {
-            display: block;
+        .ls-payment-methods-grid {
+            grid-template-columns: 1fr;
         }
+    }
+</style>
 
-        .payment-input-section {
-            margin-bottom: 8px;
-        }
-
-        .payment-input-section label {
-            display: block;
-            margin-bottom: 8px;
-            color: #374151;
-            font-weight: 500;
-            font-size: 0.95rem;
-        }
-
-        .amount-input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .currency-prefix {
-            position: absolute;
-            left: 16px;
-            color: #6b7280;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .payment-amount-input {
-            width: 100%;
-            padding: 14px 16px 14px 60px;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.3s;
-            outline: none;
-        }
-
-        .payment-amount-input:focus {
-            border-color: #7c3aed;
-            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
-        }
-
-        .amount-hint {
-            display: block;
-            margin-top: 6px;
-            color: #9ca3af;
-            font-size: 0.8rem;
-        }
-
-        .payment-modal-footer {
-            padding: 20px 24px;
-            background: #f9fafb;
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            border-top: 1px solid #e5e7eb;
-        }
-
-        .btn-cancel {
-            padding: 10px 20px;
-            border: 2px solid #e5e7eb;
-            background: white;
-            color: #374151;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        .btn-cancel:hover {
-            background: #f3f4f6;
-        }
-
-        .btn-confirm-payment {
-            padding: 10px 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            color: white;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
-        }
-
-        .btn-confirm-payment:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
-        }
-
-        .btn-confirm-payment:active {
-            transform: translateY(0);
-        }
-    </style>
-
-    <div class="lessons-container">
-
-        <!-- HEADER + CREATE -->
-        <div
-            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; flex-wrap: wrap; gap: 18px;">
-            <div>
-                <h1
-                    style="font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--ink); margin-bottom: 4px;">
-                    My Lessons
-                </h1>
-                <p style="color: var(--muted); font-size: 0.9rem;">
-                    Manage and organize all your lesson content · Three column view
-                </p>
-            </div>
-            <a href="{{ route('teacher.lessons.create') }}" class="btn-create">
-                <i class="fas fa-plus-circle"></i> Create New Lesson
-            </a>
+<div class="ls-lessons-wrap">
+    {{-- Page Header --}}
+    <div class="ls-page-header">
+        <div>
+            <div class="ls-page-eyebrow"><i class="fas fa-book-open"></i> Content Management</div>
+            <h1 class="ls-page-title">My <em>Lessons</em></h1>
+            <div class="ls-page-subtitle">Manage and organize all your lesson content</div>
         </div>
+        <a href="{{ route('teacher.lessons.create') }}" class="btn-primary-custom">
+            <i class="fas fa-plus-circle"></i> Create New Lesson
+        </a>
+    </div>
 
-        <!-- SEARCH -->
-        <div class="search-box">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" placeholder="Search lessons by title, class, subject, or topic...">
+    {{-- Search Box --}}
+    <div class="ls-search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search lessons by title, class, subject, or topic...">
+    </div>
+
+    {{-- Stats Grid --}}
+    <div class="ls-stats-grid">
+        <div class="ls-stat-card">
+            <div class="ls-stat-icon" style="background: var(--c-accent-lt); color: var(--c-accent);">
+                <i class="fas fa-book"></i>
+            </div>
+            <div class="ls-stat-number">{{ $totalLessons ?? 0 }}</div>
+            <div class="ls-stat-label">Total Lessons</div>
         </div>
-
-        <!-- STATS CARDS -->
-        <div
-            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 22px; margin-bottom: 38px;">
-            <div class="stat-card">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div class="stat-number">{{ $totalLessons ?? 0 }}</div>
-                        <div class="stat-label">Total Lessons</div>
-                    </div>
-                    <div
-                        style="width: 48px; height: 48px; background: rgba(107, 70, 193, 0.1); border-radius: 18px; display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-book" style="color: var(--purple); font-size: 1.4rem;"></i>
-                    </div>
-                </div>
+        <div class="ls-stat-card">
+            <div class="ls-stat-icon" style="background: var(--c-green-lt); color: var(--c-emerald);">
+                <i class="fas fa-globe"></i>
             </div>
-
-            <div class="stat-card">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div class="stat-number" style="color: var(--success);">{{ $publishedLessons ?? 0 }}</div>
-                        <div class="stat-label">Published Lessons</div>
-                    </div>
-                    <div
-                        style="width: 48px; height: 48px; background: rgba(72, 187, 120, 0.1); border-radius: 18px; display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-globe" style="color: var(--success); font-size: 1.4rem;"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div class="stat-number" style="color: var(--warning);">{{ $draftLessons ?? 0 }}</div>
-                        <div class="stat-label">Draft Lessons</div>
-                    </div>
-                    <div
-                        style="width: 48px; height: 48px; background: rgba(237, 137, 54, 0.1); border-radius: 18px; display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-pen-fancy" style="color: var(--warning); font-size: 1.4rem;"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div class="stat-number">{{ count($groupedLessons ?? []) }}</div>
-                        <div class="stat-label">Classes</div>
-                    </div>
-                    <div
-                        style="width: 48px; height: 48px; background: rgba(107, 70, 193, 0.1); border-radius: 18px; display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-users" style="color: var(--purple); font-size: 1.4rem;"></i>
-                    </div>
-                </div>
-            </div>
+            <div class="ls-stat-number">{{ $publishedLessons ?? 0 }}</div>
+            <div class="ls-stat-label">Published</div>
         </div>
+        <div class="ls-stat-card">
+            <div class="ls-stat-icon" style="background: var(--c-gold-lt); color: var(--c-gold);">
+                <i class="fas fa-pen-fancy"></i>
+            </div>
+            <div class="ls-stat-number">{{ $draftLessons ?? 0 }}</div>
+            <div class="ls-stat-label">Drafts</div>
+        </div>
+        <div class="ls-stat-card">
+            <div class="ls-stat-icon" style="background: var(--c-blue-lt); color: var(--c-blue);">
+                <i class="fas fa-chalkboard"></i>
+            </div>
+            <div class="ls-stat-number">{{ count($groupedLessons ?? []) }}</div>
+            <div class="ls-stat-label">Classes</div>
+        </div>
+    </div>
 
-        <!-- THREE COLUMN GRID FOR CLASS CARDS - NOW EXACTLY 3 COLUMNS -->
-        @if (isset($groupedLessons) && count($groupedLessons) > 0)
-            <div id="classGridContainer" class="class-grid">
-                @foreach ($groupedLessons as $className => $classData)
-                    <div class="class-card" data-classname="{{ strtolower($className) }}">
-                        <div class="class-header" onclick="toggleClass(this)">
-                            <div class="class-header-content">
-                                <div class="class-header-left">
-                                    <div class="class-icon">
-                                        <i class="fas fa-chalkboard"></i>
-                                    </div>
-                                    <div class="class-info">
-                                        <h3 class="class-name">{{ $className }}</h3>
-                                        @if (isset($classData['level']) && $classData['level'])
-                                            <span class="class-level">
-                                                <i class="fas fa-graduation-cap"></i>
-                                                {{ $classData['level'] }}
-                                            </span>
-                                        @endif
-                                    </div>
+    {{-- Class Grid --}}
+    @if (isset($groupedLessons) && count($groupedLessons) > 0)
+        <div id="classGridContainer" class="ls-class-grid">
+            @foreach ($groupedLessons as $className => $classData)
+                <div class="ls-class-card" data-classname="{{ strtolower($className) }}">
+                    <div class="ls-class-header" onclick="toggleClass(this)">
+                        <div class="ls-class-header-content">
+                            <div class="ls-class-header-left">
+                                <div class="ls-class-icon">
+                                    <i class="fas fa-chalkboard"></i>
                                 </div>
-                                <div class="class-header-right">
-                                    <span class="subjects-badge">
-                                        <i class="fas fa-book"></i>
-                                        {{ count($classData['subjects']) }} Subjects
-                                    </span>
-                                    <i class="fas fa-chevron-down chevron-icon"></i>
+                                <div class="ls-class-info">
+                                    <h3 class="ls-class-name">{{ $className }}</h3>
+                                    @if (isset($classData['level']) && $classData['level'])
+                                        <span class="ls-class-level">
+                                            <i class="fas fa-graduation-cap"></i>
+                                            {{ $classData['level'] }}
+                                        </span>
+                                    @endif
                                 </div>
                             </div>
+                            <div class="ls-class-header-right">
+                                <span class="ls-subjects-badge">
+                                    <i class="fas fa-book"></i>
+                                    {{ count($classData['subjects']) }} Subjects
+                                </span>
+                                <i class="fas fa-chevron-down ls-chevron-icon"></i>
+                            </div>
                         </div>
+                    </div>
 
-                        <div class="class-content" style="display: none;">
-                            @foreach ($classData['subjects'] as $subjectName => $subjectData)
-                                <div class="subject-section">
-                                    <div class="subject-header" onclick="toggleSubject(this)">
-                                        <div
-                                            style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-                                            <div>
-                                                <i class="fas fa-book-open"
-                                                    style="color: var(--purple); margin-right: 10px;"></i>
-                                                <span style="font-weight: 600;">{{ $subjectName }}</span>
-                                                @if (isset($subjectData['subject_code']) && $subjectData['subject_code'])
-                                                    <span
-                                                        style="font-size: 0.7rem; color: var(--muted); margin-left: 8px;">({{ $subjectData['subject_code'] }})</span>
-                                                @endif
-                                            </div>
-                                            <div>
-                                                <span class="badge-status"
-                                                    style="background: var(--cream2); color: var(--purple);">
-                                                    <i class="fas fa-layer-group"></i> {{ count($subjectData['topics']) }}
-                                                    Topics
-                                                </span>
-                                                <i class="fas fa-chevron-down" style="margin-left: 8px;"></i>
-                                            </div>
+                    <div class="ls-class-content" style="display: none;">
+                        @foreach ($classData['subjects'] as $subjectName => $subjectData)
+                            <div class="ls-subject-section">
+                                <div class="ls-subject-header" onclick="toggleSubject(this)">
+                                    <div class="ls-subject-header-content">
+                                        <div>
+                                            <i class="fas fa-book-open" style="color: var(--c-accent); margin-right: 8px;"></i>
+                                            <span class="ls-subject-name">{{ $subjectName }}</span>
+                                            @if (isset($subjectData['subject_code']) && $subjectData['subject_code'])
+                                                <span class="ls-subject-code">({{ $subjectData['subject_code'] }})</span>
+                                            @endif
+                                        </div>
+                                        <div>
+                                            <span class="ls-subject-badge">
+                                                <i class="fas fa-layer-group"></i> {{ count($subjectData['topics']) }} Topics
+                                            </span>
+                                            <i class="fas fa-chevron-down" style="margin-left: 8px; font-size: .7rem;"></i>
                                         </div>
                                     </div>
+                                </div>
 
-                                    <div class="subject-content" style="display: none;">
-                                        @foreach ($subjectData['topics'] as $topicName => $topicData)
-                                            <div class="topic-section">
-                                                <div class="topic-title">
-                                                    <i class="fas fa-folder-open" style="color: var(--purple-light);"></i>
-                                                    <span>{{ $topicName }}</span>
-                                                    <span class="badge-status" style="background: var(--cream2);">
-                                                        <i class="fas fa-video"></i> {{ count($topicData['lessons']) }}
-                                                        Lessons
-                                                    </span>
-                                                </div>
-                                                @if (isset($topicData['topic_description']) && $topicData['topic_description'])
-                                                    <p
-                                                        style="font-size: 0.75rem; color: var(--muted); margin-bottom: 12px; padding-left: 8px;">
-                                                        {{ Str::limit($topicData['topic_description'], 120) }}
-                                                    </p>
-                                                @endif
+                                <div class="ls-subject-content" style="display: none;">
+                                    @foreach ($subjectData['topics'] as $topicName => $topicData)
+                                        <div class="ls-topic-section">
+                                            <div class="ls-topic-title">
+                                                <i class="fas fa-folder-open" style="color: var(--c-accent);"></i>
+                                                <span>{{ $topicName }}</span>
+                                                <span class="ls-topic-badge">
+                                                    <i class="fas fa-video"></i> {{ count($topicData['lessons']) }} Lessons
+                                                </span>
+                                            </div>
+                                            @if (isset($topicData['topic_description']) && $topicData['topic_description'])
+                                                <p class="ls-topic-description">
+                                                    {{ Str::limit($topicData['topic_description'], 120) }}
+                                                </p>
+                                            @endif
 
-                                                <div style="padding-left: 6px;">
-                                                    @foreach ($topicData['lessons'] as $lesson)
-                                                        <div class="lesson-item"
-                                                            @if (strtolower($lesson->lesson_payment_status) === 'paid') onclick="window.location.href='{{ route('teacher.lessons.show', $lesson) }}'"
-            @else
-                onclick="showPaymentModal({{ $lesson->id }}, '{{ $lesson->title }}', '{{ $lesson->lesson_amount }}')" @endif
-                                                            style="{{ strtolower($lesson->lesson_payment_status) !== 'paid' ? '' : '' }}">
-
-                                                            <!-- TOP CONTENT -->
-                                                            <div class="lesson-main-content">
-                                                                <div class="lesson-details">
-                                                                    <h4 class="lesson-title-text">
-                                                                        {{ $lesson->title }}
-                                                                        @if (strtolower($lesson->lesson_payment_status) !== 'paid')
-                                                                            <i class="fas fa-lock"
-                                                                                style="color: #ff6b6b; font-size: 0.8rem; margin-left: 5px;"></i>
-                                                                        @endif
-                                                                    </h4>
-
-                                                                    <div class="lesson-meta-info">
-                                                                        <div class="lesson-meta-item">
-                                                                            <i class="fas fa-hourglass-half meta-icon"></i>
-                                                                            <span>{{ $lesson->duration ?? 'N/A' }}
-                                                                                min</span>
-                                                                        </div>
-
-                                                                        <div class="lesson-meta-item">
-                                                                            <i
-                                                                                class="fas fa-sort-numeric-down meta-icon"></i>
-                                                                            <span>Lesson {{ $lesson->lesson_order }}</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
+                                            <div>
+                                                @foreach ($topicData['lessons'] as $lesson)
+                                                    <div class="ls-lesson-item"
+                                                        onclick="{{ strtolower($lesson->lesson_payment_status) === 'paid' ? "window.location.href='" . route('teacher.lessons.show', $lesson) . "'" : "showPaymentModal({$lesson->id}, '{$lesson->title}', '{$lesson->lesson_amount}')" }}">
+                                                        <div class="ls-lesson-main">
+                                                            <div class="ls-lesson-icon">
+                                                                <i class="fas fa-play-circle"></i>
                                                             </div>
-
-                                                            <!-- BOTTOM SECTION -->
-                                                            <div class="lesson-status-section">
-                                                                <div class="lesson-payment-container">
-                                                                    <div class="lesson-price-box">
-                                                                        <i class="fas fa-money-bill-wave price-icon"></i>
-                                                                        <span class="lesson-price-text">
-                                                                            {{ $lesson->lesson_amount ? 'UGX ' . number_format((int) str_replace(',', '', $lesson->lesson_amount)) : 'Free' }}
+                                                            <div class="ls-lesson-details">
+                                                                <div class="ls-lesson-title">
+                                                                    {{ $lesson->title }}
+                                                                    @if (strtolower($lesson->lesson_payment_status) !== 'paid')
+                                                                        <span class="ls-lesson-lock">
+                                                                            <i class="fas fa-lock"></i> Locked
                                                                         </span>
+                                                                    @endif
+                                                                </div>
+                                                                <div class="ls-lesson-meta">
+                                                                    <div class="ls-lesson-meta-item">
+                                                                        <i class="fas fa-hourglass-half"></i>
+                                                                        <span>{{ $lesson->duration ?? 'N/A' }} min</span>
                                                                     </div>
-
-                                                                    <div
-                                                                        class="lesson-payment-status-box {{ strtolower($lesson->lesson_payment_status) }}">
-                                                                        <i
-                                                                            class="fas {{ strtolower($lesson->lesson_payment_status) === 'paid' ? 'fa-check-circle' : 'fa-exclamation-triangle' }} status-icon"></i>
-                                                                        <span>{{ $lesson->lesson_payment_status ?? 'Not Paid' }}</span>
+                                                                    <div class="ls-lesson-meta-item">
+                                                                        <i class="fas fa-sort-numeric-down"></i>
+                                                                        <span>Lesson {{ $lesson->lesson_order }}</span>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    @endforeach
-                                                </div>
+                                                        <div class="ls-lesson-footer">
+                                                            <div class="ls-lesson-price">
+                                                                <i class="fas fa-money-bill-wave"></i>
+                                                                <span>{{ $lesson->lesson_amount ? 'UGX ' . number_format((int) str_replace(',', '', $lesson->lesson_amount)) : 'Free' }}</span>
+                                                            </div>
+                                                            <div class="ls-lesson-payment-status {{ strtolower($lesson->lesson_payment_status) === 'paid' ? 'paid' : 'not-paid' }}">
+                                                                <i class="fas {{ strtolower($lesson->lesson_payment_status) === 'paid' ? 'fa-check-circle' : 'fa-exclamation-triangle' }}"></i>
+                                                                <span>{{ ucfirst($lesson->lesson_payment_status ?? 'Not Paid') }}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
                                             </div>
-                                        @endforeach
-                                    </div>
+                                        </div>
+                                    @endforeach
                                 </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        @else
-            <div class="empty-state">
-                <i class="fas fa-book-open fa-4x" style="color: var(--purple-light); margin-bottom: 20px;"></i>
-                <h3 style="font-size: 1.3rem; color: var(--ink); margin-bottom: 8px;">No Lessons Yet</h3>
-                <p style="color: var(--muted); margin-bottom: 24px;">You haven't created any lessons. Start creating your
-                    first lesson!</p>
-                <a href="{{ route('teacher.lessons.create') }}" class="btn-create">
-                    <i class="fas fa-plus-circle"></i> Create Your First Lesson
-                </a>
-            </div>
-        @endif
-    </div>
-
-
-    <!-- Payment Modal -->
-    <div id="paymentModal" class="payment-modal" style="display: none;">
-        <div class="payment-modal-overlay" onclick="closePaymentModal()"></div>
-        <div class="payment-modal-content">
-            <div class="payment-modal-header">
-                <h3><i class="fas fa-credit-card"></i> Complete Payment</h3>
-                <button class="close-modal" onclick="closePaymentModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-
-            <div class="payment-modal-body">
-                <div class="lesson-info-section">
-                    <h4 id="modalLessonTitle"></h4>
-                    <div class="amount-display">
-                        <span class="amount-label">Amount Required:</span>
-                        <span class="amount-value" id="modalLessonAmount"></span>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
+            @endforeach
+        </div>
+    @else
+        <div class="ls-empty-state">
+            <div class="ls-empty-ring">
+                <i class="fas fa-book-open"></i>
+            </div>
+            <h3 style="font-size: 1.1rem; color: var(--c-ink); margin-bottom: 8px;">No Lessons Yet</h3>
+            <p style="color: var(--c-muted); margin-bottom: 24px;">You haven't created any lessons. Start creating your first lesson!</p>
+            <a href="{{ route('teacher.lessons.create') }}" class="btn-primary-custom">
+                <i class="fas fa-plus-circle"></i> Create Your First Lesson
+            </a>
+        </div>
+    @endif
+</div>
 
-                <div class="payment-methods-section">
-                    <h5>Select Payment Method</h5>
-                    <div class="payment-methods-grid">
-                        <div class="payment-method-card" onclick="selectPaymentMethod('mtn')" id="mtnCard">
-                            <div class="method-icon">
-                                <i class="fas fa-mobile-alt"></i>
-                            </div>
-                            <span>MTN Mobile Money</span>
-                            <div class="selected-indicator">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                        </div>
+{{-- Payment Modal --}}
+<div id="paymentModal" class="ls-payment-modal">
+    <div class="ls-payment-modal-overlay" onclick="closePaymentModal()"></div>
+    <div class="ls-payment-modal-content">
+        <div class="ls-payment-modal-header">
+            <h3><i class="fas fa-credit-card"></i> Complete Payment</h3>
+            <button class="ls-close-modal" onclick="closePaymentModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
 
-                        <div class="payment-method-card" onclick="selectPaymentMethod('airtel')" id="airtelCard">
-                            <div class="method-icon">
-                                <i class="fas fa-mobile-alt"></i>
-                            </div>
-                            <span>Airtel Money</span>
-                            <div class="selected-indicator">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                        </div>
-
-                        <div class="payment-method-card" onclick="selectPaymentMethod('card')" id="cardCard">
-                            <div class="method-icon">
-                                <i class="fas fa-credit-card"></i>
-                            </div>
-                            <span>Bank Card</span>
-                            <div class="selected-indicator">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="payment-input-section">
-                    <label for="paymentAmount">Enter Amount (UGX)</label>
-                    <div class="amount-input-wrapper">
-                        <span class="currency-prefix">UGX</span>
-                        <input type="number" id="paymentAmount" class="payment-amount-input" placeholder="Enter amount"
-                            min="0" step="1000">
-                    </div>
-                    <small class="amount-hint" id="amountHint"></small>
+        <div class="ls-payment-modal-body">
+            <div class="ls-lesson-info-section">
+                <h4 id="modalLessonTitle" style="font-size: 1rem;"></h4>
+                <div class="ls-amount-display">
+                    <span class="ls-amount-label">Amount Required:</span>
+                    <span class="ls-amount-value" id="modalLessonAmount"></span>
                 </div>
             </div>
 
-            <div class="payment-modal-footer">
-                <button class="btn-cancel" onclick="closePaymentModal()">
-                    <i class="fas fa-times"></i> Cancel
-                </button>
-                <button class="btn-confirm-payment" onclick="confirmPayment()">
-                    <i class="fas fa-check"></i> Confirm Payment
-                </button>
+            <h5 style="font-size: .8rem; margin-bottom: 12px; color: var(--c-ink);">Select Payment Method</h5>
+            <div class="ls-payment-methods-grid">
+                <div class="ls-payment-method-card" onclick="selectPaymentMethod('mtn')" id="mtnCard">
+                    <div class="ls-method-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <span style="font-size: .75rem;">MTN Mobile Money</span>
+                    <div class="ls-selected-indicator">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+                <div class="ls-payment-method-card" onclick="selectPaymentMethod('airtel')" id="airtelCard">
+                    <div class="ls-method-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <span style="font-size: .75rem;">Airtel Money</span>
+                    <div class="ls-selected-indicator">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+                <div class="ls-payment-method-card" onclick="selectPaymentMethod('card')" id="cardCard">
+                    <div class="ls-method-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <span style="font-size: .75rem;">Bank Card</span>
+                    <div class="ls-selected-indicator">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label style="font-size: .75rem; font-weight: 600; margin-bottom: 6px; display: block;">Enter Amount (UGX)</label>
+                <input type="number" id="paymentAmount" class="ls-payment-amount-input" placeholder="Enter amount" min="0" step="1000">
+                <small id="amountHint" style="font-size: .65rem; color: var(--c-muted); margin-top: 6px; display: block;"></small>
             </div>
         </div>
+
+        <div class="ls-payment-modal-footer">
+            <button class="btn-cancel-custom" onclick="closePaymentModal()">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+            <button class="btn-confirm-custom" onclick="confirmPayment()">
+                <i class="fas fa-check"></i> Confirm Payment
+            </button>
+        </div>
     </div>
+</div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    let selectedPaymentMethod = null;
+    let currentLessonId = null;
+    let requiredAmount = null;
 
-@endsection
+    function showPaymentModal(lessonId, lessonTitle, amount) {
+        currentLessonId = lessonId;
+        requiredAmount = parseInt(amount.replace(/[^0-9]/g, ''));
 
-@section('js')
+        document.getElementById('modalLessonTitle').textContent = lessonTitle;
+        document.getElementById('modalLessonAmount').textContent = 'UGX ' + requiredAmount.toLocaleString();
+        document.getElementById('paymentAmount').value = requiredAmount;
+        document.getElementById('amountHint').textContent = `Minimum amount: UGX ${requiredAmount.toLocaleString()}`;
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        let selectedPaymentMethod = null;
-        let currentLessonId = null;
-        let requiredAmount = null;
+        selectedPaymentMethod = null;
+        document.querySelectorAll('.ls-payment-method-card').forEach(card => {
+            card.classList.remove('selected');
+        });
 
-        function showPaymentModal(lessonId, lessonTitle, amount) {
-            currentLessonId = lessonId;
-            requiredAmount = parseInt(amount.replace(/[^0-9]/g, ''));
+        document.getElementById('paymentModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
 
-            document.getElementById('modalLessonTitle').textContent = lessonTitle;
-            document.getElementById('modalLessonAmount').textContent = 'UGX ' + requiredAmount.toLocaleString();
-            document.getElementById('paymentAmount').value = requiredAmount;
-            document.getElementById('amountHint').textContent = `Minimum amount: UGX ${requiredAmount.toLocaleString()}`;
+    function closePaymentModal() {
+        document.getElementById('paymentModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
 
-            // Reset selection
-            selectedPaymentMethod = null;
-            document.querySelectorAll('.payment-method-card').forEach(card => {
-                card.classList.remove('selected');
+    function selectPaymentMethod(method) {
+        selectedPaymentMethod = method;
+        document.querySelectorAll('.ls-payment-method-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        document.getElementById(method + 'Card').classList.add('selected');
+    }
+
+    async function confirmPayment() {
+        if (!selectedPaymentMethod) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Payment Method Required',
+                text: 'Please select a payment method to continue.',
+                confirmButtonColor: '#5B3FD9'
             });
-
-            document.getElementById('paymentModal').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
+            return;
         }
 
-        function closePaymentModal() {
-            document.getElementById('paymentModal').style.display = 'none';
-            document.body.style.overflow = 'auto';
+        const enteredAmount = parseInt(document.getElementById('paymentAmount').value);
+
+        if (!enteredAmount || enteredAmount <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Invalid Amount',
+                text: 'Please enter a valid amount.',
+                confirmButtonColor: '#5B3FD9'
+            });
+            return;
         }
 
-        function selectPaymentMethod(method) {
-            selectedPaymentMethod = method;
-
-            // Remove selected class from all cards
-            document.querySelectorAll('.payment-method-card').forEach(card => {
-                card.classList.remove('selected');
+        if (enteredAmount < requiredAmount) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Insufficient Amount',
+                text: `The amount entered (UGX ${enteredAmount.toLocaleString()}) is less than the required amount (UGX ${requiredAmount.toLocaleString()}).`,
+                confirmButtonColor: '#DC2626'
             });
-
-            // Add selected class to clicked card
-            document.getElementById(method + 'Card').classList.add('selected');
+            return;
         }
 
-        async function confirmPayment() {
-            // Validate payment method selected
-            if (!selectedPaymentMethod) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Payment Method Required',
-                    text: 'Please select a payment method to continue.',
-                    confirmButtonColor: '#7c3aed'
-                });
-                return;
-            }
+        const result = await Swal.fire({
+            title: 'Confirm Payment',
+            html: `
+                <div style="text-align: left;">
+                    <p><strong>Lesson:</strong> ${document.getElementById('modalLessonTitle').textContent}</p>
+                    <p><strong>Payment Method:</strong> ${getPaymentMethodName(selectedPaymentMethod)}</p>
+                    <p><strong>Amount:</strong> UGX ${enteredAmount.toLocaleString()}</p>
+                    ${enteredAmount > requiredAmount ? `<p style="color: #D97706;"><i class="fas fa-info-circle"></i> Change: UGX ${(enteredAmount - requiredAmount).toLocaleString()}</p>` : ''}
+                </div>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#5B3FD9',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: 'Yes, Pay Now',
+            cancelButtonText: 'Cancel'
+        });
 
-            // Get entered amount
-            const enteredAmount = parseInt(document.getElementById('paymentAmount').value);
-
-            // Validate amount
-            if (!enteredAmount || enteredAmount <= 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Invalid Amount',
-                    text: 'Please enter a valid amount.',
-                    confirmButtonColor: '#7c3aed'
-                });
-                return;
-            }
-
-            // Check if amount is sufficient
-            if (enteredAmount < requiredAmount) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Insufficient Amount',
-                    text: `The amount entered (UGX ${enteredAmount.toLocaleString()}) is less than the required amount (UGX ${requiredAmount.toLocaleString()}). Please enter sufficient amount.`,
-                    confirmButtonColor: '#dc2626'
-                });
-                return;
-            }
-
-            // Show confirmation dialog
-            const result = await Swal.fire({
-                title: 'Confirm Payment',
-                html: `
-            <div style="text-align: left;">
-                <p><strong>Lesson:</strong> ${document.getElementById('modalLessonTitle').textContent}</p>
-                <p><strong>Payment Method:</strong> ${getPaymentMethodName(selectedPaymentMethod)}</p>
-                <p><strong>Amount:</strong> UGX ${enteredAmount.toLocaleString()}</p>
-                ${enteredAmount > requiredAmount ? `<p style="color: #f59e0b;"><i class="fas fa-info-circle"></i> Note: You are paying more than the required amount. Change will be UGX ${(enteredAmount - requiredAmount).toLocaleString()}</p>` : ''}
-            </div>
-        `,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#7c3aed',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Yes, Pay Now',
-                cancelButtonText: 'Cancel'
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Processing Payment...',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
             });
 
-            if (result.isConfirmed) {
-                // Show processing state
-                Swal.fire({
-                    title: 'Processing Payment...',
-                    text: 'Please wait while we process your payment.',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
+            try {
+                const response = await fetch('{{ route("teacher.lessons.process-payment") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        lesson_id: currentLessonId,
+                        amount: enteredAmount,
+                        payment_method: selectedPaymentMethod,
+                        required_amount: requiredAmount
+                    })
                 });
 
-                try {
-                    // Send AJAX request to process payment
-                    const response = await fetch('{{ route('teacher.lessons.process-payment') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            lesson_id: currentLessonId,
-                            amount: enteredAmount,
-                            payment_method: selectedPaymentMethod,
-                            required_amount: requiredAmount
-                        })
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Payment Successful!',
+                        text: data.message || 'Your payment has been processed successfully.',
+                        confirmButtonColor: '#5B3FD9'
+                    }).then(() => {
+                        location.reload();
                     });
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Payment Successful!',
-                            text: data.message || 'Your payment has been processed successfully.',
-                            confirmButtonColor: '#7c3aed'
-                        }).then(() => {
-                            // Reload the page to update the lesson status
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Payment Failed',
-                            text: data.message || 'Something went wrong. Please try again.',
-                            confirmButtonColor: '#dc2626'
-                        });
-                    }
-                } catch (error) {
+                } else {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Error',
-                        text: 'An error occurred while processing your payment. Please try again.',
-                        confirmButtonColor: '#dc2626'
+                        title: 'Payment Failed',
+                        text: data.message || 'Something went wrong. Please try again.',
+                        confirmButtonColor: '#DC2626'
                     });
                 }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while processing your payment.',
+                    confirmButtonColor: '#DC2626'
+                });
             }
         }
+    }
 
-        function getPaymentMethodName(method) {
-            const methods = {
-                'mtn': 'MTN Mobile Money',
-                'airtel': 'Airtel Money',
-                'card': 'Bank Card'
-            };
-            return methods[method] || method;
+    function getPaymentMethodName(method) {
+        const methods = {
+            'mtn': 'MTN Mobile Money',
+            'airtel': 'Airtel Money',
+            'card': 'Bank Card'
+        };
+        return methods[method] || method;
+    }
+
+    // Toggle functions
+    function toggleClass(element) {
+        const parentCard = element.closest('.ls-class-card');
+        const content = parentCard.querySelector('.ls-class-content');
+        const icon = element.querySelector('.ls-chevron-icon');
+
+        if (content.style.display === 'none' || !content.style.display || getComputedStyle(content).display === 'none') {
+            content.style.display = 'block';
+            if (icon) icon.style.transform = 'rotate(0deg)';
+        } else {
+            content.style.display = 'none';
+            if (icon) icon.style.transform = 'rotate(-90deg)';
         }
+    }
 
-        // Close modal when clicking overlay
-        document.querySelector('.payment-modal-overlay').addEventListener('click', closePaymentModal);
+    function toggleSubject(element) {
+        const subjectDiv = element.closest('.ls-subject-section');
+        const content = subjectDiv.querySelector('.ls-subject-content');
+        const icon = element.querySelector('.fa-chevron-down:last-child');
 
-        // Close modal with Escape key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closePaymentModal();
-            }
-        });
-    </script>
-
-    <script>
-        // Toggle class sections (accordion)
-        function toggleClass(element) {
-            const parentCard = element.closest('.class-card');
-            const content = parentCard.querySelector('.class-content');
-            const icon = element.querySelector('.fa-chevron-down');
-
-            if (content.style.display === 'none' || !content.style.display || getComputedStyle(content).display ===
-                'none') {
-                content.style.display = 'block';
-                if (icon) icon.style.transform = 'rotate(0deg)';
-            } else {
-                content.style.display = 'none';
-                if (icon) icon.style.transform = 'rotate(-90deg)';
-            }
+        if (content.style.display === 'none' || !content.style.display || getComputedStyle(content).display === 'none') {
+            content.style.display = 'block';
+            if (icon) icon.style.transform = 'rotate(0deg)';
+        } else {
+            content.style.display = 'none';
+            if (icon) icon.style.transform = 'rotate(-90deg)';
         }
+    }
 
-        // Toggle subject sections
-        function toggleSubject(element) {
-            const subjectDiv = element.closest('.subject-section');
-            const content = subjectDiv.querySelector('.subject-content');
-            const icon = element.querySelector('.fa-chevron-down');
+    // Search functionality
+    function initSearch() {
+        const searchInput = document.getElementById('searchInput');
+        if (!searchInput) return;
 
-            if (content.style.display === 'none' || !content.style.display || getComputedStyle(content).display ===
-                'none') {
-                content.style.display = 'block';
-                if (icon) icon.style.transform = 'rotate(0deg)';
-            } else {
-                content.style.display = 'none';
-                if (icon) icon.style.transform = 'rotate(-90deg)';
-            }
-        }
+        searchInput.addEventListener('keyup', function() {
+            const term = this.value.toLowerCase();
+            const cards = document.querySelectorAll('.ls-class-card');
 
-        // Search functionality
-        function initSearch() {
-            const searchInput = document.getElementById('searchInput');
-            if (!searchInput) return;
+            cards.forEach(card => {
+                const classAttr = card.getAttribute('data-classname') || '';
+                const lessonsInside = card.querySelectorAll('.ls-lesson-item');
+                let anyMatch = false;
 
-            searchInput.addEventListener('keyup', function() {
-                const term = this.value.toLowerCase();
-                const cards = document.querySelectorAll('.class-card');
-
-                cards.forEach(card => {
-                    const classAttr = card.getAttribute('data-classname') || '';
-                    const lessonsInside = card.querySelectorAll('.lesson-item');
-                    let anyMatch = false;
-
-                    lessonsInside.forEach(lesson => {
-                        const text = lesson.innerText.toLowerCase();
-                        if (term === '' || text.includes(term) || classAttr.includes(term)) {
-                            lesson.style.display = '';
-                            anyMatch = true;
-                        } else {
-                            lesson.style.display = 'none';
-                        }
-                    });
-
-                    if (anyMatch || term === '') {
-                        card.style.display = '';
-                        if (term !== '') {
-                            const contentDiv = card.querySelector('.class-content');
-                            if (contentDiv) contentDiv.style.display = 'block';
-                            const allSubContents = card.querySelectorAll('.subject-content');
-                            allSubContents.forEach(sc => sc.style.display = 'block');
-                            const icons = card.querySelectorAll('.fa-chevron-down');
-                            icons.forEach(ic => ic.style.transform = 'rotate(0deg)');
-                        }
+                lessonsInside.forEach(lesson => {
+                    const text = lesson.innerText.toLowerCase();
+                    if (term === '' || text.includes(term) || classAttr.includes(term)) {
+                        lesson.style.display = '';
+                        anyMatch = true;
                     } else {
-                        card.style.display = 'none';
+                        lesson.style.display = 'none';
                     }
                 });
+
+                if (anyMatch || term === '') {
+                    card.style.display = '';
+                    if (term !== '') {
+                        const contentDiv = card.querySelector('.ls-class-content');
+                        if (contentDiv) contentDiv.style.display = 'block';
+                        const allSubContents = card.querySelectorAll('.ls-subject-content');
+                        allSubContents.forEach(sc => sc.style.display = 'block');
+                        const icons = card.querySelectorAll('.ls-chevron-icon');
+                        icons.forEach(ic => ic.style.transform = 'rotate(0deg)');
+                    }
+                } else {
+                    card.style.display = 'none';
+                }
             });
-        }
-
-        // Expand/Collapse All functions (optional)
-        window.expandAll = function() {
-            document.querySelectorAll('.class-content').forEach(el => el.style.display = 'block');
-            document.querySelectorAll('.subject-content').forEach(el => el.style.display = 'block');
-            document.querySelectorAll('.fa-chevron-down').forEach(icon => icon.style.transform = 'rotate(0deg)');
-        };
-
-        window.collapseAll = function() {
-            document.querySelectorAll('.class-content').forEach(el => el.style.display = 'none');
-            document.querySelectorAll('.subject-content').forEach(el => el.style.display = 'none');
-            document.querySelectorAll('.fa-chevron-down').forEach(icon => icon.style.transform = 'rotate(-90deg)');
-        };
-
-        // Keyboard shortcut: Ctrl+Shift+F to focus search
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.shiftKey && e.key === 'F') {
-                e.preventDefault();
-                const searchBox = document.getElementById('searchInput');
-                if (searchBox) searchBox.focus();
-            }
         });
+    }
 
-        // Initialize search on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            initSearch();
-        });
-    </script>
+    document.addEventListener('DOMContentLoaded', function() {
+        initSearch();
+    });
+</script>
 @endsection
