@@ -1619,11 +1619,14 @@
         <nav class="sd-nav">
             <div class="sd-nav-section">Main Menu</div>
 
-            <a href="{{ url('/student/dashboard') }}" class="sd-nav-item active" data-section="overview">
+            <a href="{{ url('/student/dashboard') }}" class="sd-nav-item {{ request()->is('student/dashboard') ? 'active' : '' }}" data-section="overview">
                 <i class="fas fa-grid-2"></i> Dashboard
             </a>
-            <a href="{{ route('student.lessons.lists') }}" class="sd-nav-item" data-section="lessons">
-                <i class="fas fa-play-circle"></i> My Classes
+            <a href="{{ route('student.classes.browse') }}" class="sd-nav-item {{ request()->is('student/classes/browse') ? 'active' : '' }}" data-section="browse">
+                <i class="fas fa-school"></i> Browse Classes
+            </a>
+            <a href="{{ route('student.lessons.lists') }}" class="sd-nav-item {{ request()->is('student/lessons/lists') ? 'active' : '' }}" data-section="lessons">
+                <i class="fas fa-play-circle"></i> My Classes &amp; Lessons
             </a>
             {{-- <a href="#" class="sd-nav-item" data-section="quizzes">
                 <i class="fas fa-question-circle"></i> Quizzes

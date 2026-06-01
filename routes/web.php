@@ -278,3 +278,19 @@ Route::middleware(['AdminAuth'])->prefix('exams')->name('exams.')->controller(Ex
     Route::get('/lesson/{lessonId}/quizzes', 'getLessonQuizzes')->name('lesson-quizzes');  // <-- ADD THIS LINE
     Route::get('/class/{classId}/quizzes', 'getClassQuizzes')->name('class-quizzes');
 });
+
+
+// ─── Student Routes ──────────────────────────────────────────────────────────
+Route::middleware(['AdminAuth'])->prefix('student')->name('student.')->group(function () {
+
+    // Classes browsing + enrollment
+    Route::get('/classes/browse', [\App\Http\Controllers\Student\StudentEnrollmentController::class, 'browseClasses'])->name('classes.browse');
+    Route::post('/enroll', [\App\Http\Controllers\Student\StudentEnrollmentController::class, 'selfEnroll'])->name('enroll');
+
+    // Lesson list (enrolled + paid)
+    Route::get('/lessons/lists', [\App\Http\Controllers\Student\StudentEnrollmentController::class, 'studentLessonList'])->name('lessons.lists');
+
+    // Payments
+    Route::post('/pay-class', [\App\Http\Controllers\Student\StudentEnrollmentController::class, 'payForClass'])->name('pay-class');
+    Route::post('/pay-lesson', [\App\Http\Controllers\Student\StudentEnrollmentController::class, 'payForLesson'])->name('pay-lesson');
+});
