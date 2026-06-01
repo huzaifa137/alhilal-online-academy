@@ -157,9 +157,6 @@ class ExamController extends Controller
     /**
      * Submit quiz answers
      */
-    /**
-     * Submit quiz answers
-     */
     public function submitQuiz(Request $request, $examId)
     {
         try {
@@ -307,7 +304,7 @@ class ExamController extends Controller
     public function showResults($examId)
     {
         try {
-            $studentId = Session('LoggedStudent');
+$studentId = Session('LoggedStudent') ?? Session('LoggedTeacher');
             $exam = Exam::findOrFail($examId);
 
             $results = ExamResult::where('exam_id', $examId)

@@ -458,7 +458,7 @@
 
                         <div class="fg">
                             <label>Max Attempts</label>
-                            <input type="number" name="max_attempts" placeholder="3" min="1" max="10" value="3">
+                            <input type="number" name="max_attempts" placeholder="3" min="1" max="10" value="3" readonly>
                             <small>Number of times student can retake</small>
                         </div>
                     </div>

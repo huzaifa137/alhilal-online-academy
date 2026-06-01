@@ -5,6 +5,7 @@
 @section('breadcrumb', 'Lessons')
 
 @section('content')
+    @php use App\Models\Academic\ExamResult; @endphp
     <style>
         /* Additional styles matching the master layout aesthetic */
         .lesson-header {
@@ -591,6 +592,27 @@
         #resourceModal {
             z-index: 2000;
         }
+
+        /* Status Badge Styles */
+        .status-badge-passed {
+            background: #D1FAE5 !important;
+            color: #059669 !important;
+        }
+
+        .status-badge-failed {
+            background: #FEF3C7 !important;
+            color: #D97706 !important;
+        }
+
+        .status-badge-max-attempts {
+            background: #FEE2E2 !important;
+            color: #DC2626 !important;
+        }
+
+        .status-badge-not-started {
+            background: #F3F4F6 !important;
+            color: #6B7280 !important;
+        }
     </style>
 
     <div class="container-fluid">
@@ -999,25 +1021,65 @@
 
                         {{-- Lesson Quiz Section --}}
                         <div class="stat-card" style="margin-top: 28px;">
-                            <h3
-                                style="font-size: 1rem; font-weight: 700; color: var(--ink); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-                                <i class="fas fa-question-circle" style="color: var(--purple);"></i> Lesson Quiz
-                            </h3>
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                                <h3
+                                    style="font-size: 1rem; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-question-circle" style="color: var(--purple);"></i> Lesson Quizzes
+                                </h3>
+                                @if($lesson->teacher_id == session('LoggedTeacher'))
+                                    <a href="{{ route('teacher.quizzes.create', ['type' => 'lesson', 'lesson_id' => $lesson->id]) }}"
+                                        class="nav-button" style="padding: 6px 16px;">
+                                        <i class="fas fa-plus"></i> Add New Quiz
+                                    </a>
+                                @endif
+                            </div>
 
                             <div>
                                 @if(isset($lessonQuizzes) && $lessonQuizzes->count() > 0)
                                     @foreach($lessonQuizzes as $quiz)
                                         @php
-                                            $hasAttempt = $quiz->attempts()->where('student_id', session('LoggedStudent'))->exists();
-                                            $lastAttempt = $quiz->attempts()->where('student_id', session('LoggedStudent'))->latest()->first();
-                                            $attemptsCount = $quiz->attempts()->where('student_id', session('LoggedStudent'))->count();
+                                            $studentId = Session('LoggedStudent') ?? Session('LoggedTeacher');
+                                            // Direct query to ExamResult table instead of using relationship
+                                            $results = ExamResult::where('exam_id', $quiz->id)
+                                                ->where('student_id', $studentId)
+                                                ->orderBy('attempt_number', 'desc')
+                                                ->get();
+                                            $hasAttempt = $results->count() > 0;
+                                            $lastResult = $hasAttempt ? $results->first() : null;
+                                            $attemptsCount = $results->count();
+                                            $bestResult = $results->where('is_passed', true)->first() ?? $results->first();
                                             $canRetake = $attemptsCount < ($quiz->max_attempts ?? 3);
+                                            $isPassed = $hasAttempt && $bestResult && $bestResult->is_passed;
+
+                                            // Determine status badge
+                                            $statusBadge = '';
+                                            $statusColor = '';
+                                            $statusIcon = '';
+
+                                            if (!$hasAttempt) {
+                                                $statusBadge = 'Not Started';
+                                                $statusColor = '#6B7280';
+                                                $statusIcon = 'fa-circle';
+                                            } elseif ($isPassed) {
+                                                $statusBadge = 'Passed';
+                                                $statusColor = '#059669';
+                                                $statusIcon = 'fa-check-circle';
+                                            } elseif ($attemptsCount >= ($quiz->max_attempts ?? 3)) {
+                                                $statusBadge = 'Max Attempts Reached';
+                                                $statusColor = '#DC2626';
+                                                $statusIcon = 'fa-times-circle';
+                                            } else {
+                                                $statusBadge = 'Failed - Retry Available';
+                                                $statusColor = '#D97706';
+                                                $statusIcon = 'fa-exclamation-triangle';
+                                            }
                                         @endphp
                                         <div
                                             style="background: var(--cream); border-radius: 16px; padding: 16px; margin-bottom: 16px;">
                                             <div
                                                 style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 10px;">
-                                                <div>
+                                                <div style="flex: 1;">
                                                     <h4 style="font-weight: 700; color: var(--ink); margin-bottom: 6px;">
                                                         {{ $quiz->title }}
                                                     </h4>
@@ -1035,20 +1097,27 @@
                                                         @if($hasAttempt)
                                                             <span><i class="fas fa-history"></i> Attempts:
                                                                 {{ $attemptsCount }}/{{ $quiz->max_attempts ?? 3 }}</span>
-                                                            @if($lastAttempt)
-                                                                <span><i class="fas fa-chart-line"></i> Last Score:
-                                                                    {{ $lastAttempt->percentage ?? 0 }}%</span>
+                                                            @if($lastResult)
+                                                                <span><i class="fas fa-chart-line"></i> Best Score:
+                                                                    {{ round($bestResult->percentage ?? 0, 1) }}%</span>
                                                             @endif
                                                         @endif
                                                     </div>
                                                 </div>
-                                                <div>
+                                                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                                                     <span class="badge-modern"
                                                         style="display: inline-flex; align-items: center; gap: 5px; background: {{ $quiz->status === 'published' ? '#D1FAE5' : '#FEF3C7' }}; color: {{ $quiz->status === 'published' ? '#059669' : '#D97706' }}; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem;">
                                                         <i
                                                             class="fas {{ $quiz->status === 'published' ? 'fa-globe' : 'fa-pen-fancy' }}"></i>
                                                         {{ ucfirst($quiz->status) }}
                                                     </span>
+                                                    @if($hasAttempt)
+                                                        <span class="badge-modern"
+                                                            style="display: inline-flex; align-items: center; gap: 5px; background: {{ $isPassed ? '#D1FAE5' : ($attemptsCount >= ($quiz->max_attempts ?? 3) ? '#FEE2E2' : '#FEF3C7') }}; color: {{ $statusColor }}; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem;">
+                                                            <i class="fas {{ $statusIcon }}"></i>
+                                                            {{ $statusBadge }}
+                                                        </span>
+                                                    @endif
                                                 </div>
                                             </div>
 
@@ -1098,12 +1167,12 @@
                                 @else
                                     <div style="text-align: center; padding: 30px;">
                                         <i class="fas fa-file-alt fa-2x" style="color: var(--muted); margin-bottom: 12px;"></i>
-                                        <p style="color: var(--muted); font-size: 0.85rem;">No quiz available for this lesson
+                                        <p style="color: var(--muted); font-size: 0.85rem;">No quizzes available for this lesson
                                             yet.</p>
                                         @if($lesson->teacher_id == session('LoggedTeacher'))
                                             <a href="{{ route('teacher.quizzes.create', ['type' => 'lesson', 'lesson_id' => $lesson->id]) }}"
                                                 class="nav-button" style="margin-top: 12px;">
-                                                <i class="fas fa-plus"></i> Create Quiz
+                                                <i class="fas fa-plus"></i> Create Your First Quiz
                                             </a>
                                         @endif
                                     </div>
@@ -1220,7 +1289,7 @@
 
     {{-- Quiz Results Modal --}}
     <div id="quizResultsModal" class="resource-modal-overlay" style="display: none;">
-        <div class="resource-modal-container" style="max-width: 600px;">
+        <div class="resource-modal-container" style="max-width: 90vw; max-width: 800px;">
             <div class="resource-modal-header">
                 <div class="resource-modal-header-content">
                     <div class="resource-modal-icon">
@@ -1236,7 +1305,7 @@
                 </button>
             </div>
 
-            <div class="resource-modal-body">
+            <div class="resource-modal-body" style="max-height: 65vh; overflow-y: auto;">
                 <div id="quizResultsContainer">
                     <div class="resource-loading">
                         <div class="resource-spinner"></div>
@@ -1255,966 +1324,925 @@
 @endsection
 
 @section('js')
+<script>
+    // Add a little entrance delay for sidebar items
+    document.addEventListener('DOMContentLoaded', function () {
+        const rightCol = document.querySelector('.animate-in:last-child');
+        if (rightCol) {
+            rightCol.style.animationDelay = '0.15s';
+        }
+    });
 
-    <script>
-
-        // Add a little entrance delay for sidebar items
-        document.addEventListener('DOMContentLoaded', function () {
-            const rightCol = document.querySelector('.animate-in:last-child');
-            if (rightCol) {
-                rightCol.style.animationDelay = '0.15s';
-            }
+    function copyLessonLink() {
+        const url = window.location.href;
+        navigator.clipboard.writeText(url).then(() => {
+            alert('Lesson link copied to clipboard!');
+        }).catch(() => {
+            alert('Failed to copy link.');
         });
+    }
 
-        function copyLessonLink() {
-            const url = window.location.href;
-            navigator.clipboard.writeText(url).then(() => {
-                alert('Lesson link copied to clipboard!');
-            }).catch(() => {
-                alert('Failed to copy link.');
-            });
+    // Resource Preview Function
+    function previewResource(resourceId, title, type, fileUrl) {
+        const modal = document.getElementById('resourceModal');
+        const modalTitle = document.getElementById('modalResourceTitle');
+        const modalType = document.getElementById('modalResourceType');
+        const modalIcon = document.getElementById('modalResourceIcon');
+        const previewContent = document.getElementById('resourcePreviewContent');
+        const downloadBtn = document.getElementById('downloadResourceBtn');
+
+        modalTitle.textContent = title;
+        modalType.textContent = type.toUpperCase();
+
+        const iconMap = {
+            'video': 'fa-video',
+            'audio': 'fa-headphones',
+            'pdf': 'fa-file-pdf',
+            'image': 'fa-image',
+            'document': 'fa-file'
+        };
+        modalIcon.className = 'fas ' + (iconMap[type] || 'fa-file');
+        downloadBtn.href = fileUrl;
+
+        previewContent.innerHTML = `
+            <div class="resource-loading">
+                <div class="resource-spinner"></div>
+                <p>Loading ${type}...</p>
+            </div>
+        `;
+
+        modal.style.display = 'flex';
+
+        setTimeout(() => {
+            let html = '';
+
+            switch (type) {
+                case 'video':
+                    html = `
+                        <div class="resource-video-container">
+                            <video controls autoplay>
+                                <source src="${fileUrl}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    `;
+                    break;
+
+                case 'audio':
+                    html = `
+                        <div class="resource-audio-container">
+                            <div class="resource-audio-icon">
+                                <i class="fas fa-headphones"></i>
+                            </div>
+                            <audio controls autoplay>
+                                <source src="${fileUrl}" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                    `;
+                    break;
+
+                case 'pdf':
+                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                    if (isMobile) {
+                        html = `
+                            <div class="resource-pdf-fallback">
+                                <i class="fas fa-file-pdf"></i>
+                                <p>PDF preview not available on mobile devices.</p>
+                                <a href="${fileUrl}" download class="resource-download-btn" style="margin-top: 16px; display: inline-flex;">
+                                    <i class="fas fa-download"></i> Download PDF
+                                </a>
+                            </div>
+                        `;
+                    } else {
+                        html = `
+                            <div class="resource-pdf-container">
+                                <embed src="${fileUrl}#toolbar=1&navpanes=1&scrollbar=1" type="application/pdf" width="100%" height="100%">
+                            </div>
+                        `;
+                    }
+                    break;
+
+                case 'image':
+                    html = `
+                        <div class="resource-image-container">
+                            <img src="${fileUrl}" alt="${title}" loading="lazy">
+                        </div>
+                    `;
+                    break;
+
+                default:
+                    html = `
+                        <div class="resource-pdf-fallback">
+                            <i class="fas fa-file"></i>
+                            <p>Preview not available for this file type.</p>
+                            <a href="${fileUrl}" download class="resource-download-btn" style="margin-top: 16px; display: inline-flex;">
+                                <i class="fas fa-download"></i> Download File
+                            </a>
+                        </div>
+                    `;
+                    break;
+            }
+
+            previewContent.innerHTML = html;
+        }, 100);
+    }
+
+    function closeResourceModal() {
+        const modal = document.getElementById('resourceModal');
+        const previewContent = document.getElementById('resourcePreviewContent');
+        const video = previewContent.querySelector('video');
+        const audio = previewContent.querySelector('audio');
+        if (video) video.pause();
+        if (audio) audio.pause();
+        modal.style.display = 'none';
+        previewContent.innerHTML = `
+            <div class="resource-loading">
+                <div class="resource-spinner"></div>
+                <p>Loading content...</p>
+            </div>
+        `;
+    }
+
+    document.getElementById('resourceModal').addEventListener('click', function (e) {
+        if (e.target === this) {
+            closeResourceModal();
         }
+    });
 
-        // Resource Preview Function
-        function previewResource(resourceId, title, type, fileUrl) {
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
             const modal = document.getElementById('resourceModal');
-            const modalTitle = document.getElementById('modalResourceTitle');
-            const modalType = document.getElementById('modalResourceType');
-            const modalIcon = document.getElementById('modalResourceIcon');
-            const previewContent = document.getElementById('resourcePreviewContent');
-            const downloadBtn = document.getElementById('downloadResourceBtn');
-
-            modalTitle.textContent = title;
-            modalType.textContent = type.toUpperCase();
-
-            const iconMap = {
-                'video': 'fa-video',
-                'audio': 'fa-headphones',
-                'pdf': 'fa-file-pdf',
-                'image': 'fa-image',
-                'document': 'fa-file'
-            };
-            modalIcon.className = `fas ${iconMap[type] || 'fa-file'}`;
-            downloadBtn.href = fileUrl;
-
-            previewContent.innerHTML = `
-                                            <div class="resource-loading">
-                                                <div class="resource-spinner"></div>
-                                                <p>Loading ${type}...</p>
-                                            </div>
-                                        `;
-
-            modal.style.display = 'flex';
-
-            setTimeout(() => {
-                let html = '';
-
-                switch (type) {
-                    case 'video':
-                        html = `
-                                                        <div class="resource-video-container">
-                                                            <video controls autoplay>
-                                                                <source src="${fileUrl}" type="video/mp4">
-                                                                Your browser does not support the video tag.
-                                                            </video>
-                                                        </div>
-                                                    `;
-                        break;
-
-                    case 'audio':
-                        html = `
-                                                        <div class="resource-audio-container">
-                                                            <div class="resource-audio-icon">
-                                                                <i class="fas fa-headphones"></i>
-                                                            </div>
-                                                            <audio controls autoplay>
-                                                                <source src="${fileUrl}" type="audio/mpeg">
-                                                                Your browser does not support the audio element.
-                                                            </audio>
-                                                        </div>
-                                                    `;
-                        break;
-
-                    case 'pdf':
-                        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-                        if (isMobile) {
-                            html = `
-                                                            <div class="resource-pdf-fallback">
-                                                                <i class="fas fa-file-pdf"></i>
-                                                                <p>PDF preview not available on mobile devices.</p>
-                                                                <a href="${fileUrl}" download class="resource-download-btn" style="margin-top: 16px; display: inline-flex;">
-                                                                    <i class="fas fa-download"></i> Download PDF
-                                                                </a>
-                                                            </div>
-                                                        `;
-                        } else {
-                            html = `
-                                                            <div class="resource-pdf-container">
-                                                                <embed src="${fileUrl}#toolbar=1&navpanes=1&scrollbar=1" type="application/pdf" width="100%" height="100%">
-                                                            </div>
-                                                        `;
-                        }
-                        break;
-
-                    case 'image':
-                        html = `
-                                                        <div class="resource-image-container">
-                                                            <img src="${fileUrl}" alt="${title}" loading="lazy">
-                                                        </div>
-                                                    `;
-                        break;
-
-                    default:
-                        html = `
-                                                        <div class="resource-pdf-fallback">
-                                                            <i class="fas fa-file"></i>
-                                                            <p>Preview not available for this file type.</p>
-                                                            <a href="${fileUrl}" download class="resource-download-btn" style="margin-top: 16px; display: inline-flex;">
-                                                                <i class="fas fa-download"></i> Download File
-                                                            </a>
-                                                        </div>
-                                                    `;
-                        break;
-                }
-
-                previewContent.innerHTML = html;
-            }, 100);
-        }
-
-        function closeResourceModal() {
-            const modal = document.getElementById('resourceModal');
-            const previewContent = document.getElementById('resourcePreviewContent');
-            const video = previewContent.querySelector('video');
-            const audio = previewContent.querySelector('audio');
-            if (video) video.pause();
-            if (audio) audio.pause();
-            modal.style.display = 'none';
-            previewContent.innerHTML = `
-                                            <div class="resource-loading">
-                                                <div class="resource-spinner"></div>
-                                                <p>Loading content...</p>
-                                            </div>
-                                        `;
-        }
-
-        document.getElementById('resourceModal').addEventListener('click', function (e) {
-            if (e.target === this) {
+            if (modal.style.display === 'flex') {
                 closeResourceModal();
             }
+        }
+    });
+
+    // Delete Quiz function
+    function deleteQuiz(quizId) {
+        Swal.fire({
+            title: 'Delete Quiz?',
+            text: 'This will permanently delete the quiz and all its questions. This action cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#DC2626',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Deleting...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                fetch(`/teacher/quizzes/${quizId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Deleted!', data.message, 'success').then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                })
+                .catch(() => {
+                    Swal.fire('Error', 'Failed to delete quiz', 'error');
+                });
+            }
         });
+    }
+
+    // Student Progress functions
+    function viewAllStudentsProgress(lessonId) {
+        const modal = document.getElementById('studentsProgressModal');
+        const subtitle = document.getElementById('progressModalSubtitle');
+        const content = document.getElementById('studentsProgressContent');
+
+        modal.style.display = 'flex';
+        subtitle.textContent = 'Loading student data...';
+
+        content.innerHTML = `
+            <div class="resource-loading">
+                <div class="resource-spinner"></div>
+                <p>Loading student progress...</p>
+            </div>
+        `;
+
+        fetch(`/teacher/lessons/progress/lesson/${lessonId}`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                content.innerHTML = `
+                    <div class="resource-pdf-fallback">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>${data.message || 'Failed to load student progress.'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (!data.students || data.students.length === 0) {
+                content.innerHTML = `
+                    <div class="resource-pdf-fallback">
+                        <i class="fas fa-users"></i>
+                        <p>No students found for this lesson.</p>
+                        <p style="font-size: 0.8rem; margin-top: 8px;">Students need to be enrolled in the class first.</p>
+                    </div>
+                `;
+                subtitle.textContent = '0 of 0 students completed';
+                return;
+            }
+
+            subtitle.textContent = `${data.completed_count} of ${data.total_students} students completed`;
+            const percent = data.total_students > 0 ? Math.round((data.completed_count / data.total_students) * 100) : 0;
+
+            let html = `
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="font-size: 0.8rem; color: var(--muted);">Overall Completion</span>
+                        <span style="font-weight: 700; color: var(--purple);">${percent}%</span>
+                    </div>
+                    <div class="progress-bar-custom">
+                        <div class="progress-fill" style="width: ${percent}%"></div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; max-height: 400px; overflow-y: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: var(--cream2);">
+                                <th style="padding: 12px; text-align: left;">Student</th>
+                                <th style="padding: 12px; text-align: left;">Status</th>
+                                <th style="padding: 12px; text-align: left;">Time Spent</th>
+                                <th style="padding: 12px; text-align: left;">Completed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            data.students.forEach(item => {
+                const status = item.progress.status;
+                let statusBadge = '';
+                let statusIcon = '';
+
+                switch (status) {
+                    case 'completed':
+                        statusBadge = 'badge-status-published';
+                        statusIcon = 'fa-check-circle';
+                        break;
+                    case 'in_progress':
+                        statusBadge = 'badge-status-draft';
+                        statusIcon = 'fa-hourglass-half';
+                        break;
+                    default:
+                        statusBadge = 'badge-status-archived';
+                        statusIcon = 'fa-circle';
+                }
+
+                const timeSpent = item.progress.time_spent_seconds || 0;
+                const minutes = Math.floor(timeSpent / 60);
+                const seconds = timeSpent % 60;
+                const timeDisplay = timeSpent > 0 ? minutes + 'm ' + seconds + 's' : '—';
+                const studentName = item.student.name || 'Student';
+                const initial = studentName.charAt(0).toUpperCase();
+
+                html += `
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <td style="padding: 12px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, var(--purple-light) 0%, var(--purple) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                                    ${initial}
+                                </div>
+                                <div style="font-weight: 500; font-size: 0.85rem;">${studentName}</div>
+                            </div>
+                         </div>
+                        <td style="padding: 12px;">
+                            <span class="badge-modern ${statusBadge}" style="display: inline-flex; align-items: center; gap: 5px;">
+                                <i class="fas ${statusIcon}"></i>
+                                ${status.replace('_', ' ').toUpperCase()}
+                            </span>
+                         </div>
+                        <td style="padding: 12px; font-size: 0.8rem;">${timeDisplay}</div>
+                        <td style="padding: 12px;">
+                            ${item.progress.completed_at ? '<span style="font-size: 0.7rem; color: var(--muted);">' + new Date(item.progress.completed_at).toLocaleDateString() + '</span>' : '—'}
+                         </div>
+                     </tr>
+                `;
+            });
+
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            content.innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            content.innerHTML = `
+                <div class="resource-pdf-fallback">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Error loading student progress. Please try again.</p>
+                    <p style="font-size: 0.8rem; margin-top: 8px;">${error.message}</p>
+                </div>
+            `;
+        });
+    }
+
+    window.closeStudentsProgressModal = function () {
+        const modal = document.getElementById('studentsProgressModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('studentsProgressModal');
+        if (modal) {
+            modal.addEventListener('click', function (e) {
+                if (e.target === this) {
+                    window.closeStudentsProgressModal();
+                }
+            });
+        }
 
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
-                const modal = document.getElementById('resourceModal');
-                if (modal.style.display === 'flex') {
-                    closeResourceModal();
+                const modal = document.getElementById('studentsProgressModal');
+                if (modal && modal.style.display === 'flex') {
+                    window.closeStudentsProgressModal();
                 }
             }
         });
+    });
 
-        // Delete Quiz function
-        function deleteQuiz(quizId) {
-            Swal.fire({
-                title: 'Delete Quiz?',
-                text: 'This will permanently delete the quiz and all its questions. This action cannot be undone.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#DC2626',
-                cancelButtonColor: '#6B7280',
-                confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'Cancel'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'Deleting...',
-                        allowOutsideClick: false,
-                        didOpen: () => Swal.showLoading()
-                    });
+    // Quiz Taking Functions
+    let quizStartTime = null;
+    let currentQuizId = null;
+    let quizTimerInterval = null;
 
-                    fetch(`/teacher/quizzes/${quizId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        }
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire('Deleted!', data.message, 'success').then(() => {
-                                    location.reload();
-                                });
-                            } else {
-                                Swal.fire('Error', data.message, 'error');
-                            }
-                        })
-                        .catch(() => {
-                            Swal.fire('Error', 'Failed to delete quiz', 'error');
-                        });
-                }
-            });
-        }
+    function takeQuiz(quizId) {
+        currentQuizId = quizId;
+        const modal = document.getElementById('quizModal');
+        const container = document.getElementById('quizContainer');
 
-        // Student Progress functions
-        function viewAllStudentsProgress(lessonId) {
-            const modal = document.getElementById('studentsProgressModal');
-            const subtitle = document.getElementById('progressModalSubtitle');
-            const content = document.getElementById('studentsProgressContent');
+        modal.style.display = 'flex';
+        container.innerHTML = `
+            <div class="resource-loading">
+                <div class="resource-spinner"></div>
+                <p>Loading quiz questions...</p>
+            </div>
+        `;
 
-            modal.style.display = 'flex';
-            subtitle.textContent = 'Loading student data...';
-
-            content.innerHTML = `
-                                            <div class="resource-loading">
-                                                <div class="resource-spinner"></div>
-                                                <p>Loading student progress...</p>
-                                            </div>
-                                        `;
-
-            fetch(`/teacher/lessons/progress/lesson/${lessonId}`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.success) {
-                        content.innerHTML = `
-                                                    <div class="resource-pdf-fallback">
-                                                        <i class="fas fa-exclamation-triangle"></i>
-                                                        <p>${data.message || 'Failed to load student progress.'}</p>
-                                                    </div>
-                                                `;
-                        return;
-                    }
-
-                    if (!data.students || data.students.length === 0) {
-                        content.innerHTML = `
-                                                    <div class="resource-pdf-fallback">
-                                                        <i class="fas fa-users"></i>
-                                                        <p>No students found for this lesson.</p>
-                                                        <p style="font-size: 0.8rem; margin-top: 8px;">Students need to be enrolled in the class first.</p>
-                                                    </div>
-                                                `;
-                        subtitle.textContent = `0 of 0 students completed`;
-                        return;
-                    }
-
-                    subtitle.textContent = `${data.completed_count} of ${data.total_students} students completed`;
-                    const percent = data.total_students > 0 ? Math.round((data.completed_count / data.total_students) * 100) : 0;
-
-                    let html = `
-                                                <div style="margin-bottom: 20px;">
-                                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                                        <span style="font-size: 0.8rem; color: var(--muted);">Overall Completion</span>
-                                                        <span style="font-weight: 700; color: var(--purple);">${percent}%</span>
-                                                    </div>
-                                                    <div class="progress-bar-custom">
-                                                        <div class="progress-fill" style="width: ${percent}%"></div>
-                                                    </div>
-                                                </div>
-                                                <div style="margin-top: 20px; max-height: 400px; overflow-y: auto;">
-                                                    <table style="width: 100%; border-collapse: collapse;">
-                                                        <thead>
-                                                            <tr style="background: var(--cream2);">
-                                                                <th style="padding: 12px; text-align: left;">Student</th>
-                                                                <th style="padding: 12px; text-align: left;">Status</th>
-                                                                <th style="padding: 12px; text-align: left;">Time Spent</th>
-                                                                <th style="padding: 12px; text-align: left;">Completed</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                            `;
-
-                    data.students.forEach(item => {
-                        const status = item.progress.status;
-                        let statusBadge = '';
-                        let statusIcon = '';
-
-                        switch (status) {
-                            case 'completed':
-                                statusBadge = 'badge-status-published';
-                                statusIcon = 'fa-check-circle';
-                                break;
-                            case 'in_progress':
-                                statusBadge = 'badge-status-draft';
-                                statusIcon = 'fa-hourglass-half';
-                                break;
-                            default:
-                                statusBadge = 'badge-status-archived';
-                                statusIcon = 'fa-circle';
-                        }
-
-                        const timeSpent = item.progress.time_spent_seconds || 0;
-                        const minutes = Math.floor(timeSpent / 60);
-                        const seconds = timeSpent % 60;
-                        const timeDisplay = timeSpent > 0 ? `${minutes}m ${seconds}s` : '—';
-                        const studentName = item.student.name || 'Student';
-                        const initial = studentName.charAt(0).toUpperCase();
-
-                        html += `
-                                                    <tr style="border-bottom: 1px solid var(--border);">
-                                                        <td style="padding: 12px;">
-                                                            <div style="display: flex; align-items: center; gap: 10px;">
-                                                                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, var(--purple-light) 0%, var(--purple) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
-                                                                    ${initial}
-                                                                </div>
-                                                                <div style="font-weight: 500; font-size: 0.85rem;">${studentName}</div>
-                                                            </div>
-                                                        </td>
-                                                        <td style="padding: 12px;">
-                                                            <span class="badge-modern ${statusBadge}" style="display: inline-flex; align-items: center; gap: 5px;">
-                                                                <i class="fas ${statusIcon}"></i>
-                                                                ${status.replace('_', ' ').toUpperCase()}
-                                                            </span>
-                                                        </td>
-                                                        <td style="padding: 12px; font-size: 0.8rem;">${timeDisplay}</td>
-                                                        <td style="padding: 12px;">
-                                                            ${item.progress.completed_at ? `<span style="font-size: 0.7rem; color: var(--muted);">${new Date(item.progress.completed_at).toLocaleDateString()}</span>` : '—'}
-                                                        </td>
-                                                    </tr>
-                                                `;
-                    });
-
-                    html += `
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            `;
-                    content.innerHTML = html;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    content.innerHTML = `
-                                                <div class="resource-pdf-fallback">
-                                                    <i class="fas fa-exclamation-triangle"></i>
-                                                    <p>Error loading student progress. Please try again.</p>
-                                                    <p style="font-size: 0.8rem; margin-top: 8px;">${error.message}</p>
-                                                </div>
-                                            `;
-                });
-        }
-
-        window.closeStudentsProgressModal = function () {
-            const modal = document.getElementById('studentsProgressModal');
-            if (modal) {
-                modal.style.display = 'none';
+        fetch(`/exams/${quizId}/take`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
             }
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const modal = document.getElementById('studentsProgressModal');
-            if (modal) {
-                modal.addEventListener('click', function (e) {
-                    if (e.target === this) {
-                        window.closeStudentsProgressModal();
-                    }
-                });
-            }
-
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') {
-                    const modal = document.getElementById('studentsProgressModal');
-                    if (modal && modal.style.display === 'flex') {
-                        window.closeStudentsProgressModal();
-                    }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                renderQuizTakingForm(data, container);
+                if (data.quiz.duration_minutes) {
+                    startQuizTimer(data.quiz.duration_minutes);
                 }
-            });
-        });
-
-
-        // Quiz Taking Functions
-        let quizStartTime = null;
-        let currentQuizId = null;
-        let quizTimerInterval = null;
-
-        // Function to start taking a quiz
-        // Function to start taking a quiz
-        function takeQuiz(quizId) {
-            currentQuizId = quizId;
-            const modal = document.getElementById('quizModal');
-            const container = document.getElementById('quizContainer');
-
-            modal.style.display = 'flex';
-            container.innerHTML = `
-                        <div class="resource-loading">
-                            <div class="resource-spinner"></div>
-                            <p>Loading quiz questions...</p>
-                        </div>
-                    `;
-
-            // FIXED: Use the correct route without /teacher prefix since exam routes are outside teacher group
-            fetch(`/exams/${quizId}/take`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        renderQuizTakingForm(data, container);
-                        if (data.quiz.duration_minutes) {
-                            startQuizTimer(data.quiz.duration_minutes);
-                        }
-                    } else {
-                        container.innerHTML = `
-                                <div class="resource-pdf-fallback">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                    <p>${data.message || 'Failed to load quiz questions.'}</p>
-                                </div>
-                            `;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    container.innerHTML = `
-                            <div class="resource-pdf-fallback">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <p>Failed to load quiz. Please try again.</p>
-                                <p style="font-size: 0.8rem; margin-top: 8px;">Error: ${error.message}</p>
-                            </div>
-                        `;
-                });
-        }
-
-        // Function to view quiz results
-        function viewQuizResults(examId) {
-            const modal = document.getElementById('quizResultsModal');
-            const container = document.getElementById('quizResultsContainer');
-
-            modal.style.display = 'flex';
-            container.innerHTML = `
-                        <div class="resource-loading">
-                            <div class="resource-spinner"></div>
-                            <p>Loading results...</p>
-                        </div>
-                    `;
-
-            // FIXED: Use the correct route without /teacher prefix
-            fetch(`/exams/${examId}/results`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        displayResultsHistory(data, container);
-                    } else {
-                        container.innerHTML = `
-                                <div class="resource-pdf-fallback">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                    <p>${data.message || 'Failed to load results.'}</p>
-                                </div>
-                            `;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    container.innerHTML = `
-                            <div class="resource-pdf-fallback">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <p>Failed to load results. Error: ${error.message}</p>
-                            </div>
-                        `;
-                });
-        }
-
-        // Function to render quiz taking form
-        function renderQuizTakingForm(data, container) {
-            const quiz = data.quiz;
-            const questions = data.questions;
-
-            let html = `
-                        <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
-                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                                <h4 style="font-weight: 700; color: var(--ink);">${escapeHtml(quiz.title)}</h4>
-                                <div style="display: flex; gap: 16px;">
-                                    <span style="font-size: 0.8rem; color: var(--muted);">
-                                        <i class="fas fa-star"></i> Total: ${quiz.total_marks} marks
-                                    </span>
-                                    <span style="font-size: 0.8rem; color: var(--muted);">
-                                        <i class="fas fa-check-circle"></i> Pass: ${quiz.pass_mark}%
-                                    </span>
-                                    ${quiz.duration_minutes ? `
-                                        <span style="font-size: 0.8rem; color: var(--purple);" id="quizTimer">
-                                            <i class="fas fa-clock"></i> Time: ${formatTime(quiz.duration_minutes * 60)}
-                                        </span>
-                                    ` : ''}
-                                </div>
-                            </div>
-                            ${quiz.instructions ? `<p style="margin-top: 12px; font-size: 0.85rem; color: var(--muted);">${escapeHtml(quiz.instructions)}</p>` : ''}
-                        </div>
-                        <form id="quizSubmissionForm">
-                            <input type="hidden" name="exam_id" value="${quiz.id}">
-                    `;
-
-            questions.forEach((question, index) => {
-                // Parse options if it's a string
-                let options = question.options;
-                if (typeof options === 'string') {
-                    try {
-                        options = JSON.parse(options);
-                    } catch (e) {
-                        options = {};
-                    }
-                }
-                const isMcq = question.type === 'mcq';
-
-                html += `
-                            <div style="background: var(--cream); border-radius: 16px; padding: 20px; margin-bottom: 20px;">
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-                                    <h5 style="font-weight: 600; color: var(--ink);">
-                                        Question ${index + 1}: ${escapeHtml(question.question)}
-                                    </h5>
-                                    <span style="font-size: 0.75rem; color: var(--purple); font-weight: 500;">(${question.marks} mark${question.marks > 1 ? 's' : ''})</span>
-                                </div>
-                                ${question.question_arabic ? `<p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 16px; direction: rtl; font-family: 'Amiri', serif;">${escapeHtml(question.question_arabic)}</p>` : ''}
-                        `;
-
-                if (isMcq && options && Object.keys(options).length > 0) {
-                    html += `
-                                <div style="margin-top: 12px;">
-                                    ${Object.entries(options).map(([key, value]) => `
-                                        <label style="display: flex; align-items: center; gap: 12px; padding: 10px; margin-bottom: 8px; background: white; border-radius: 12px; border: 1px solid var(--border); cursor: pointer;">
-                                            <input type="radio" name="question_${question.id}" value="${key}" style="width: 18px; height: 18px; accent-color: var(--purple);">
-                                            <span style="font-weight: 500;">${key}.</span>
-                                            <span>${escapeHtml(value)}</span>
-                                        </label>
-                                    `).join('')}
-                                </div>
-                            `;
-                } else if (question.type === 'short_answer') {
-                    html += `
-                                <div style="margin-top: 12px;">
-                                    <textarea name="question_${question.id}" class="form-control" rows="3" placeholder="Type your answer here..." style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border); font-family: 'DM Sans', sans-serif;"></textarea>
-                                </div>
-                            `;
-                } else if (question.type === 'true_false') {
-                    html += `
-                                <div style="margin-top: 12px; display: flex; gap: 20px;">
-                                    <label style="display: flex; align-items: center; gap: 8px; padding: 10px; background: white; border-radius: 12px; border: 1px solid var(--border); cursor: pointer;">
-                                        <input type="radio" name="question_${question.id}" value="true" style="width: 18px; height: 18px; accent-color: var(--purple);">
-                                        <span>✅ True</span>
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 8px; padding: 10px; background: white; border-radius: 12px; border: 1px solid var(--border); cursor: pointer;">
-                                        <input type="radio" name="question_${question.id}" value="false" style="width: 18px; height: 18px; accent-color: var(--purple);">
-                                        <span>❌ False</span>
-                                    </label>
-                                </div>
-                            `;
-                } else if (question.type === 'essay') {
-                    html += `
-                                <div style="margin-top: 12px;">
-                                    <textarea name="question_${question.id}" class="form-control" rows="6" placeholder="Write your essay answer here..." style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border); font-family: 'DM Sans', sans-serif;"></textarea>
-                                </div>
-                            `;
-                }
-
-                html += `</div>`;
-            });
-
-            html += `
-                            <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border);">
-                                <button type="button" class="resource-close-btn" onclick="closeQuizModal()">
-                                    <i class="fas fa-times"></i> Cancel
-                                </button>
-                                <button type="submit" class="resource-download-btn" style="background: var(--purple); color: white;">
-                                    <i class="fas fa-paper-plane"></i> Submit Quiz
-                                </button>
-                            </div>
-                        </form>
-                    `;
-
-            container.innerHTML = html;
-
-            // Attach form submission handler
-            const form = document.getElementById('quizSubmissionForm');
-            if (form) {
-                form.addEventListener('submit', function (e) {
-                    e.preventDefault();
-                    submitQuizAnswers(quiz.id);
-                });
-            }
-        }
-
-        // Function to submit quiz answers
-        function submitQuizAnswers(examId) {
-
-            const form = document.getElementById('quizSubmissionForm');
-            const formData = new FormData(form);
-            const answers = [];
-
-            for (let [key, value] of formData.entries()) {
-
-                if (key.startsWith('question_')) {
-
-                    const questionId = key.replace('question_', '');
-
-                    answers.push({
-                        question_id: parseInt(questionId),
-                        answer: value
-                    });
-                }
-            }
-
-            const timeSpent = calculateTimeSpent();
-
-            Swal.fire({
-                title: 'Submitting Quiz...',
-                text: 'Please wait while we submit your answers.',
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading()
-            });
-
-            fetch(`/exams/${examId}/submit`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    answers: answers,
-                    time_spent: timeSpent,
-                    student_id: {{ session('LoggedStudent') ?? 'null' }}
-            })
-            })
-
-                .then(async response => {
-
-                    const responseText = await response.text();
-
-                    console.log('RAW RESPONSE:', responseText);
-
-                    let data;
-
-                    try {
-                        data = JSON.parse(responseText);
-                    } catch (e) {
-
-                        // SHOW FULL LARAVEL ERROR PAGE
-                        document.body.innerHTML = responseText;
-
-                        throw new Error('Server returned HTML instead of JSON');
-                    }
-
-                    if (!response.ok) {
-
-                        let errorMessage = data.message || 'Something went wrong';
-
-                        if (data.errors) {
-                            errorMessage = Object.values(data.errors)
-                                .flat()
-                                .join('<br>');
-                        }
-
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Server Error',
-                            html: errorMessage,
-                            width: 800
-                        });
-
-                        return;
-                    }
-
-                    return data;
-                })
-
-                .then(data => {
-
-                    if (!data) return;
-
-                    if (data.success) {
-
-                        Swal.close();
-
-                        closeQuizModal();
-
-                        showQuizResults(data.result, examId);
-
-                    } else {
-
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Submission Failed',
-                            html: data.message || 'Failed to submit quiz.'
-                        });
-                    }
-                })
-
-                .catch(error => {
-
-                    console.error(error);
-
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'JavaScript Error',
-                        html: `<pre>${error.message}</pre>`,
-                        width: 800
-                    });
-                });
-        }
-
-        // Function to show quiz results
-        function showQuizResults(result, examId) {
-            const modal = document.getElementById('quizResultsModal');
-            const container = document.getElementById('quizResultsContainer');
-
-            modal.style.display = 'flex';
-
-            const passedColor = result.is_passed ? 'var(--green)' : 'var(--red)';
-            const passedIcon = result.is_passed ? 'fa-trophy' : 'fa-times-circle';
-            const passedText = result.is_passed ? 'PASSED' : 'FAILED';
-
-            let html = `
-                                <div style="text-align: center; margin-bottom: 24px;">
-                                    <div style="width: 80px; height: 80px; background: ${result.is_passed ? 'var(--green-light)' : 'var(--red-light)'}; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
-                                        <i class="fas ${passedIcon}" style="font-size: 2.5rem; color: ${passedColor};"></i>
-                                    </div>
-                                    <h3 style="font-size: 1.5rem; font-weight: 700; color: ${passedColor}; margin-bottom: 8px;">${passedText}</h3>
-                                    <div style="font-size: 2rem; font-weight: 700; color: var(--ink); margin-bottom: 8px;">
-                                        ${result.percentage}%
-                                    </div>
-                                    <p style="color: var(--muted); margin-bottom: 16px;">
-                                        Score: ${result.score}/${result.total_marks} | Attempt ${result.attempt_number} of ${result.max_attempts}
-                                    </p>
-                                    <div class="progress-bar-custom" style="height: 8px; margin-bottom: 20px;">
-                                        <div class="progress-fill" style="width: ${result.percentage}%; background: ${passedColor};"></div>
-                                    </div>
-                                </div>
-                            `;
-
-            // Add detailed answers if available
-            if (result.answers && result.answers.length > 0) {
-                html += `
-                                    <div style="margin-top: 20px;">
-                                        <h5 style="font-weight: 700; margin-bottom: 16px;">Answer Review</h5>
-                                        ${result.answers.map((ans, idx) => `
-                                            <div style="background: var(--cream); border-radius: 12px; padding: 16px; margin-bottom: 12px;">
-                                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                                    <strong>Question ${idx + 1}</strong>
-                                                    <span style="color: ${ans.is_correct ? 'var(--green)' : 'var(--red)'};">
-                                                        ${ans.is_correct ? '<i class="fas fa-check-circle"></i> Correct' : '<i class="fas fa-times-circle"></i> Incorrect'}
-                                                    </span>
-                                                </div>
-                                                <p style="font-size: 0.85rem; margin-bottom: 8px;">${escapeHtml(ans.question_text || '')}</p>
-                                                <div style="font-size: 0.8rem;">
-                                                    <div><strong>Your answer:</strong> ${escapeHtml(ans.student_answer || 'Not answered')}</div>
-                                                    ${!ans.is_correct && ans.correct_answer ? `<div><strong>Correct answer:</strong> ${escapeHtml(ans.correct_answer)}</div>` : ''}
-                                                    ${ans.explanation ? `<div style="margin-top: 8px; padding: 8px; background: var(--purple-light); border-radius: 8px;"><strong>Explanation:</strong> ${escapeHtml(ans.explanation)}</div>` : ''}
-                                                </div>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                `;
-            }
-
-            html += `
-                                <div style="display: flex; justify-content: center; gap: 12px; margin-top: 24px;">
-                                    ${result.attempt_number < result.max_attempts && !result.is_passed ? `
-                                        <button onclick="retakeQuiz(${examId})" class="nav-button" style="background: var(--purple); color: white;">
-                                            <i class="fas fa-redo-alt"></i> Retake Quiz
-                                        </button>
-                                    ` : ''}
-                                    <button onclick="closeQuizResultsModal()" class="resource-close-btn">
-                                        <i class="fas fa-times"></i> Close
-                                    </button>
-                                </div>
-                            `;
-
-            container.innerHTML = html;
-        }
-
-        // Function to retake quiz
-        function retakeQuiz(examId) {
-            closeQuizResultsModal();
-            setTimeout(() => {
-                takeQuiz(examId);
-            }, 300);
-        }
-
-        // Timer functions
-        function startQuizTimer(durationMinutes) {
-            if (quizTimerInterval) {
-                clearInterval(quizTimerInterval);
-            }
-
-            if (!durationMinutes) return;
-
-            let timeLeft = durationMinutes * 60;
-            quizStartTime = Date.now();
-
-            const timerElement = document.getElementById('quizTimer');
-            if (!timerElement) return;
-
-            quizTimerInterval = setInterval(() => {
-                if (timeLeft <= 0) {
-                    clearInterval(quizTimerInterval);
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Time\'s Up!',
-                        text: 'Your quiz time has expired. Submitting automatically...',
-                        confirmButtonColor: '#5B3FD9'
-                    }).then(() => {
-                        document.getElementById('quizSubmissionForm')?.requestSubmit();
-                    });
-                } else {
-                    timeLeft--;
-                    timerElement.innerHTML = `<i class="fas fa-clock"></i> Time: ${formatTime(timeLeft)}`;
-                }
-            }, 1000);
-        }
-
-        function calculateTimeSpent() {
-            if (quizStartTime) {
-                return Math.floor((Date.now() - quizStartTime) / 1000);
-            }
-            return 0;
-        }
-
-        function formatTime(seconds) {
-            const minutes = Math.floor(seconds / 60);
-            const secs = seconds % 60;
-            return `${minutes}:${secs.toString().padStart(2, '0')}`;
-        }
-
-        function stopQuizTimer() {
-            if (quizTimerInterval) {
-                clearInterval(quizTimerInterval);
-                quizTimerInterval = null;
-            }
-        }
-
-        // Modal control functions
-        function closeQuizModal() {
-            stopQuizTimer();
-            quizStartTime = null;
-            currentQuizId = null;
-            document.getElementById('quizModal').style.display = 'none';
-            document.getElementById('quizContainer').innerHTML = `
-                                <div class="resource-loading">
-                                    <div class="resource-spinner"></div>
-                                    <p>Loading quiz...</p>
-                                </div>
-                            `;
-        }
-
-        function closeQuizResultsModal() {
-            document.getElementById('quizResultsModal').style.display = 'none';
-            document.getElementById('quizResultsContainer').innerHTML = `
-                                <div class="resource-loading">
-                                    <div class="resource-spinner"></div>
-                                    <p>Loading results...</p>
-                                </div>
-                            `;
-        }
-
-        function viewQuizResults(examId) {
-            const modal = document.getElementById('quizResultsModal');
-            const container = document.getElementById('quizResultsContainer');
-
-            modal.style.display = 'flex';
-            container.innerHTML = `
-                                <div class="resource-loading">
-                                    <div class="resource-spinner"></div>
-                                    <p>Loading results...</p>
-                                </div>
-                            `;
-
-            fetch(`/teacher/exams/${examId}/results`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        displayResultsHistory(data, container);
-                    } else {
-                        container.innerHTML = `
-                                        <div class="resource-pdf-fallback">
-                                            <i class="fas fa-exclamation-triangle"></i>
-                                            <p>${data.message || 'Failed to load results.'}</p>
-                                        </div>
-                                    `;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    container.innerHTML = `<p style="color: var(--red);">Failed to load results.</p>`;
-                });
-        }
-
-        function displayResultsHistory(data, container) {
-            const exam = data.exam;
-            const results = data.results;
-
-            let html = `
-                                <div style="margin-bottom: 20px;">
-                                    <h4 style="font-weight: 700; margin-bottom: 10px;">${escapeHtml(exam.title)}</h4>
-                                    <p style="font-size: 0.8rem; color: var(--muted);">Total Marks: ${exam.total_marks} | Pass Mark: ${exam.pass_mark}%</p>
-                                </div>
-                            `;
-
-            if (results.length > 0) {
-                html += `
-                                    <div style="display: flex; flex-direction: column; gap: 12px;">
-                                        ${results.map((result, idx) => `
-                                            <div style="background: var(--cream2); border-radius: 12px; padding: 16px;">
-                                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                                                    <div>
-                                                        <span style="font-weight: 600;">Attempt ${result.attempt_number}</span>
-                                                        <span style="font-size: 0.7rem; color: var(--muted); margin-left: 8px;">${new Date(result.created_at).toLocaleString()}</span>
-                                                    </div>
-                                                    <span style="font-weight: 700; color: ${result.is_passed ? 'var(--green)' : 'var(--red)'};">${result.percentage}%</span>
-                                                </div>
-                                                <div class="progress-bar-custom" style="height: 4px; margin-top: 8px;">
-                                                    <div class="progress-fill" style="width: ${result.percentage}%; background: ${result.is_passed ? 'var(--green)' : 'var(--red)'};"></div>
-                                                </div>
-                                                <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.75rem; color: var(--muted);">
-                                                    <span>Score: ${result.score}/${exam.total_marks}</span>
-                                                    <span>Status: ${result.is_passed ? 'Passed' : 'Failed'}</span>
-                                                    <span>Time: ${result.time_spent ? formatTime(result.time_spent) : 'N/A'}</span>
-                                                </div>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                `;
             } else {
-                html += `
-                                    <div class="resource-pdf-fallback">
-                                        <i class="fas fa-chart-line"></i>
-                                        <p>No attempts recorded yet.</p>
-                                    </div>
-                                `;
+                container.innerHTML = `
+                    <div class="resource-pdf-fallback">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>${data.message || 'Failed to load quiz questions.'}</p>
+                    </div>
+                `;
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            container.innerHTML = `
+                <div class="resource-pdf-fallback">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Failed to load quiz. Please try again.</p>
+                    <p style="font-size: 0.8rem; margin-top: 8px;">Error: ${error.message}</p>
+                </div>
+            `;
+        });
+    }
+
+    // Function to view quiz results
+    function viewQuizResults(examId) {
+        const modal = document.getElementById('quizResultsModal');
+        const container = document.getElementById('quizResultsContainer');
+        
+        modal.style.display = 'flex';
+        container.innerHTML = `
+            <div class="resource-loading">
+                <div class="resource-spinner"></div>
+                <p>Loading results...</p>
+            </div>
+        `;
+        
+        fetch(`/exams/${examId}/results`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Results data:', data);
+            if (data.success) {
+                displayResultsHistory(data, container);
+            } else {
+                container.innerHTML = `
+                    <div class="resource-pdf-fallback">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>${data.message || 'Failed to load results.'}</p>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            container.innerHTML = `
+                <div class="resource-pdf-fallback">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Failed to load results: ${error.message}</p>
+                </div>
+            `;
+        });
+    }
+
+    function renderQuizTakingForm(data, container) {
+        const quiz = data.quiz;
+        const questions = data.questions;
+
+        let html = `
+            <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <h4 style="font-weight: 700; color: var(--ink);">${escapeHtml(quiz.title)}</h4>
+                    <div style="display: flex; gap: 16px;">
+                        <span style="font-size: 0.8rem; color: var(--muted);">
+                            <i class="fas fa-star"></i> Total: ${quiz.total_marks} marks
+                        </span>
+                        <span style="font-size: 0.8rem; color: var(--muted);">
+                            <i class="fas fa-check-circle"></i> Pass: ${quiz.pass_mark}%
+                        </span>
+                        ${quiz.duration_minutes ? `
+                            <span style="font-size: 0.8rem; color: var(--purple);" id="quizTimer">
+                                <i class="fas fa-clock"></i> Time: ${formatTime(quiz.duration_minutes * 60)}
+                            </span>
+                        ` : ''}
+                    </div>
+                </div>
+                ${quiz.instructions ? '<p style="margin-top: 12px; font-size: 0.85rem; color: var(--muted);">' + escapeHtml(quiz.instructions) + '</p>' : ''}
+            </div>
+            <form id="quizSubmissionForm">
+                <input type="hidden" name="exam_id" value="${quiz.id}">
+        `;
+
+        questions.forEach((question, index) => {
+            let options = question.options;
+            if (typeof options === 'string') {
+                try {
+                    options = JSON.parse(options);
+                } catch (e) {
+                    options = {};
+                }
+            }
+            const isMcq = question.type === 'mcq';
 
             html += `
-                                <div style="display: flex; justify-content: center; margin-top: 20px;">
-                                    <button onclick="closeQuizResultsModal()" class="resource-close-btn">
-                                        <i class="fas fa-times"></i> Close
-                                    </button>
+                <div style="background: var(--cream); border-radius: 16px; padding: 20px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <h5 style="font-weight: 600; color: var(--ink);">
+                            Question ${index + 1}: ${escapeHtml(question.question)}
+                        </h5>
+                        <span style="font-size: 0.75rem; color: var(--purple); font-weight: 500;">(${question.marks} mark${question.marks > 1 ? 's' : ''})</span>
+                    </div>
+                    ${question.question_arabic ? '<p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 16px; direction: rtl; font-family: \"Amiri\", serif;">' + escapeHtml(question.question_arabic) + '</p>' : ''}
+            `;
+
+            if (isMcq && options && Object.keys(options).length > 0) {
+                html += `
+                    <div style="margin-top: 12px;">
+                        ${Object.entries(options).map(([key, value]) => `
+                            <label style="display: flex; align-items: center; gap: 12px; padding: 10px; margin-bottom: 8px; background: white; border-radius: 12px; border: 1px solid var(--border); cursor: pointer;">
+                                <input type="radio" name="question_${question.id}" value="${key}" style="width: 18px; height: 18px; accent-color: var(--purple);">
+                                <span style="font-weight: 500;">${key}.</span>
+                                <span>${escapeHtml(value)}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (question.type === 'short_answer') {
+                html += `
+                    <div style="margin-top: 12px;">
+                        <textarea name="question_${question.id}" class="form-control" rows="3" placeholder="Type your answer here..." style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border); font-family: 'DM Sans', sans-serif;"></textarea>
+                    </div>
+                `;
+            } else if (question.type === 'true_false') {
+                html += `
+                    <div style="margin-top: 12px; display: flex; gap: 20px;">
+                        <label style="display: flex; align-items: center; gap: 8px; padding: 10px; background: white; border-radius: 12px; border: 1px solid var(--border); cursor: pointer;">
+                            <input type="radio" name="question_${question.id}" value="true" style="width: 18px; height: 18px; accent-color: var(--purple);">
+                            <span>✅ True</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; padding: 10px; background: white; border-radius: 12px; border: 1px solid var(--border); cursor: pointer;">
+                            <input type="radio" name="question_${question.id}" value="false" style="width: 18px; height: 18px; accent-color: var(--purple);">
+                            <span>❌ False</span>
+                        </label>
+                    </div>
+                `;
+            } else if (question.type === 'essay') {
+                html += `
+                    <div style="margin-top: 12px;">
+                        <textarea name="question_${question.id}" class="form-control" rows="6" placeholder="Write your essay answer here..." style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border); font-family: 'DM Sans', sans-serif;"></textarea>
+                    </div>
+                `;
+            }
+
+            html += `</div>`;
+        });
+
+        html += `
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border);">
+                    <button type="button" class="resource-close-btn" onclick="closeQuizModal()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="resource-download-btn" style="background: var(--purple); color: white;">
+                        <i class="fas fa-paper-plane"></i> Submit Quiz
+                    </button>
+                </div>
+            </form>
+        `;
+
+        container.innerHTML = html;
+
+        const form = document.getElementById('quizSubmissionForm');
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                submitQuizAnswers(quiz.id);
+            });
+        }
+    }
+
+    function submitQuizAnswers(examId) {
+        const form = document.getElementById('quizSubmissionForm');
+        const formData = new FormData(form);
+        const answers = [];
+
+        for (let [key, value] of formData.entries()) {
+            if (key.startsWith('question_')) {
+                const questionId = key.replace('question_', '');
+                answers.push({
+                    question_id: parseInt(questionId),
+                    answer: value
+                });
+            }
+        }
+
+        const timeSpent = calculateTimeSpent();
+
+        Swal.fire({
+            title: 'Submitting Quiz...',
+            text: 'Please wait while we submit your answers.',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        fetch(`/exams/${examId}/submit`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                answers: answers,
+                time_spent: timeSpent,
+                student_id: {{ session('LoggedStudent') ?? session('LoggedTeacher') ?? 'null' }}
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.close();
+                closeQuizModal();
+                showQuizResults(data.result, examId);
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Submission Failed',
+                    text: data.message || 'Failed to submit quiz.',
+                    confirmButtonColor: '#DC2626'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to submit quiz. Please try again.',
+                confirmButtonColor: '#DC2626'
+            });
+        });
+    }
+
+    function showQuizResults(result, examId) {
+        const modal = document.getElementById('quizResultsModal');
+        const container = document.getElementById('quizResultsContainer');
+        
+        modal.style.display = 'flex';
+        
+        const passedColor = result.is_passed ? '#059669' : '#DC2626';
+        const passedIcon = result.is_passed ? 'fa-trophy' : 'fa-times-circle';
+        const passedText = result.is_passed ? 'PASSED!' : 'NOT PASSED';
+        
+        let html = `
+            <div style="text-align: center; margin-bottom: 24px;">
+                <div style="width: 80px; height: 80px; background: ${result.is_passed ? '#D1FAE5' : '#FEE2E2'}; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                    <i class="fas ${passedIcon}" style="font-size: 2.5rem; color: ${passedColor};"></i>
+                </div>
+                <h3 style="font-size: 1.5rem; font-weight: 700; color: ${passedColor}; margin-bottom: 8px;">${passedText}</h3>
+                <div style="font-size: 2rem; font-weight: 700; color: #1A1628; margin-bottom: 8px;">
+                    ${result.percentage}%
+                </div>
+                <p style="color: #7C748E; margin-bottom: 16px;">
+                    Score: ${result.score}/${result.total_marks} | Attempt ${result.attempt_number} of ${result.max_attempts}
+                </p>
+                <div class="progress-bar-custom" style="height: 8px; margin-bottom: 20px;">
+                    <div class="progress-fill" style="width: ${result.percentage}%; background: ${passedColor};"></div>
+                </div>
+            </div>
+        `;
+        
+        if (result.answers && result.answers.length > 0) {
+            html += `
+                <div style="margin-top: 20px;">
+                    <h5 style="font-weight: 700; margin-bottom: 16px;">Answer Review</h5>
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        ${result.answers.map((ans, idx) => `
+                            <div style="background: var(--cream); border-radius: 12px; padding: 16px; margin-bottom: 12px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <strong>Question ${idx + 1}</strong>
+                                    <span style="color: ${ans.is_correct ? '#059669' : '#DC2626'};">
+                                        ${ans.is_correct ? '<i class="fas fa-check-circle"></i> Correct' : '<i class="fas fa-times-circle"></i> Incorrect'}
+                                    </span>
                                 </div>
-                            `;
+                                <p style="font-size: 0.85rem; margin-bottom: 8px;">${escapeHtml(ans.question_text || '')}</p>
+                                <div style="font-size: 0.8rem;">
+                                    <div><strong>Your answer:</strong> ${escapeHtml(ans.student_answer || 'Not answered')}</div>
+                                    ${!ans.is_correct && ans.correct_answer ? '<div><strong>Correct answer:</strong> ' + escapeHtml(ans.correct_answer) + '</div>' : ''}
+                                    ${ans.explanation ? '<div style="margin-top: 8px; padding: 8px; background: var(--purple-light); border-radius: 8px;"><strong>Explanation:</strong> ' + escapeHtml(ans.explanation) + '</div>' : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        html += `
+            <div style="display: flex; justify-content: center; gap: 12px; margin-top: 24px;">
+                ${result.attempt_number < result.max_attempts && !result.is_passed ? '<button onclick="retakeQuiz(' + examId + ')" class="nav-button" style="background: #5B3FD9; color: white;"><i class="fas fa-redo-alt"></i> Retake Quiz</button>' : ''}
+                <button onclick="closeQuizResultsModal(); location.reload();" class="resource-close-btn">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        `;
+        
+        container.innerHTML = html;
+    }
 
-            container.innerHTML = html;
+    function retakeQuiz(examId) {
+        closeQuizResultsModal();
+        setTimeout(() => {
+            takeQuiz(examId);
+        }, 500);
+    }
+
+    // Function to display results history
+    function displayResultsHistory(data, container) {
+        const exam = data.exam;
+        const results = data.results;
+
+        console.log('Exam data:', exam);
+        console.log('Results data:', results);
+
+        if (!results || results.length === 0) {
+            container.innerHTML = `
+                <div class="resource-pdf-fallback">
+                    <i class="fas fa-chart-line"></i>
+                    <p>No attempts recorded yet.</p>
+                    <p style="font-size: 0.8rem; margin-top: 16px;">Take the quiz to see your results here.</p>
+                </div>
+            `;
+            return;
         }
 
-        // Helper function to escape HTML
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+        let html = `
+            <div style="margin-bottom: 20px;">
+                <h4 style="font-weight: 700; margin-bottom: 10px;">${escapeHtml(exam.title)}</h4>
+                <p style="font-size: 0.8rem; color: var(--muted);">Total Marks: ${exam.total_marks} | Pass Mark: ${exam.pass_mark}%</p>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+        `;
+
+        const sortedResults = [...results].sort((a, b) => a.attempt_number - b.attempt_number);
+
+        sortedResults.forEach((result) => {
+            const passedColor = result.is_passed ? '#059669' : '#DC2626';
+            const statusText = result.is_passed ? 'Passed' : 'Failed';
+
+            html += `
+                <div style="background: var(--cream2); border-radius: 12px; padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <div>
+                            <span style="font-weight: 600;">Attempt ${result.attempt_number}</span>
+                            <span style="font-size: 0.7rem; color: var(--muted); margin-left: 8px;">${new Date(result.created_at).toLocaleString()}</span>
+                        </div>
+                        <span style="font-weight: 700; color: ${passedColor};">${result.percentage}%</span>
+                    </div>
+                    <div class="progress-bar-custom" style="height: 6px; margin-top: 10px;">
+                        <div class="progress-fill" style="width: ${result.percentage}%; background: ${passedColor};"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.75rem; color: var(--muted);">
+                        <span>Score: ${result.score}/${exam.total_marks}</span>
+                        <span>Status: <span style="color: ${passedColor}; font-weight: 600;">${statusText}</span></span>
+                        <span>${result.attempt_number === results.length && !result.is_passed && result.attempt_number < (exam.max_attempts || 3) ? 'Retake available' : ''}</span>
+                    </div>
+                    ${result.answers ? `
+                        <button onclick="toggleAnswers(${result.id}, this)" class="nav-button" style="margin-top: 12px; padding: 5px 12px; font-size: 0.7rem;">
+                            <i class="fas fa-eye"></i> View Answers
+                        </button>
+                        <div id="answers-${result.id}" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
+                            ${renderAnswers(result.answers)}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        });
+
+        html += `
+            </div>
+            <div style="display: flex; justify-content: center; gap: 12px; margin-top: 24px;">
+                <button onclick="closeQuizResultsModal()" class="resource-close-btn">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        `;
+
+        container.innerHTML = html;
+    }
+
+    function startQuizTimer(durationMinutes) {
+        if (quizTimerInterval) {
+            clearInterval(quizTimerInterval);
         }
 
-        // Update the quiz cards to add Take Quiz button
-        // Find the quiz card rendering and add a "Take Quiz" button
-    </script>
+        if (!durationMinutes) return;
+
+        let timeLeft = durationMinutes * 60;
+        quizStartTime = Date.now();
+
+        const timerElement = document.getElementById('quizTimer');
+        if (!timerElement) return;
+
+        quizTimerInterval = setInterval(() => {
+            if (timeLeft <= 0) {
+                clearInterval(quizTimerInterval);
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Time\'s Up!',
+                    text: 'Your quiz time has expired. Submitting automatically...',
+                    confirmButtonColor: '#5B3FD9'
+                }).then(() => {
+                    const form = document.getElementById('quizSubmissionForm');
+                    if (form) form.requestSubmit();
+                });
+            } else {
+                timeLeft--;
+                timerElement.innerHTML = `<i class="fas fa-clock"></i> Time: ${formatTime(timeLeft)}`;
+            }
+        }, 1000);
+    }
+
+    function calculateTimeSpent() {
+        if (quizStartTime) {
+            return Math.floor((Date.now() - quizStartTime) / 1000);
+        }
+        return 0;
+    }
+
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return minutes + ':' + secs.toString().padStart(2, '0');
+    }
+
+    function stopQuizTimer() {
+        if (quizTimerInterval) {
+            clearInterval(quizTimerInterval);
+            quizTimerInterval = null;
+        }
+    }
+
+    function closeQuizModal() {
+        stopQuizTimer();
+        quizStartTime = null;
+        currentQuizId = null;
+        document.getElementById('quizModal').style.display = 'none';
+        document.getElementById('quizContainer').innerHTML = `
+            <div class="resource-loading">
+                <div class="resource-spinner"></div>
+                <p>Loading quiz...</p>
+            </div>
+        `;
+    }
+
+    // Helper function to render answers
+    function renderAnswers(answers) {
+        if (!answers || answers.length === 0) return '<p>No answer details available.</p>';
+
+        let html = '<div style="max-height: 300px; overflow-y: auto;">';
+        answers.forEach((ans, idx) => {
+            const isCorrect = ans.is_correct;
+            html += `
+                <div style="margin-bottom: 12px; padding: 12px; background: var(--cream); border-radius: 10px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <strong>Q${idx + 1}:</strong>
+                        <span style="color: ${isCorrect ? '#059669' : '#DC2626'};">
+                            ${isCorrect ? '<i class="fas fa-check-circle"></i> Correct' : '<i class="fas fa-times-circle"></i> Incorrect'}
+                        </span>
+                    </div>
+                    <p style="font-size: 0.85rem; margin-bottom: 8px;">${escapeHtml(ans.question_text || '')}</p>
+                    <div style="font-size: 0.8rem;">
+                        <div><strong>Your answer:</strong> ${escapeHtml(ans.student_answer || 'Not answered')}</div>
+                        ${!isCorrect && ans.correct_answer ? '<div><strong>Correct answer:</strong> ' + escapeHtml(ans.correct_answer) + '</div>' : ''}
+                        ${ans.explanation ? '<div style="margin-top: 8px; padding: 8px; background: var(--purple-light); border-radius: 8px;"><strong>Explanation:</strong> ' + escapeHtml(ans.explanation) + '</div>' : ''}
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        return html;
+    }
+
+    // Toggle answers visibility
+    function toggleAnswers(resultId, button) {
+        const answersDiv = document.getElementById('answers-' + resultId);
+        if (answersDiv) {
+            if (answersDiv.style.display === 'none') {
+                answersDiv.style.display = 'block';
+                button.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Answers';
+            } else {
+                answersDiv.style.display = 'none';
+                button.innerHTML = '<i class="fas fa-eye"></i> View Answers';
+            }
+        }
+    }
+
+    // Function to close results modal
+    function closeQuizResultsModal() {
+        const modal = document.getElementById('quizResultsModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        const container = document.getElementById('quizResultsContainer');
+        if (container) {
+            container.innerHTML = `
+                <div class="resource-loading">
+                    <div class="resource-spinner"></div>
+                    <p>Loading results...</p>
+                </div>
+            `;
+        }
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+</script>
 @endsection
