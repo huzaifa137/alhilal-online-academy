@@ -290,7 +290,20 @@ Route::middleware(['AdminAuth'])->prefix('student')->name('student.')->group(fun
     // Lesson list (enrolled + paid)
     Route::get('/lessons/lists', [\App\Http\Controllers\Student\StudentEnrollmentController::class, 'studentLessonList'])->name('lessons.lists');
 
+    // Student lesson show (individual lesson view)
+    Route::get('/lessons/{lesson}', [\App\Http\Controllers\Student\StudentEnrollmentController::class, 'showLesson'])->name('lessons.show');
+
+    // Student progress tracking
+    Route::post('/lessons/{lesson}/start', [\App\Http\Controllers\Student\StudentEnrollmentController::class, 'startLesson'])->name('lessons.start');
+    Route::post('/lessons/{lesson}/complete', [\App\Http\Controllers\Student\StudentEnrollmentController::class, 'completeLesson'])->name('lessons.complete');
+    Route::post('/lessons/{lesson}/progress', [\App\Http\Controllers\Student\StudentEnrollmentController::class, 'updateProgress'])->name('lessons.progress');
+
     // Payments
     Route::post('/pay-class', [\App\Http\Controllers\Student\StudentEnrollmentController::class, 'payForClass'])->name('pay-class');
     Route::post('/pay-lesson', [\App\Http\Controllers\Student\StudentEnrollmentController::class, 'payForLesson'])->name('pay-lesson');
 });
+
+
+Route::get('/privacy-policy', [\App\Http\Controllers\LevelController::class, 'index'])
+    ->name('privacy-policy');
+    

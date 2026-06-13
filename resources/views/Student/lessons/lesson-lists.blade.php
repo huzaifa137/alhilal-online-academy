@@ -319,9 +319,9 @@
                                                 <i class="fas fa-credit-card"></i> Pay
                                             </button>
                                         @else
-                                            <button class="sl-btn-view" onclick="alert('Opening lesson: {{ addslashes($lesson->title) }}')">
-                                                <i class="fas fa-play"></i> {{ $progress === 'completed' ? 'Review' : 'Start Lesson' }}
-                                            </button>
+                                            <a href="{{ route('student.lessons.show', $lesson) }}" class="sl-btn-view">
+                                                <i class="fas fa-play"></i> {{ $progress === 'completed' ? 'Review' : ($progress === 'in_progress' ? 'Continue' : 'Start Lesson') }}
+                                            </a>
                                         @endif
                                     </div>
                                 </div>

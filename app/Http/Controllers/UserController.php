@@ -12,6 +12,16 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Mail;
+use App\Models\Academic\ClassModel;
+use App\Models\Academic\ClassEnrollment;
+use App\Models\Academic\Lesson;
+use App\Models\Academic\Subject;
+use App\Models\Academic\Topic;
+use App\Models\Academic\Exam;
+use App\Models\Academic\AcademicYear;
+use App\Models\Academic\Section;
+use App\Models\Academic\Level;
+use App\Models\Academic\StudentProgress;
 
 
 class UserController extends Controller
@@ -148,8 +158,54 @@ class UserController extends Controller
 
     public function dashboard()
     {
-       
-        return view('Admin.dashboard');
+        // Users
+        $totalStudents  = \App\Models\User::where('user_role', 1)->count();
+        $totalTeachers  = \App\Models\User::where('user_role', 2)->count();
+        $totalAdmins    = \App\Models\User::whereIn('user_role', [0, 3])->count();
+        $totalUsers     = \App\Models\User::count();
+
+        // Academic
+        $totalClasses   = \App\Models\Academic\ClassModel::where('status', 'active')->count();
+        $totalLessons   = \App\Models\Academic\Lesson::count();
+        $publishedLessons = \App\Models\Academic\Lesson::where('status', 'published')->count();
+        $totalSubjects  = \App\Models\Academic\Subject::where('status', 'active')->count();
+        $totalTopics    = \App\Models\Academic\Topic::where('status', 'published')->count();
+        $totalExams     = \App\Models\Academic\Exam::count();
+        $totalEnrollments = \App\Models\Academic\ClassEnrollment::where('status', 'active')->count();
+
+        // Progress
+        $totalCompletions = \App\Models\Academic\StudentProgress::where('status', 'completed')->count();
+        $totalProgressRecords = \App\Models\Academic\StudentProgress::count();
+        $overallCompletionRate = $totalProgressRecords > 0
+            ? round(($totalCompletions / $totalProgressRecords) * 100) : 0;
+
+        // Recent users
+        $recentStudents = \App\Models\User::where('user_role', 1)
+            ->orderByDesc('created_at')->limit(8)->get();
+
+        // Recent lessons
+        $recentLessons = \App\Models\Academic\Lesson::with(['topic.subject', 'teacher'])
+            ->orderByDesc('created_at')->limit(6)->get();
+
+        // Recent enrollments
+        $recentEnrollments = \App\Models\Academic\ClassEnrollment::with(['student', 'class'])
+            ->orderByDesc('created_at')->limit(6)->get();
+
+        // Active academic year
+        $currentAcademicYear = \App\Models\Academic\AcademicYear::where('is_current', true)->first();
+
+        // Sections & levels counts
+        $totalSections = \App\Models\Academic\Section::where('status', 'active')->count();
+        $totalLevels   = \App\Models\Academic\Level::where('status', 'active')->count();
+
+        return view('Admin.dashboard', compact(
+            'totalStudents', 'totalTeachers', 'totalAdmins', 'totalUsers',
+            'totalClasses', 'totalLessons', 'publishedLessons',
+            'totalSubjects', 'totalTopics', 'totalExams', 'totalEnrollments',
+            'totalCompletions', 'overallCompletionRate',
+            'recentStudents', 'recentLessons', 'recentEnrollments',
+            'currentAcademicYear', 'totalSections', 'totalLevels'
+        ));
     }
 
     public function checkUser(Request $request)
@@ -226,7 +282,13 @@ class UserController extends Controller
 
     public function homePage()
     {
-        return view('home-page');
+        $totalStudents  = \App\Models\User::where('user_role', 1)->count();
+        $totalTeachers  = \App\Models\User::where('user_role', 2)->count();
+        $totalLessons   = \App\Models\Academic\Lesson::where('status', 'published')->count();
+        $totalClasses   = \App\Models\Academic\ClassModel::where('status', 'active')->count();
+        $totalSubjects  = \App\Models\Academic\Subject::where('status', 'active')->count();
+        $currentAcademicYear = \App\Models\Academic\AcademicYear::where('is_current', true)->first();
+        return view('home-page', compact('totalStudents', 'totalTeachers', 'totalLessons', 'totalClasses', 'totalSubjects', 'currentAcademicYear'));
     }
 
     public function editUserInformation()

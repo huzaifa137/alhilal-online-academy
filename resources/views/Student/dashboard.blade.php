@@ -12,7 +12,7 @@
                     <i class="fas fa-circle-check"></i>
                     You completed 3 lessons this week
                 </div>
-                <h1>Continue Your<br>Islamic Journey</h1>
+                <h1>Welcome Back,<br>{{ $student->firstname ?? ($student->fullname ?? "Student") }}</h1>
                 <p>You're 72% through <strong style="color:rgba(255,255,255,0.85);">Tafsir — Chapter 5</strong>. Pick
                     up right where you left off and keep your streak alive!</p>
             </div>
@@ -34,7 +34,7 @@
                     <div class="sd-stat-icon sd-stat-icon-purple"><i class="fas fa-play-circle"></i></div>
                     <div class="sd-stat-trend sd-trend-up"><i class="fas fa-arrow-up"></i> 12%</div>
                 </div>
-                <div class="sd-stat-num" data-count="34">34</div>
+                <div class="sd-stat-num">{{ $completedLessons ?? 0 }}</div>
                 <div class="sd-stat-label">Lessons Completed</div>
                 <div class="sd-stat-bar">
                     <div class="sd-stat-bar-fill" style="width:68%;"></div>
@@ -45,7 +45,7 @@
                     <div class="sd-stat-icon sd-stat-icon-green"><i class="fas fa-check-circle"></i></div>
                     <div class="sd-stat-trend sd-trend-up"><i class="fas fa-arrow-up"></i> 8%</div>
                 </div>
-                <div class="sd-stat-num" data-count="28">28</div>
+                <div class="sd-stat-num">{{ $quizzesPassed ?? 0 }}</div>
                 <div class="sd-stat-label">Quizzes Passed</div>
                 <div class="sd-stat-bar">
                     <div class="sd-stat-bar-fill" style="width:78%;background:var(--gradient-green);"></div>
@@ -56,8 +56,8 @@
                     <div class="sd-stat-icon sd-stat-icon-gold"><i class="fas fa-award"></i></div>
                     <div class="sd-stat-trend sd-trend-up"><i class="fas fa-arrow-up"></i> 1 new</div>
                 </div>
-                <div class="sd-stat-num" data-count="3">3</div>
-                <div class="sd-stat-label">Certificates Earned</div>
+                <div class="sd-stat-num">{{ $enrolledClasses ?? 0 }}</div>
+                <div class="sd-stat-label">Enrolled Classes</div>
                 <div class="sd-stat-bar">
                     <div class="sd-stat-bar-fill" style="width:60%;background:var(--gradient-gold);"></div>
                 </div>
@@ -67,7 +67,7 @@
                     <div class="sd-stat-icon sd-stat-icon-red"><i class="fas fa-star"></i></div>
                     <div class="sd-stat-trend sd-trend-up"><i class="fas fa-arrow-up"></i> 5pts</div>
                 </div>
-                <div class="sd-stat-num" data-count="87">87</div>
+                <div class="sd-stat-num">{{ $avgScore ?? 0 }}</div>
                 <div class="sd-stat-label">Avg. Quiz Score %</div>
                 <div class="sd-stat-bar">
                     <div class="sd-stat-bar-fill" style="width:87%;"></div>
@@ -526,7 +526,7 @@
                     <i class="fas fa-circle-check"></i>
                     You completed 3 lessons this week
                 </div>
-                <h1>Continue Your<br>Islamic Journey</h1>
+                <h1>Welcome Back,<br>{{ $student->firstname ?? ($student->fullname ?? "Student") }}</h1>
                 <p>You're 72% through <strong style="color:rgba(255,255,255,0.85);">Tafsir — Chapter 5</strong>. Pick
                     up right where you left off and keep your streak alive!</p>
             </div>
