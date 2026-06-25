@@ -52,16 +52,17 @@ class QuizController extends Controller
 
     public function createLesson(Request $request)
     {
-        $teacherId = Session('LoggedTeacher');
-        $type = $request->type; // 'lesson' or 'class'
-        $lessonId = $request->lesson_id; // Get lesson_id from query parameter
+        $teacherSession = Session('LoggedTeacher');
+        $teacherId = is_object($teacherSession) ? $teacherSession->id : $teacherSession;
+
+        $type = $request->type;
+        $lessonId = $request->lesson_id;
 
         $lesson = null;
         $selectedTopicId = null;
         $selectedClassId = null;
         $selectedSubjectId = null;
 
-        // If it's a lesson type and lesson_id is provided, fetch the lesson
         if ($type === 'lesson' && $lessonId) {
             $lesson = Lesson::with(['topic.class', 'topic.subject'])->findOrFail($lessonId);
             $selectedTopicId = $lesson->topic_id;
@@ -69,24 +70,37 @@ class QuizController extends Controller
             $selectedSubjectId = $lesson->topic->subject_id ?? null;
         }
 
-        // Get classes assigned to this teacher with their subjects
-        $classes = ClassModel::whereHas('subjects', function ($query) use ($teacherId) {
-            $query->where('class_subjects.teacher_id', $teacherId);
-        })
-            ->with([
-                'level',
-                'subjects' => function ($query) use ($teacherId) {
-                    $query->where('class_subjects.teacher_id', $teacherId);
-                }
-            ])
-            ->where('status', 'active')
+        // Use the existing subjects() BelongsToMany with pivot teacher_id filter
+        // $classes = ClassModel::whereHas('subjects', function ($query) use ($teacherId) {
+        //         $query->where('class_subjects.teacher_id', $teacherId);
+        //     })
+        //     ->with([
+        //         'level',
+        //         'subjects' => function ($query) use ($teacherId) {
+        //             $query->where('class_subjects.teacher_id', $teacherId);
+        //         }
+        //     ])
+        //     ->where('status', 'active')
+        //     ->orderBy('name')
+        //     ->get();
+
+        $classes = ClassModel::where('status', 'active')
             ->orderBy('name')
             ->get();
 
         $subjects = Subject::where('status', 'active')->orderBy('name')->get();
 
-        return view('Teacher.quizzes.create', compact('type', 'lesson', 'classes', 'subjects', 'selectedTopicId', 'selectedClassId', 'selectedSubjectId'));
+        return view('Teacher.quizzes.create', compact(
+            'type',
+            'lesson',
+            'classes',
+            'subjects',
+            'selectedTopicId',
+            'selectedClassId',
+            'selectedSubjectId'
+        ));
     }
+
 
     /**
      * Store a new quiz
@@ -108,7 +122,7 @@ class QuizController extends Controller
             'available_from' => 'nullable|date',
             'available_to' => 'nullable|date|after:available_from',
             'instructions' => 'nullable|string',
-            'max_attempts' => 'nullable|integer|min:1|max:10',
+            'max_attempts' => 'nullable|integer|min:1',
         ]);
 
         if ($validator->fails()) {
@@ -135,7 +149,7 @@ class QuizController extends Controller
             'allow_late_submission' => true,
             'shuffle_questions' => $request->shuffle_questions ?? false,
             'status' => 'draft',
-            'max_attempts' => $request->max_attempts ?? 3,
+            'max_attempts' => $request->max_attempts ?? 20000,
         ]);
 
         return response()->json([
@@ -247,7 +261,7 @@ class QuizController extends Controller
             'available_to' => 'nullable|date|after:available_from',
             'instructions' => 'nullable|string',
             'status' => 'required|in:draft,published,closed',
-            'max_attempts' => 'nullable|integer|min:1|max:10',
+            'max_attempts' => 'nullable|integer|min:1',
         ]);
 
         if ($validator->fails()) {
@@ -267,7 +281,7 @@ class QuizController extends Controller
             'instructions' => $request->instructions,
             'shuffle_questions' => $request->shuffle_questions ?? false,
             'status' => $request->status,
-            'max_attempts' => $request->max_attempts ?? 3,
+            'max_attempts' => $request->max_attempts ?? 20000,
         ]);
 
         return response()->json([

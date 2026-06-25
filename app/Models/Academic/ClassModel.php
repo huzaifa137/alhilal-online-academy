@@ -48,7 +48,7 @@ class ClassModel extends Model
     public function subjects(): BelongsToMany
     {
         return $this->belongsToMany(Subject::class, 'class_subjects', 'class_id', 'subject_id')
-            ->withPivot(['teacher_id', 'periods_per_week', 'is_compulsory', 'passing_marks', 'full_marks'])
+            ->withPivot(['teacher_id', 'periods_per_week', 'is_compulsory', 'passing_marks', 'full_marks', 'status'])
             ->withTimestamps();
     }
 
@@ -84,5 +84,11 @@ class ClassModel extends Model
     public function scopeCurrentAcademicYear($query)
     {
         return $query->whereHas('academicYear', fn($q) => $q->where('is_current', true));
+    }
+
+    public function classSubjects()
+    {
+        return $this->hasMany(\Illuminate\Database\Eloquent\Relations\Pivot::class, 'class_id')
+            ->from('class_subjects'); // still awkward
     }
 }

@@ -25,6 +25,8 @@ class SettingsController extends Controller
             'classes' => ClassModel::count(),
             'subjects' => Subject::count(),
             'topics' => Topic::count(),
+            'class_teachers' => ClassModel::whereNotNull('class_teacher_id')->count(),
+            'subject_assignments' => DB::table('class_subjects')->whereNotNull('teacher_id')->count(),
         ];
 
         return view('Teacher.settings.index', compact('stats'));

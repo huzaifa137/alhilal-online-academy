@@ -521,6 +521,44 @@
         .ls-info-val {
             color: var(--muted)
         }
+
+        /* Add to your existing styles in the ls-wrap section */
+
+.ls-wrap {
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    max-width: 1100px;
+    margin: 0 auto;  /* This centers the container */
+    padding: 0 20px; /* Adds some breathing room on smaller screens */
+    width: 100%;
+}
+
+/* Also ensure the parent container doesn't restrict centering */
+.sd-content {
+    padding: 28px;
+    flex: 1;
+    max-width: 100%;
+    display: flex;
+    justify-content: center; /* Centers the child content */
+}
+
+/* Make the ls-wrap fill its container properly */
+.sd-content .ls-wrap {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px; /* Consistent padding */
+}
+
+/* Optional: Adjust responsive behavior */
+@media (max-width: 768px) {
+    .sd-content {
+        padding: 16px;
+    }
+    .sd-content .ls-wrap {
+        padding: 0 12px;
+    }
+}
     </style>
 
     <div class="ls-wrap">

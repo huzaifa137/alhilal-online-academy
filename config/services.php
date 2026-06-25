@@ -30,4 +30,16 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | MarzPay — Uganda Payment Gateway
+    |--------------------------------------------------------------------------
+    */
+    'marzpay' => [
+        'base_url'            => env('MARZPAY_BASE_URL', 'https://wallet.wearemarz.com/api/v1'),
+        'api_key'             => env('MARZPAY_API_KEY'),
+        'api_secret'          => env('MARZPAY_API_SECRET'),
+        'base64_credentials'  => env('MARZPAY_BASE64_CREDENTIALS'),
+    ],
+
 ];

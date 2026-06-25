@@ -1,21 +1,23 @@
 <?php
 
-namespace App\Http\Controllers\Student;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Academic\ClassEnrollment;
 use App\Models\Academic\ClassModel;
 use App\Models\Academic\Exam;
-use App\Models\Academic\ExamResult;
+use App\Models\Academic\ClassStudent;
 use App\Models\Academic\Lesson;
 use App\Models\Academic\StudentProgress;
 use Illuminate\Http\Request;
 
-class StudentEnrollmentController extends Controller
+class StudentLessonController extends Controller
+
 {
     // ── Browse available classes ──────────────────────────────────────
     public function browseClasses()
     {
+
         $studentId = session('LoggedStudent');
 
         $classes = ClassModel::with(['level', 'level.section', 'subjects'])
@@ -53,12 +55,12 @@ class StudentEnrollmentController extends Controller
         $class = ClassModel::findOrFail($request->class_id);
 
         ClassEnrollment::create([
-            'class_id'        => $request->class_id,
-            'student_id'      => $studentId,
+            'class_id' => $request->class_id,
+            'student_id' => $studentId,
             'enrollment_date' => now(),
-            'status'          => 'active',
-            'payment_status'  => 'pending',
-            'amount_paid'     => 0,
+            'status' => 'active',
+            'payment_status' => 'pending',
+            'amount_paid' => 0,
         ]);
 
         return response()->json([
@@ -79,24 +81,25 @@ class StudentEnrollmentController extends Controller
             ->get();
 
         $groupedLessons = [];
-        $totalLessons    = 0;
+        $totalLessons = 0;
         $completedLessons = 0;
 
         foreach ($enrollments as $enrollment) {
             $class = $enrollment->class;
-            if (!$class) continue;
+            if (!$class)
+                continue;
 
-            $classPaid   = strtolower($enrollment->payment_status) === 'paid';
-            $className   = $class->name;
+            $classPaid = strtolower($enrollment->payment_status) === 'paid';
+            $className = $class->name;
 
             if (!isset($groupedLessons[$className])) {
                 $groupedLessons[$className] = [
-                    'class_id'    => $class->id,
-                    'level'       => $class->level->name ?? '',
-                    'class_paid'  => $classPaid,
+                    'class_id' => $class->id,
+                    'level' => $class->level->name ?? '',
+                    'class_paid' => $classPaid,
                     'class_pending' => !$classPaid,
-                    'enrollment'  => $enrollment,
-                    'subjects'    => [],
+                    'enrollment' => $enrollment,
+                    'subjects' => [],
                 ];
             }
 
@@ -108,32 +111,33 @@ class StudentEnrollmentController extends Controller
                 ]),
                 'resources',
             ])
-            ->whereHas('topic', fn($q) => $q->where('class_id', $class->id))
-            ->where('status', 'published')
-            ->orderBy('lesson_order')
-            ->get();
+                ->whereHas('topic', fn($q) => $q->where('class_id', $class->id))
+                ->where('status', 'published')
+                ->orderBy('lesson_order')
+                ->get();
 
             foreach ($lessons as $lesson) {
-                if (!$lesson->topic || !$lesson->topic->subject) continue;
+                if (!$lesson->topic || !$lesson->topic->subject)
+                    continue;
 
                 $totalLessons++;
 
                 $subjectName = $lesson->topic->subject->name;
-                $topicName   = $lesson->topic->title;
+                $topicName = $lesson->topic->title;
 
                 if (!isset($groupedLessons[$className]['subjects'][$subjectName])) {
                     $groupedLessons[$className]['subjects'][$subjectName] = [
-                        'subject_id'   => $lesson->topic->subject->id,
+                        'subject_id' => $lesson->topic->subject->id,
                         'subject_code' => $lesson->topic->subject->code ?? '',
-                        'topics'       => [],
+                        'topics' => [],
                     ];
                 }
 
                 if (!isset($groupedLessons[$className]['subjects'][$subjectName]['topics'][$topicName])) {
                     $groupedLessons[$className]['subjects'][$subjectName]['topics'][$topicName] = [
-                        'topic_id'          => $lesson->topic->id,
+                        'topic_id' => $lesson->topic->id,
                         'topic_description' => $lesson->topic->description,
-                        'lessons'           => [],
+                        'lessons' => [],
                     ];
                 }
 
@@ -172,8 +176,8 @@ class StudentEnrollmentController extends Controller
     public function payForClass(Request $request)
     {
         $request->validate([
-            'class_id'       => 'required|exists:classes,id',
-            'amount'         => 'required|numeric|min:0',
+            'class_id' => 'required|exists:classes,id',
+            'amount' => 'required|numeric|min:0',
             'payment_method' => 'required|in:mtn,airtel,card',
         ]);
 
@@ -194,7 +198,7 @@ class StudentEnrollmentController extends Controller
 
         $enrollment->update([
             'payment_status' => 'paid',
-            'amount_paid'    => $request->amount,
+            'amount_paid' => $request->amount,
         ]);
 
         return response()->json([
@@ -207,17 +211,17 @@ class StudentEnrollmentController extends Controller
     public function payForLesson(Request $request)
     {
         $request->validate([
-            'lesson_id'      => 'required|exists:lessons,id',
-            'amount'         => 'required|numeric|min:0',
+            'lesson_id' => 'required|exists:lessons,id',
+            'amount' => 'required|numeric|min:0',
             'payment_method' => 'required|in:mtn,airtel,card',
-            'required_amount'=> 'required|numeric|min:0',
+            'required_amount' => 'required|numeric|min:0',
         ]);
 
         $studentId = session('LoggedStudent');
 
         $lesson = Lesson::findOrFail($request->lesson_id);
 
-        if ((float)$request->amount < (float)$request->required_amount) {
+        if ((float) $request->amount < (float) $request->required_amount) {
             return response()->json([
                 'success' => false,
                 'message' => 'Insufficient amount. Required: UGX ' . number_format($request->required_amount),
@@ -226,7 +230,7 @@ class StudentEnrollmentController extends Controller
 
         $lesson->update([
             'lesson_payment_status' => 'Paid',
-            'lesson_amount'         => $request->required_amount,
+            'lesson_amount' => $request->required_amount,
         ]);
 
         return response()->json([
@@ -238,14 +242,18 @@ class StudentEnrollmentController extends Controller
     // ── Show a specific lesson (student lesson view) ──────────────────
     public function showLesson(Lesson $lesson)
     {
+        
         $studentId = session('LoggedStudent');
 
         // Load all relationships
         $lesson->load([
             'topic' => function ($q) {
-                $q->with(['subject', 'class' => function ($cq) {
-                    $cq->with(['level', 'academicYear']);
-                }]);
+                $q->with([
+                    'subject',
+                    'class' => function ($cq) {
+                        $cq->with(['level', 'academicYear']);
+                    }
+                ]);
             },
             'resources',
             'teacher',
@@ -262,10 +270,10 @@ class StudentEnrollmentController extends Controller
         // Auto-create progress record as "in_progress" when student opens the lesson
         if (!$progress) {
             $progress = StudentProgress::create([
-                'student_id'  => $studentId,
-                'lesson_id'   => $lesson->id,
-                'status'      => 'in_progress',
-                'started_at'  => now(),
+                'student_id' => $studentId,
+                'lesson_id' => $lesson->id,
+                'status' => 'in_progress',
+                'started_at' => now(),
                 'time_spent_seconds' => 0,
             ]);
         } elseif ($progress->status === 'not_started') {
@@ -292,7 +300,11 @@ class StudentEnrollmentController extends Controller
             ->keyBy('exam_id');
 
         return view('Student.lessons.show', compact(
-            'lesson', 'progress', 'prevLesson', 'nextLesson', 'quizResults'
+            'lesson',
+            'progress',
+            'prevLesson',
+            'nextLesson',
+            'quizResults'
         ));
     }
 
@@ -317,9 +329,9 @@ class StudentEnrollmentController extends Controller
         $progress = StudentProgress::updateOrCreate(
             ['student_id' => $studentId, 'lesson_id' => $lesson->id],
             [
-                'status'       => 'completed',
+                'status' => 'completed',
                 'completed_at' => now(),
-                'started_at'   => now(),
+                'started_at' => now(),
                 'time_spent_seconds' => $request->time_spent ?? 0,
             ]
         );
@@ -333,8 +345,10 @@ class StudentEnrollmentController extends Controller
         $studentId = session('LoggedStudent');
 
         $data = ['status' => 'in_progress'];
-        if ($request->has('last_position')) $data['last_position_seconds'] = $request->last_position;
-        if ($request->has('time_spent'))   $data['time_spent_seconds']     = $request->time_spent;
+        if ($request->has('last_position'))
+            $data['last_position_seconds'] = $request->last_position;
+        if ($request->has('time_spent'))
+            $data['time_spent_seconds'] = $request->time_spent;
 
         $progress = StudentProgress::updateOrCreate(
             ['student_id' => $studentId, 'lesson_id' => $lesson->id],

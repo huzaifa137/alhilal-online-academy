@@ -352,7 +352,7 @@
         }
     </style>
 
-  <div class="qz-create-wrap">
+    <div class="qz-create-wrap">
         {{-- Page Header --}}
         <div class="qz-page-header">
             <div>
@@ -391,7 +391,7 @@
                 <form id="quizForm" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="exam_type" value="quiz">
-                    
+
                     {{-- IMPORTANT: Pass lesson_id and topic_id when creating lesson-based quiz --}}
                     @if($type === 'lesson' && $lesson)
                         <input type="hidden" name="type" value="lesson">
@@ -399,7 +399,7 @@
                         <input type="hidden" name="topic_id" value="{{ $lesson->topic_id }}">
                         <input type="hidden" name="class_id" value="{{ $lesson->topic->class_id ?? '' }}">
                         <input type="hidden" name="subject_id" value="{{ $lesson->topic->subject_id ?? '' }}">
-                        
+
                         <div class="qz-info-note">
                             <i class="fas fa-info-circle"></i>
                             <p>
@@ -411,14 +411,15 @@
                         </div>
                     @else
                         <input type="hidden" name="type" value="class">
-                        
+
                         <div class="fg-row">
                             <div class="fg">
                                 <label>Class <span class="required">*</span></label>
                                 <select id="classSelect" name="class_id" required>
                                     <option value="">-- Select a class --</option>
                                     @foreach($classes as $class)
-                                        <option value="{{ $class->id }}">{{ $class->name }} ({{ $class->level->name ?? 'N/A' }})</option>
+                                        <option value="{{ $class->id }}">{{ $class->name }} ({{ $class->level->name ?? 'N/A' }})
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -452,13 +453,14 @@
                     <div class="fg-row">
                         <div class="fg">
                             <label>Duration (minutes)</label>
-                            <input type="number" name="duration_minutes" placeholder="30" min="1">
+                            <input type="number" name="duration_minutes" placeholder="120" min="1">
                             <small>Leave empty for no time limit</small>
                         </div>
 
                         <div class="fg">
                             <label>Max Attempts</label>
-                            <input type="number" name="max_attempts" placeholder="3" min="1" max="10" value="3" readonly>
+                            <input type="number" name="max_attempts" placeholder="3" min="1" max="10" value="200000"
+                                readonly style="background-color: #e9ecef; color: #6c757d; cursor: not-allowed;">
                             <small>Number of times student can retake</small>
                         </div>
                     </div>
@@ -501,53 +503,53 @@
         </div>
     </div>
 
-   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         @if($type !== 'lesson')
-        // Load subjects for selected class (only for class-based quizzes)
-        document.getElementById('classSelect').addEventListener('change', async function () {
-            const classId = this.value;
-            const subjectSelect = document.getElementById('subjectSelect');
+            // Load subjects for selected class (only for class-based quizzes)
+            document.getElementById('classSelect').addEventListener('change', async function () {
+                const classId = this.value;
+                const subjectSelect = document.getElementById('subjectSelect');
 
-            subjectSelect.innerHTML = '<option value="">Loading subjects...</option>';
-            subjectSelect.disabled = true;
-
-            if (!classId) {
-                subjectSelect.innerHTML = '<option value="">-- First select a class --</option>';
-                return;
-            }
-
-            try {
-                const response = await fetch(`/teacher/lessons/classes/${classId}/subjects`);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-
-                subjectSelect.innerHTML = '<option value="">-- Select a subject --</option>';
-
-                if (data.subjects && data.subjects.length > 0) {
-                    data.subjects.forEach(subject => {
-                        const option = document.createElement('option');
-                        option.value = subject.id;
-                        option.textContent = `${subject.name} (${subject.code || ''})`;
-                        subjectSelect.appendChild(option);
-                    });
-                    subjectSelect.disabled = false;
-                } else {
-                    subjectSelect.innerHTML = '<option value="" disabled>-- No subjects assigned to this class --</option>';
-                    subjectSelect.disabled = true;
-                }
-            } catch (error) {
-                console.error('Error loading subjects:', error);
-                subjectSelect.innerHTML = '<option value="" disabled>Error loading subjects</option>';
+                subjectSelect.innerHTML = '<option value="">Loading subjects...</option>';
                 subjectSelect.disabled = true;
-                Swal.fire('Error', 'Failed to load subjects for this class.', 'error');
-            }
-        });
+
+                if (!classId) {
+                    subjectSelect.innerHTML = '<option value="">-- First select a class --</option>';
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/teacher/lessons/classes/${classId}/subjects`);
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    subjectSelect.innerHTML = '<option value="">-- Select a subject --</option>';
+
+                    if (data.subjects && data.subjects.length > 0) {
+                        data.subjects.forEach(subject => {
+                            const option = document.createElement('option');
+                            option.value = subject.id;
+                            option.textContent = `${subject.name} (${subject.code || ''})`;
+                            subjectSelect.appendChild(option);
+                        });
+                        subjectSelect.disabled = false;
+                    } else {
+                        subjectSelect.innerHTML = '<option value="" disabled>-- No subjects assigned to this class --</option>';
+                        subjectSelect.disabled = true;
+                    }
+                } catch (error) {
+                    console.error('Error loading subjects:', error);
+                    subjectSelect.innerHTML = '<option value="" disabled>Error loading subjects</option>';
+                    subjectSelect.disabled = true;
+                    Swal.fire('Error', 'Failed to load subjects for this class.', 'error');
+                }
+            });
         @endif
 
         // Form submission using AJAX
@@ -555,15 +557,15 @@
             e.preventDefault();
 
             @if($type !== 'lesson')
-            // Validate subject is selected for class-based quizzes
-            const subjectSelect = $('#subjectSelect');
-            if (!subjectSelect.val()) {
-                Swal.fire('Error', 'Please select a subject.', 'error');
-                return;
-            }
+                // Validate subject is selected for class-based quizzes
+                const subjectSelect = $('#subjectSelect');
+                if (!subjectSelect.val()) {
+                    Swal.fire('Error', 'Please select a subject.', 'error');
+                    return;
+                }
             @endif
 
-            const submitBtn = $('#submitBtn');
+                    const submitBtn = $('#submitBtn');
             const originalText = submitBtn.html();
 
             submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Creating...');
@@ -617,6 +619,9 @@
                     submitBtn.html(originalText);
                     submitBtn.prop('disabled', false);
                 }
+                //                 error: function(data) {
+                // $('body').html(data.responseText);
+                // }
             });
         });
     </script>

@@ -7,10 +7,13 @@ use App\Http\Controllers\Teacher\TeacherLessonController;
 use App\Http\Controllers\Teacher\SettingsController;
 use App\Http\Controllers\Teacher\ExamController;
 use App\Http\Controllers\Teacher\QuizController;
+use App\Http\Controllers\Teacher\ClassAssignmentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\Admin\SectionController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\StudentLessonController;
+use App\Http\Controllers\Student\PaymentController;
 
 use Illuminate\Support\Facades\Session;
 
@@ -161,7 +164,6 @@ Route::middleware(['AdminAuth'])->prefix('teacher')->name('teacher.')->group(fun
         Route::get('/classes/{classId}/subjects', 'getAvailableClassSubjects')->name('class.subjects');
         Route::get('/classes/{classId}/subjects/{subjectId}/topics', 'getSubjectTopics')->name('subject.topics');
 
-
         Route::prefix('progress')->name('progress.')->controller(\App\Http\Controllers\Teacher\StudentProgressController::class)->group(function () {
             Route::post('/mark-completed', 'markCompleted')->name('mark-completed');
             Route::post('/update', 'updateProgress')->name('update');
@@ -198,6 +200,7 @@ Route::middleware(['AdminAuth'])
             Route::get('/', 'index')->name('index');
             Route::get('/lists', 'lessonList')->name('lists');
             Route::get('/create', 'createLesson')->name('create');
+            Route::get('/classes/{classId}/subjects', 'getClassSubjects')->name('classes.subjects');
             Route::post('/store', 'store')->name('store');
             Route::get('/{lesson}', 'showLesson')->name('show');
             Route::post('/process-payment', 'processPayment')->name('process-payment');
@@ -250,6 +253,25 @@ Route::middleware(['AdminAuth'])
             Route::delete('/topics/{topic}', 'destroyTopic')->name('topics.destroy');
         });
 
+        // Class Assignments: teachers <-> classes <-> subjects
+        Route::prefix('settings')
+            ->name('settings.')
+            ->controller(ClassAssignmentController::class)
+            ->group(function () {
+
+            Route::get('/teachers', 'getTeachers')->name('teachers');
+
+            // Homeroom / class teacher assignment (classes.class_teacher_id)
+            Route::get('/class-teachers', 'getClassTeacherAssignments')->name('class-teachers');
+            Route::post('/class-teachers/{class}', 'assignClassTeacher')->name('class-teachers.assign');
+
+            // Class + Subject + Teacher assignment (class_subjects table)
+            Route::get('/subject-assignments', 'getSubjectAssignments')->name('subject-assignments');
+            Route::post('/subject-assignments', 'storeSubjectAssignment')->name('subject-assignments.store');
+            Route::put('/subject-assignments/{classSubject}', 'updateSubjectAssignment')->name('subject-assignments.update');
+            Route::delete('/subject-assignments/{classSubject}', 'destroySubjectAssignment')->name('subject-assignments.destroy');
+        });
+
 
         // Quiz Management Routes
         Route::prefix('quizzes')->name('quizzes.')->controller(QuizController::class)->group(function () {
@@ -281,29 +303,59 @@ Route::middleware(['AdminAuth'])->prefix('exams')->name('exams.')->controller(Ex
 
 
 // ─── Student Routes ──────────────────────────────────────────────────────────
-Route::middleware(['AdminAuth'])->prefix('student')->name('student.')->group(function () {
 
-    // Classes browsing + enrollment
-    Route::get('/classes/browse', [\App\Http\Controllers\Student\StudentEnrollmentController::class, 'browseClasses'])->name('classes.browse');
-    Route::post('/enroll', [\App\Http\Controllers\Student\StudentEnrollmentController::class, 'selfEnroll'])->name('enroll');
+Route::middleware(['AdminAuth'])
+    ->prefix('student')
+    ->name('student.')
+    ->group(function () {
 
-    // Lesson list (enrolled + paid)
-    Route::get('/lessons/lists', [\App\Http\Controllers\Student\StudentEnrollmentController::class, 'studentLessonList'])->name('lessons.lists');
+        Route::controller(StudentLessonController::class)->group(function () {
 
-    // Student lesson show (individual lesson view)
-    Route::get('/lessons/{lesson}', [\App\Http\Controllers\Student\StudentEnrollmentController::class, 'showLesson'])->name('lessons.show');
+            // Classes browsing + enrollment
+            Route::get('/classes/browse', 'browseClasses')
+                ->name('classes.browse');
 
-    // Student progress tracking
-    Route::post('/lessons/{lesson}/start', [\App\Http\Controllers\Student\StudentEnrollmentController::class, 'startLesson'])->name('lessons.start');
-    Route::post('/lessons/{lesson}/complete', [\App\Http\Controllers\Student\StudentEnrollmentController::class, 'completeLesson'])->name('lessons.complete');
-    Route::post('/lessons/{lesson}/progress', [\App\Http\Controllers\Student\StudentEnrollmentController::class, 'updateProgress'])->name('lessons.progress');
+            Route::post('/enroll', 'selfEnroll')
+                ->name('enroll');
 
-    // Payments
-    Route::post('/pay-class', [\App\Http\Controllers\Student\StudentEnrollmentController::class, 'payForClass'])->name('pay-class');
-    Route::post('/pay-lesson', [\App\Http\Controllers\Student\StudentEnrollmentController::class, 'payForLesson'])->name('pay-lesson');
-});
+            // Lesson list (enrolled + paid)
+            Route::get('/lessons/lists', 'studentLessonList')
+                ->name('lessons.lists');
+
+            // Student lesson show (individual lesson view)
+            Route::get('/lessons/{lesson}', 'showLesson')
+                ->name('lessons.show');
+
+            // Student progress tracking
+            Route::post('/lessons/{lesson}/start', 'startLesson')
+                ->name('lessons.start');
+
+            Route::post('/lessons/{lesson}/complete', 'completeLesson')
+                ->name('lessons.complete');
+
+            Route::post('/lessons/{lesson}/progress', 'updateProgress')
+                ->name('lessons.progress');
+        });
+
+        Route::controller(PaymentController::class)->group(function () {
+
+            // MarzPay Payment Routes
+            Route::post('/pay-class', 'initiateClassPayment')
+                ->name('pay-class');
+
+            Route::post('/pay-lesson', 'initiateLessonPayment')
+                ->name('pay-lesson');
+
+            Route::get('/payment/status', 'checkStatus')
+                ->name('payment.status');
+        });
+
+    });
 
 
-Route::get('/privacy-policy', [\App\Http\Controllers\LevelController::class, 'index'])
+Route::get('/privacy-policy', [LevelController::class, 'index'])
     ->name('privacy-policy');
-    
+
+// ─── MarzPay Webhook (no auth, CSRF excluded via VerifyCsrfToken::$except) ───
+Route::post('/payment/webhook', [PaymentController::class, 'webhook'])
+    ->name('payment.webhook');

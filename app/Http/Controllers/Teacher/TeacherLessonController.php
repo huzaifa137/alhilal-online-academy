@@ -267,7 +267,7 @@ class TeacherLessonController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('Teacher.lessons.show', compact('lesson', 'prevLesson', 'nextLesson', 'totalStudents', 'completedCount', 'recentCompletions','lessonQuizzes'));
+        return view('Teacher.lessons.show', compact('lesson', 'prevLesson', 'nextLesson', 'totalStudents', 'completedCount', 'recentCompletions', 'lessonQuizzes'));
     }
 
 
@@ -341,7 +341,7 @@ class TeacherLessonController extends Controller
             'teacher'
         ])
             ->where('teacher_id', $teacherId)
-            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'asc')
             ->get();
 
         // Group lessons by Class -> Subject -> Topic
@@ -835,5 +835,20 @@ class TeacherLessonController extends Controller
             'success' => true,
             'students' => $enrollments
         ]);
+    }
+
+    public function getClassSubjects($classId)
+    {
+        $teacherSession = Session('LoggedTeacher');
+        $teacherId = is_object($teacherSession) ? $teacherSession->id : $teacherSession;
+
+        $class = ClassModel::findOrFail($classId);
+
+        $subjects = $class->subjects()
+            ->where('class_subjects.teacher_id', $teacherId)
+            ->where('class_subjects.status', 'active')
+            ->get(['subjects.id', 'subjects.name', 'subjects.code']);
+
+        return response()->json(['subjects' => $subjects]);
     }
 }

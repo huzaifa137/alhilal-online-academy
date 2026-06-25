@@ -547,7 +547,7 @@
                                     <div class="fg">
                                         <label>Correct Answer (Option Letter: A, B, C, D, etc.)</label>
                                         <input type="text" name="questions[{{ $index }}][answer]" class="form-control"
-                                            value="{{ $question->answer }}" placeholder="e.g., A" maxlength="1" style="text-transform: uppercase">
+                                            value="{{ $question->answer }}" placeholder="e.g., A" maxlength="10" style="text-transform: uppercase">
                                     </div>
                                 </div>
 
@@ -843,20 +843,20 @@
                     }
                     
                     // Check if answer letter is valid
-                    if (answerInput) {
-                        const answerLetter = answerInput.value.trim().toUpperCase();
-                        const validLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-                        if (!validLetters.includes(answerLetter)) {
-                            hasError = true;
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Validation Error',
-                                text: `Question #${idx + 1}: Correct answer must be a letter (A, B, C, etc.)`,
-                                confirmButtonColor: '#DC2626'
-                            });
-                            return;
-                        }
-                    }
+                    // if (answerInput) {
+                    //     const answerLetter = answerInput.value.trim().toUpperCase();
+                    //     const validLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+                    //     if (!validLetters.includes(answerLetter)) {
+                    //         hasError = true;
+                    //         Swal.fire({
+                    //             icon: 'error',
+                    //             title: 'Validation Error',
+                    //             text: `Question #${idx + 1}: Correct answer must be a letter (A, B, C, etc.)`,
+                    //             confirmButtonColor: '#DC2626'
+                    //         });
+                    //         return;
+                    //     }
+                    // }
                 }
             });
             

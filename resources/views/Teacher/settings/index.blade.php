@@ -85,7 +85,7 @@
         /* ─── STAT RAIL ─────────────────────────────── */
         .s-stat-rail {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(7, 1fr);
             gap: 14px;
             margin-bottom: 28px;
         }
@@ -770,6 +770,20 @@
                 <div class="s-stat__num">{{ $stats['topics'] }}</div>
                 <div class="s-stat__lbl">Topics</div>
             </div>
+            <div class="s-stat" data-section="class-teachers">
+                <div class="s-stat__dot" style="background:#DBEAFE; color:#2563EB;">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <div class="s-stat__num">{{ $stats['class_teachers'] }}</div>
+                <div class="s-stat__lbl">Class Teachers</div>
+            </div>
+            <div class="s-stat" data-section="subject-assignments">
+                <div class="s-stat__dot" style="background:#FFE4E6; color:#E11D48;">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="s-stat__num">{{ $stats['subject_assignments'] }}</div>
+                <div class="s-stat__lbl">Subject Teachers</div>
+            </div>
         </div>
 
         {{-- Main Card --}}
@@ -840,6 +854,8 @@
             classes: { title: 'Classes Management', sub: 'Manage class rooms', icon: 'fa-chalkboard' },
             subjects: { title: 'Subjects Management', sub: 'Manage subjects & courses', icon: 'fa-book' },
             topics: { title: 'Topics Management', sub: 'Manage learning topics', icon: 'fa-tag' },
+            'class-teachers': { title: 'Class Teachers', sub: 'Assign a homeroom teacher to each class', icon: 'fa-chalkboard-teacher' },
+            'subject-assignments': { title: 'Subject Teachers', sub: 'Give a teacher access to a class + subject so they can add topics, lessons & quizzes', icon: 'fa-user-check' },
         };
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -863,7 +879,16 @@
 
             fetch(`/teacher/settings/${section}`)
                 .then(r => r.json())
-                .then(data => { currentData = data; renderTable(section, data); });
+                .then(data => { currentData = data; renderTable(section, data); })
+                .catch(err => {
+                    console.error('Error loading section:', err);
+                    document.getElementById('data-container').innerHTML = `
+                        <div class="s-empty">
+                            <div class="s-empty-ring"><i class="fas fa-exclamation-triangle"></i></div>
+                            <p>Error loading data. Please refresh the page.</p>
+                        </div>
+                    `;
+                });
         }
 
         function badgeClass(val) {
@@ -878,7 +903,7 @@
 
         function renderTable(section, data) {
             const box = document.getElementById('data-container');
-            if (!data.length) {
+            if (!data || !data.length) {
                 box.innerHTML = `<div class="s-empty">
                                             <div class="s-empty-ring"><i class="fas fa-inbox"></i></div>
                                             <p>No ${section} found. Click <strong>Add New</strong> to create one.</p>
@@ -894,7 +919,7 @@
             data.forEach(item => {
                 html += `<tr>`;
                 cols.forEach(c => {
-                    let val = getNestedValue(item, c.key);
+                    let val = c.compute ? c.compute(item) : getNestedValue(item, c.key);
                     if (c.type === 'id') {
                         val = `<span class="id-chip">#${val}</span>`;
                     } else if (c.type === 'status') {
@@ -921,6 +946,12 @@
 
             html += `</tbody></table>`;
             box.innerHTML = html;
+        }
+
+        function teacherName(t) {
+            if (!t) return '';
+            if (t.fullname) return t.fullname;
+            return [t.firstname, t.lastname].filter(Boolean).join(' ');
         }
 
         function getColumns(section) {
@@ -954,7 +985,7 @@
                 ],
                 subjects: [
                     { label: 'ID', key: 'id', type: 'id' },
-                    { label: 'Section', key: 'section.name', type: 'text' },  // Added this line
+                    { label: 'Section', key: 'section.name', type: 'text' },
                     { label: 'Name', key: 'name', type: 'text' },
                     { label: 'Arabic Name', key: 'name_arabic', type: 'text' },
                     { label: 'Code', key: 'code', type: 'text' },
@@ -969,6 +1000,23 @@
                     { label: 'Class', key: 'class.name', type: 'text' },
                     { label: 'Level', key: 'class.level.name', type: 'text' },
                     { label: 'Order', key: 'order_no', type: 'text' },
+                    { label: 'Status', key: 'status', type: 'status' },
+                ],
+                'class-teachers': [
+                    { label: 'ID', key: 'id', type: 'id' },
+                    { label: 'Class', key: 'name', type: 'text' },
+                    { label: 'Level', key: 'level.name', type: 'text' },
+                    { label: 'Section', key: 'level.section.name', type: 'text' },
+                    { label: 'Class Teacher', key: 'class_teacher', type: 'text', compute: item => teacherName(item.class_teacher) },
+                    { label: 'Subjects Assigned', key: 'subjects_count', type: 'text' },
+                ],
+                'subject-assignments': [
+                    { label: 'ID', key: 'id', type: 'id' },
+                    { label: 'Class', key: 'class_name', type: 'text' },
+                    { label: 'Subject', key: 'subject_name', type: 'text' },
+                    { label: 'Teacher', key: 'teacher', type: 'text', compute: item => teacherName({ fullname: item.teacher_fullname, firstname: item.teacher_firstname, lastname: item.teacher_lastname }) },
+                    { label: 'Year', key: 'academic_year_name', type: 'text' },
+                    { label: 'Periods/Week', key: 'periods_per_week', type: 'text' },
                     { label: 'Status', key: 'status', type: 'status' },
                 ],
             };
@@ -1055,7 +1103,6 @@
                     field('Status', 'status', 'select', data?.status ?? 'active', statusOpts);
 
             } else if (section === 'subjects') {
-                // Fetch sections for dropdown
                 const sectionsRes = await fetch('/teacher/settings/sections');
                 const sections = await sectionsRes.json();
 
@@ -1082,10 +1129,7 @@
                     field('Status', 'status', 'select', data?.status ?? 'active', statusOpts) +
                     `</div>`;
 
-            }
-
-            else if (section === 'topics') {
-                // Fetch all classes and subjects
+            } else if (section === 'topics') {
                 const [classesRes, allSubjectsRes] = await Promise.all([
                     fetch('/teacher/settings/classes'),
                     fetch('/teacher/settings/subjects')
@@ -1094,7 +1138,6 @@
                 const allClasses = await classesRes.json();
                 const allSubjects = await allSubjectsRes.json();
 
-                // We'll create dynamic filtering
                 const topicStatusOpts = {
                     options: [
                         { value: 'published', label: 'Published' },
@@ -1103,7 +1146,6 @@
                     ]
                 };
 
-                // Build initial subjects list based on existing class selection
                 let initialSubjects = allSubjects;
                 if (data?.class_id) {
                     const selectedClass = allClasses.find(c => c.id == data.class_id);
@@ -1113,33 +1155,214 @@
                 }
 
                 ff.innerHTML = `
-                <div class="fg-row">
-                    <div class="fg">
-                        <label>Class <span>*</span></label>
-                        <select id="topic_class_id" name="class_id" required onchange="filterSubjectsByClass()">
-                            <option value="">Select Class</option>
-                            ${allClasses.map(c => `<option value="${c.id}" ${data?.class_id == c.id ? 'selected' : ''} data-section-id="${c.level?.section_id || ''}">${c.name} (${c.level?.name || ''})</option>`).join('')}
-                        </select>
+                    <div class="fg-row">
+                        <div class="fg">
+                            <label>Class <span>*</span></label>
+                            <select id="topic_class_id" name="class_id" required onchange="filterSubjectsByClass()">
+                                <option value="">Select Class</option>
+                                ${allClasses.map(c => `<option value="${c.id}" ${data?.class_id == c.id ? 'selected' : ''} data-section-id="${c.level?.section_id || ''}">${c.name} (${c.level?.name || ''})</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="fg">
+                            <label>Subject <span>*</span></label>
+                            <select id="topic_subject_id" name="subject_id" required>
+                                <option value="">Select Subject</option>
+                                ${initialSubjects.map(s => `<option value="${s.id}" ${data?.subject_id == s.id ? 'selected' : ''}>${s.name}</option>`).join('')}
+                            </select>
+                        </div>
                     </div>
-                    <div class="fg">
-                        <label>Subject <span>*</span></label>
-                        <select id="topic_subject_id" name="subject_id" required>
-                            <option value="">Select Subject</option>
-                            ${initialSubjects.map(s => `<option value="${s.id}" ${data?.subject_id == s.id ? 'selected' : ''}>${s.name}</option>`).join('')}
-                        </select>
+                    <div class="fg-row">
+                        ${field('Title', 'title', 'text', data?.title, { required: true })}
+                        ${field('Title (Arabic)', 'title_arabic', 'text', data?.title_arabic)}
                     </div>
-                </div>
-                <div class="fg-row">
-                    ${field('Title', 'title', 'text', data?.title, { required: true })}
-                    ${field('Title (Arabic)', 'title_arabic', 'text', data?.title_arabic)}
-                </div>
-                ${field('Description', 'description', 'textarea', data?.description)}
-                ${field('Learning Objectives', 'learning_objectives', 'textarea', data?.learning_objectives)}
-                <div class="fg-row">
-                    ${field('Order Number', 'order_no', 'number', data?.order_no ?? 0)}
-                    ${field('Status', 'status', 'select', data?.status ?? 'published', topicStatusOpts)}
-                </div>
-            `;
+                    ${field('Description', 'description', 'textarea', data?.description)}
+                    ${field('Learning Objectives', 'learning_objectives', 'textarea', data?.learning_objectives)}
+                    <div class="fg-row">
+                        ${field('Order Number', 'order_no', 'number', data?.order_no ?? 0)}
+                        ${field('Status', 'status', 'select', data?.status ?? 'published', topicStatusOpts)}
+                    </div>
+                `;
+
+            } else if (section === 'class-teachers') {
+                try {
+                    // Try to fetch data, but provide fallbacks if endpoints don't exist
+                    let allClasses = [];
+                    let allTeachers = [];
+                    let allAcademicYears = [];
+
+                    try {
+                        const classesRes = await fetch('/teacher/settings/classes');
+                        allClasses = await classesRes.json();
+                    } catch (e) {
+                        console.warn('Could not fetch classes:', e);
+                        // Provide fallback empty array
+                        allClasses = [];
+                    }
+
+                    try {
+                        const teachersRes = await fetch('/teacher/settings/teachers');
+                        allTeachers = await teachersRes.json();
+                    } catch (e) {
+                        console.warn('Could not fetch teachers:', e);
+                        // Provide fallback empty array
+                        allTeachers = [];
+                    }
+
+                    try {
+                        const academicYearsRes = await fetch('/teacher/settings/academic-years');
+                        allAcademicYears = await academicYearsRes.json();
+                    } catch (e) {
+                        console.warn('Could not fetch academic years:', e);
+                        // Provide fallback empty array
+                        allAcademicYears = [];
+                    }
+
+                    ff.innerHTML = `
+                        <div class="fg">
+                            <label>Class <span>*</span></label>
+                            <select name="class_id" required>
+                                <option value="">Select Class</option>
+                                ${allClasses.length > 0 ? allClasses.map(c => `<option value="${c.id}" ${data?.class_id == c.id ? 'selected' : ''}>${c.name} (${c.level?.name || ''})</option>`).join('') : '<option value="">No classes available</option>'}
+                            </select>
+                        </div>
+                        <div class="fg">
+                            <label>Class Teacher <span>*</span></label>
+                            <select name="teacher_id" required>
+                                <option value="">Select Teacher</option>
+                                ${allTeachers.length > 0 ? allTeachers.map(t => `<option value="${t.id}" ${data?.teacher_id == t.id ? 'selected' : ''}>${teacherName(t)}</option>`).join('') : '<option value="">No teachers available</option>'}
+                            </select>
+                        </div>
+                        <div class="fg">
+                            <label>Academic Year <span>*</span></label>
+                            <select name="academic_year_id" required>
+                                <option value="">Select Academic Year</option>
+                                ${allAcademicYears.length > 0 ? allAcademicYears.map(y => `<option value="${y.id}" ${data?.academic_year_id == y.id ? 'selected' : ''}>${y.name}</option>`).join('') : '<option value="">No academic years available</option>'}
+                            </select>
+                        </div>
+                        <div class="fg-row">
+                            ${field('Start Date', 'start_date', 'date', data?.start_date)}
+                            ${field('End Date', 'end_date', 'date', data?.end_date)}
+                        </div>
+                        ${field('Notes', 'notes', 'textarea', data?.notes)}
+                        <div class="fg-row">
+                            ${field('Status', 'status', 'select', data?.status ?? 'active', statusOpts)}
+                        </div>
+                    `;
+                } catch (error) {
+                    console.error('Error loading class-teachers form:', error);
+                    ff.innerHTML = `
+                        <div class="fg">
+                            <p style="color: var(--c-red);">Error loading form data. Please check the console for details.</p>
+                        </div>
+                        ${field('Class ID', 'class_id', 'text', data?.class_id, { required: true })}
+                        ${field('Teacher ID', 'teacher_id', 'text', data?.teacher_id, { required: true })}
+                        ${field('Academic Year ID', 'academic_year_id', 'text', data?.academic_year_id, { required: true })}
+                        <div class="fg-row">
+                            ${field('Start Date', 'start_date', 'date', data?.start_date)}
+                            ${field('End Date', 'end_date', 'date', data?.end_date)}
+                        </div>
+                        ${field('Notes', 'notes', 'textarea', data?.notes)}
+                        <div class="fg-row">
+                            ${field('Status', 'status', 'select', data?.status ?? 'active', statusOpts)}
+                        </div>
+                    `;
+                }
+
+            } else if (section === 'subject-assignments') {
+                try {
+                    let allClasses = [];
+                    let allSubjects = [];
+                    let allTeachers = [];
+                    let allAcademicYears = [];
+
+                    try {
+                        const classesRes = await fetch('/teacher/settings/classes');
+                        allClasses = await classesRes.json();
+                    } catch (e) {
+                        console.warn('Could not fetch classes:', e);
+                        allClasses = [];
+                    }
+
+                    try {
+                        const subjectsRes = await fetch('/teacher/settings/subjects');
+                        allSubjects = await subjectsRes.json();
+                    } catch (e) {
+                        console.warn('Could not fetch subjects:', e);
+                        allSubjects = [];
+                    }
+
+                    try {
+                        const teachersRes = await fetch('/teacher/settings/teachers');
+                        allTeachers = await teachersRes.json();
+                    } catch (e) {
+                        console.warn('Could not fetch teachers:', e);
+                        allTeachers = [];
+                    }
+
+                    try {
+                        const academicYearsRes = await fetch('/teacher/settings/academic-years');
+                        allAcademicYears = await academicYearsRes.json();
+                    } catch (e) {
+                        console.warn('Could not fetch academic years:', e);
+                        allAcademicYears = [];
+                    }
+
+                    ff.innerHTML = `
+                        <div class="fg-row">
+                            <div class="fg">
+                                <label>Class <span>*</span></label>
+                                <select name="class_id" required>
+                                    <option value="">Select Class</option>
+                                    ${allClasses.length > 0 ? allClasses.map(c => `<option value="${c.id}" ${data?.class_id == c.id ? 'selected' : ''}>${c.name} (${c.level?.name || ''})</option>`).join('') : '<option value="">No classes available</option>'}
+                                </select>
+                            </div>
+                            <div class="fg">
+                                <label>Subject <span>*</span></label>
+                                <select name="subject_id" required>
+                                    <option value="">Select Subject</option>
+                                    ${allSubjects.length > 0 ? allSubjects.map(s => `<option value="${s.id}" ${data?.subject_id == s.id ? 'selected' : ''}>${s.name}</option>`).join('') : '<option value="">No subjects available</option>'}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="fg">
+                            <label>Teacher <span>*</span></label>
+                            <select name="teacher_id" required>
+                                <option value="">Select Teacher</option>
+                                ${allTeachers.length > 0 ? allTeachers.map(t => `<option value="${t.id}" ${data?.teacher_id == t.id ? 'selected' : ''}>${teacherName(t)}</option>`).join('') : '<option value="">No teachers available</option>'}
+                            </select>
+                        </div>
+                        <div class="fg">
+                            <label>Academic Year <span>*</span></label>
+                            <select name="academic_year_id" required>
+                                <option value="">Select Academic Year</option>
+                                ${allAcademicYears.length > 0 ? allAcademicYears.map(y => `<option value="${y.id}" ${data?.academic_year_id == y.id ? 'selected' : ''}>${y.name}</option>`).join('') : '<option value="">No academic years available</option>'}
+                            </select>
+                        </div>
+                        <div class="fg-row">
+                            ${field('Periods per Week', 'periods_per_week', 'number', data?.periods_per_week ?? 0)}
+                            ${field('Status', 'status', 'select', data?.status ?? 'active', statusOpts)}
+                        </div>
+                        ${field('Notes', 'notes', 'textarea', data?.notes)}
+                    `;
+                } catch (error) {
+                    console.error('Error loading subject-assignments form:', error);
+                    ff.innerHTML = `
+                        <div class="fg">
+                            <p style="color: var(--c-red);">Error loading form data. Please check the console for details.</p>
+                        </div>
+                        <div class="fg-row">
+                            ${field('Class ID', 'class_id', 'text', data?.class_id, { required: true })}
+                            ${field('Subject ID', 'subject_id', 'text', data?.subject_id, { required: true })}
+                        </div>
+                        ${field('Teacher ID', 'teacher_id', 'text', data?.teacher_id, { required: true })}
+                        ${field('Academic Year ID', 'academic_year_id', 'text', data?.academic_year_id, { required: true })}
+                        <div class="fg-row">
+                            ${field('Periods per Week', 'periods_per_week', 'number', data?.periods_per_week ?? 0)}
+                            ${field('Status', 'status', 'select', data?.status ?? 'active', statusOpts)}
+                        </div>
+                        ${field('Notes', 'notes', 'textarea', data?.notes)}
+                    `;
+                }
             }
         }
 
@@ -1158,7 +1381,6 @@
             }
 
             try {
-                // Fetch all classes to get section info
                 const classesRes = await fetch('/teacher/settings/classes');
                 const classes = await classesRes.json();
                 const selectedClass = classes.find(c => c.id == selectedClassId);
@@ -1170,14 +1392,11 @@
 
                 const sectionId = selectedClass.level.section_id;
 
-                // Fetch subjects filtered by section
                 const subjectsRes = await fetch('/teacher/settings/subjects');
                 const allSubjects = await subjectsRes.json();
 
-                // Filter subjects by section_id
                 const filteredSubjects = allSubjects.filter(s => s.section_id == sectionId);
 
-                // Update subject dropdown
                 let options = '<option value="">Select Subject</option>';
                 filteredSubjects.forEach(subject => {
                     options += `<option value="${subject.id}">${subject.name}</option>`;
@@ -1185,7 +1404,6 @@
 
                 subjectSelect.innerHTML = options;
 
-                // If editing and subject belongs to this section, keep selection
                 const editingSubjectId = document.getElementById('itemForm').querySelector('[name="subject_id"]')?.value;
                 if (editingSubjectId && filteredSubjects.some(s => s.id == editingSubjectId)) {
                     subjectSelect.value = editingSubjectId;
@@ -1196,52 +1414,65 @@
             }
         };
 
-        function saveItem() {
-            const id = document.getElementById('item_id').value;
-            const form = document.getElementById('itemForm');
-            const data = Object.fromEntries(new FormData(form).entries());
-            const url = id ? `/teacher/settings/${currentSection}/${id}` : `/teacher/settings/${currentSection}`;
-            const method = id ? 'PUT' : 'POST';
+       function saveItem() {
+    const id = document.getElementById('item_id').value;
+    const form = document.getElementById('itemForm');
+    const data = Object.fromEntries(new FormData(form).entries());
 
-fetch(url, {
-    method,
-    headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-        'Accept': 'application/json',
-    },
-    body: JSON.stringify(data),
-})
-.then(async (response) => {
-    let res;
+    let url, method;
 
-    try {
-        res = await response.json();
-    } catch (e) {
-        const text = await response.text();
-        toast('error', text || 'Invalid server response');
-        return;
+    if (currentSection === 'class-teachers') {
+        // POST to assign endpoint using class_id from form
+        url = `/teacher/settings/class-teachers/${data.class_id}`;
+        method = 'POST';
+    } else if (currentSection === 'subject-assignments') {
+        url = id
+            ? `/teacher/settings/subject-assignments/${id}`
+            : `/teacher/settings/subject-assignments`;
+        method = id ? 'PUT' : 'POST';
+    } else {
+        url = id
+            ? `/teacher/settings/${currentSection}/${id}`
+            : `/teacher/settings/${currentSection}`;
+        method = id ? 'PUT' : 'POST';
     }
 
-    if (!response.ok) {
-        if (res.errors) {
-            const messages = Object.values(res.errors).flat().join('\n');
-            toast('error', messages);
-        } else {
-            toast('error', res.message || 'Error occurred');
+    fetch(url, {
+        method,
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify(data),
+    })
+    .then(async (response) => {
+        let res;
+        try {
+            res = await response.json();
+        } catch (e) {
+            const text = await response.text();
+            toast('error', text || 'Invalid server response');
+            return;
         }
-        return;
-    }
-
-    closeModal();
-    loadSection(currentSection);
-    toast('success', res.message);
-})
-.catch((err) => {
-    console.error('Fetch error:', err);
-    toast('error', err.message || 'Network error');
-});
+        if (!response.ok) {
+            if (res.errors) {
+                const messages = Object.values(res.errors).flat().join('\n');
+                toast('error', messages);
+            } else {
+                toast('error', res.message || 'Error occurred');
+            }
+            return;
         }
+        closeModal();
+        loadSection(currentSection);
+        toast('success', res.message);
+    })
+    .catch((err) => {
+        console.error('Fetch error:', err);
+        toast('error', err.message || 'Network error');
+    });
+}
 
         function deleteItem(id) {
             Swal.fire({
@@ -1255,8 +1486,6 @@ fetch(url, {
                 cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
-
-                    // 🔄 Show loading state
                     Swal.fire({
                         title: 'Deleting...',
                         text: 'Please wait while we delete the item.',
@@ -1267,19 +1496,26 @@ fetch(url, {
                         }
                     });
 
-                    fetch(`/teacher/settings/${currentSection}/${id}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                    })
+                    let url;
+            if (currentSection === 'class-teachers') {
+                // Removing class teacher means posting null teacher_id
+                url = `/teacher/settings/class-teachers/${id}`;
+            } else if (currentSection === 'subject-assignments') {
+                url = `/teacher/settings/subject-assignments/${id}`;
+            } else {
+                url = `/teacher/settings/${currentSection}/${id}`;
+            }
+
+            fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+            })
                         .then(r => r.json())
                         .then(res => {
-
                             if (res.success) {
                                 loadSection(currentSection);
-
-                                // ✅ Success with OK button (no auto close)
                                 Swal.fire({
                                     icon: 'success',
                                     title: 'Deleted!',
@@ -1287,7 +1523,6 @@ fetch(url, {
                                     confirmButtonText: 'OK',
                                     confirmButtonColor: '#3085d6'
                                 });
-
                             } else {
                                 Swal.fire({
                                     icon: 'error',
@@ -1296,7 +1531,6 @@ fetch(url, {
                                     confirmButtonText: 'OK'
                                 });
                             }
-
                         })
                         .catch(() => {
                             Swal.fire({
@@ -1306,7 +1540,6 @@ fetch(url, {
                                 confirmButtonText: 'OK'
                             });
                         });
-
                 }
             });
         }

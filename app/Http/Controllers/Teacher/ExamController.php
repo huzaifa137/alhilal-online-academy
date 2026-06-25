@@ -49,7 +49,7 @@ class ExamController extends Controller
             'available_to' => 'nullable|date|after:available_from',
             'instructions' => 'nullable|string',
             'allow_retake' => 'boolean',
-            'max_attempts' => 'nullable|integer|min:1|max:10',
+            'max_attempts' => 'nullable|integer|min:1',
         ]);
 
         if ($validator->fails()) {
@@ -381,7 +381,7 @@ $studentId = Session('LoggedStudent') ?? Session('LoggedTeacher');
                     'duration_minutes' => $quiz->duration_minutes,
                     'status' => $quiz->status,
                     'questions_count' => $quiz->questions->count(),
-                    'max_attempts' => $quiz->max_attempts ?? 3,
+                    'max_attempts' => $quiz->max_attempts ?? 20000,
                     'results' => []
                 ];
             }
