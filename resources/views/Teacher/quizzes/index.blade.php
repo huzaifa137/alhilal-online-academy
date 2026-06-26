@@ -536,6 +536,7 @@
             </div>
         </div>
 
+         @if (false)
         {{-- Create Quiz Button --}}
         <div style="margin-bottom: 24px; display: flex; justify-content: flex-end;">
             <div class="qz-dropdown">
@@ -553,6 +554,7 @@
                 </div>
             </div>
         </div>
+        @endif
 
         {{-- Lesson Quizzes Section --}}
         <div class="qz-card">
@@ -600,18 +602,20 @@
                                         </td>
                                         <td data-label="Actions">
                                             <div class="qz-actions">
-                                                <a href="{{ route('teacher.quizzes.add-questions', $quiz->id) }}" class="qz-icon-btn"
-                                                    title="Add Questions">
+                                                <a href="{{ route('teacher.quizzes.add-questions', $quiz->id) }}"
+                                                    class="qz-icon-btn" title="Add Questions">
                                                     <i class="fas fa-plus-circle"></i>
                                                 </a>
-                                                <a href="{{ route('teacher.quizzes.edit', $quiz->id) }}" class="qz-icon-btn" title="Edit">
+                                                <a href="{{ route('teacher.quizzes.edit', $quiz->id) }}" class="qz-icon-btn"
+                                                    title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
                                                 <a href="{{ route('teacher.quizzes.statistics', $quiz->id) }}" class="qz-icon-btn"
                                                     title="Statistics">
                                                     <i class="fas fa-chart-line"></i>
                                                 </a>
-                                                <button onclick="deleteQuiz({{ $quiz->id }})" class="qz-icon-btn danger" title="Delete">
+                                                <button onclick="deleteQuiz({{ $quiz->id }})" class="qz-icon-btn danger"
+                                                    title="Delete">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </button>
                                             </div>
@@ -624,7 +628,8 @@
                         <div class="qz-empty">
                             <div class="qz-empty-ring"><i class="fas fa-file-alt"></i></div>
                             <p>No lesson quizzes created yet.</p>
-                            <a href="{{ route('teacher.quizzes.create', ['type' => 'lesson']) }}" class="btn-primary" style="margin-top: 16px;">
+                            <a href="{{ route('teacher.quizzes.create', ['type' => 'lesson']) }}" class="btn-primary"
+                                style="margin-top: 16px;">
                                 <i class="fas fa-plus"></i> Create Lesson Quiz
                             </a>
                         </div>
@@ -633,82 +638,89 @@
             </div>
         </div>
 
-        {{-- Class Quizzes Section --}}
-        <div class="qz-card">
-            <div class="qz-card-head">
-                <div class="qz-card-label">
-                    <div class="qz-card-icon"><i class="fas fa-chalkboard"></i></div>
-                    <div>
-                        <div class="qz-card-title">Class Quizzes (General)</div>
-                        <div class="qz-card-sub">General quizzes for entire classes</div>
+        @if (false)
+            {{-- Class Quizzes Section --}}
+            <div class="qz-card">
+                <div class="qz-card-head">
+                    <div class="qz-card-label">
+                        <div class="qz-card-icon"><i class="fas fa-chalkboard"></i></div>
+                        <div>
+                            <div class="qz-card-title">Class Quizzes (General)</div>
+                            <div class="qz-card-sub">General quizzes for entire classes</div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="qz-card-body">
-                <div class="qz-table-wrap">
-                    @if($classQuizzes->count() > 0)
-                        <table class="qz-table">
-                            <thead>
-                                <tr>
-                                    <th>Title</th>
-                                    <th>Class</th>
-                                    <th>Subject</th>
-                                    <th>Total Marks</th>
-                                    <th>Pass Mark</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($classQuizzes as $quiz)
+                <div class="qz-card-body">
+                    <div class="qz-table-wrap">
+                        @if($classQuizzes->count() > 0)
+                            <table class="qz-table">
+                                <thead>
                                     <tr>
-                                        <td data-label="Title">
-                                            <strong>{{ $quiz->title }}</strong>
-                                        </td>
-                                        <td data-label="Class">{{ $quiz->class->name ?? 'N/A' }}</td>
-                                        <td data-label="Subject">{{ $quiz->subject->name ?? 'N/A' }}</td>
-                                        <td data-label="Total Marks">{{ $quiz->total_marks }}</td>
-                                        <td data-label="Pass Mark">{{ $quiz->pass_mark }}%</td>
-                                        <td data-label="Status">
-                                            <span class="qz-badge qz-badge-{{ $quiz->status }}">
-                                                <span class="dot"></span>{{ ucfirst($quiz->status) }}
-                                            </span>
-                                        </td>
-                                        <td data-label="Actions">
-                                            <div class="qz-actions">
-                                                <a href="{{ route('teacher.quizzes.add-questions', $quiz->id) }}" class="qz-icon-btn"
-                                                    title="Add Questions">
-                                                    <i class="fas fa-plus-circle"></i>
-                                                </a>
-                                                <a href="{{ route('teacher.quizzes.edit', $quiz->id) }}" class="qz-icon-btn" title="Edit">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <a href="{{ route('teacher.quizzes.statistics', $quiz->id) }}" class="qz-icon-btn"
-                                                    title="Statistics">
-                                                    <i class="fas fa-chart-line"></i>
-                                                </a>
-                                                <button onclick="deleteQuiz({{ $quiz->id }})" class="qz-icon-btn danger" title="Delete">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
-                                            </div>
-                                        </td>
+                                        <th>Title</th>
+                                        <th>Class</th>
+                                        <th>Subject</th>
+                                        <th>Total Marks</th>
+                                        <th>Pass Mark</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    @else
-                        <div class="qz-empty">
-                            <div class="qz-empty-ring"><i class="fas fa-chalkboard"></i></div>
-                            <p>No class quizzes created yet.</p>
-                            <a href="{{ route('teacher.quizzes.create', ['type' => 'class']) }}" class="btn-primary" style="margin-top: 16px;">
-                                <i class="fas fa-plus"></i> Create Class Quiz
-                            </a>
-                        </div>
-                    @endif
+                                </thead>
+                                <tbody>
+                                    @foreach($classQuizzes as $quiz)
+                                        <tr>
+                                            <td data-label="Title">
+                                                <strong>{{ $quiz->title }}</strong>
+                                            </td>
+                                            <td data-label="Class">{{ $quiz->class->name ?? 'N/A' }}</td>
+                                            <td data-label="Subject">{{ $quiz->subject->name ?? 'N/A' }}</td>
+                                            <td data-label="Total Marks">{{ $quiz->total_marks }}</td>
+                                            <td data-label="Pass Mark">{{ $quiz->pass_mark }}%</td>
+                                            <td data-label="Status">
+                                                <span class="qz-badge qz-badge-{{ $quiz->status }}">
+                                                    <span class="dot"></span>{{ ucfirst($quiz->status) }}
+                                                </span>
+                                            </td>
+                                            <td data-label="Actions">
+                                                <div class="qz-actions">
+                                                    <a href="{{ route('teacher.quizzes.add-questions', $quiz->id) }}"
+                                                        class="qz-icon-btn" title="Add Questions">
+                                                        <i class="fas fa-plus-circle"></i>
+                                                    </a>
+                                                    <a href="{{ route('teacher.quizzes.edit', $quiz->id) }}" class="qz-icon-btn"
+                                                        title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a href="{{ route('teacher.quizzes.statistics', $quiz->id) }}" class="qz-icon-btn"
+                                                        title="Statistics">
+                                                        <i class="fas fa-chart-line"></i>
+                                                    </a>
+                                                    <button onclick="deleteQuiz({{ $quiz->id }})" class="qz-icon-btn danger"
+                                                        title="Delete">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        @else
+                            <div class="qz-empty">
+                                <div class="qz-empty-ring"><i class="fas fa-chalkboard"></i></div>
+                                <p>No class quizzes created yet.</p>
+                                <a href="{{ route('teacher.quizzes.create', ['type' => 'class']) }}" class="btn-primary"
+                                    style="margin-top: 16px;">
+                                    <i class="fas fa-plus"></i> Create Class Quiz
+                                </a>
+                            </div>
+                        @endif
+                    </div>
                 </div>
+
             </div>
-        </div>
+        @endif
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -719,7 +731,7 @@
         }
 
         // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
+        document.addEventListener('click', function (event) {
             const dropdown = document.getElementById('createDropdown');
             const button = event.target.closest('.btn-primary');
             if (!button && dropdown) {
@@ -746,12 +758,12 @@
                     });
 
                     fetch(`/teacher/quizzes/${quizId}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                            }
-                        })
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    })
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {

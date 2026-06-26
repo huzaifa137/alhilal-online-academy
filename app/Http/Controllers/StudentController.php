@@ -24,7 +24,7 @@ class StudentController extends Controller
         return view('home-page');
     }
 
-    public function studentDashboard()
+  public function studentDashboard()
     {
         $studentId = session('LoggedStudent');
         $student = \App\Models\User::find($studentId);
@@ -160,12 +160,66 @@ class StudentController extends Controller
             ->where('completed_at', '>=', now()->startOfWeek())
             ->count();
 
+        // ── Build lesson data for the front-end tabs (in_progress / completed / todo) ──
+        // Moved out of the Blade view: keeps the template free of inline PHP closures
+        // inside @json(), which some editors/linters mis-tokenize as JavaScript and
+        // misreport as a bracket-matching error.
+        $lessonData = [
+            'inprogress' => $this->mapLessonsForFrontend($inProgressLessons, false),
+            'completed'  => $this->mapLessonsForFrontend($completedLessonsList, true),
+            'todo'       => $this->mapTodoLessonsForFrontend($todoLessons),
+        ];
+
         return view('Student.dashboard', compact(
             'student', 'enrolledClasses', 'completedLessons', 'quizzesPassed', 'avgScore',
             'subjectProgress', 'inProgressLessons', 'completedLessonsList', 'todoLessons',
             'lastProgress', 'upcomingExams', 'certificates',
-            'totalAvailableLessons', 'overallProgress', 'lessonsThisWeek'
+            'totalAvailableLessons', 'overallProgress', 'lessonsThisWeek', 'lessonData'
         ));
+    }
+
+    /**
+     * Map a collection of StudentProgress records (which have a `lesson` relation)
+     * into the flat array shape the front-end lesson cards expect.
+     */
+    private function mapLessonsForFrontend($progressCollection, bool $passed): array
+    {
+        return $progressCollection->map(function ($p) use ($passed) {
+            return [
+                'id'       => $p->lesson->id,
+                'title'    => $p->lesson->title,
+                'subject'  => $p->lesson->topic->subject->name ?? 'General',
+                'icon'     => $p->lesson->topic->subject->icon ?? 'fa-book',
+                'color'    => $p->lesson->topic->subject->color ?? '#6B46C1',
+                'type'     => $p->lesson->content_type ?? 'video',
+                'duration' => ($p->lesson->duration_minutes ?? 0) . ' min',
+                'progress' => $passed ? 100 : ($p->progress_percentage ?? 0),
+                'passed'   => $passed,
+                'url'      => route('student.lessons.show', $p->lesson->id),
+            ];
+        })->values()->all();
+    }
+
+    /**
+     * Map a collection of Lesson records (no progress yet) into the same flat
+     * array shape used by mapLessonsForFrontend(), for the "todo" tab.
+     */
+    private function mapTodoLessonsForFrontend($lessons): array
+    {
+        return $lessons->map(function ($l) {
+            return [
+                'id'       => $l->id,
+                'title'    => $l->title,
+                'subject'  => $l->topic->subject->name ?? 'General',
+                'icon'     => $l->topic->subject->icon ?? 'fa-book',
+                'color'    => $l->topic->subject->color ?? '#6B46C1',
+                'type'     => $l->content_type ?? 'video',
+                'duration' => ($l->duration_minutes ?? 0) . ' min',
+                'progress' => 0,
+                'passed'   => false,
+                'url'      => route('student.lessons.show', $l->id),
+            ];
+        })->values()->all();
     }
 
     public function user_terms_and_conditions(Request $request)

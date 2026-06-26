@@ -50,56 +50,41 @@ class QuizController extends Controller
         return view('Teacher.quizzes.index', compact('lessonQuizzes', 'classQuizzes', 'classes', 'subjects'));
     }
 
-    public function createLesson(Request $request)
-    {
-        $teacherSession = Session('LoggedTeacher');
-        $teacherId = is_object($teacherSession) ? $teacherSession->id : $teacherSession;
+ public function createLesson(Request $request)
+{
+    $type = $request->type ?? 'class'; // ← default to class
 
-        $type = $request->type;
-        $lessonId = $request->lesson_id;
+    $lessonId = $request->lesson_id;
+    $lesson = null;
+    $selectedTopicId = null;
+    $selectedClassId = null;
+    $selectedSubjectId = null;
 
-        $lesson = null;
-        $selectedTopicId = null;
-        $selectedClassId = null;
-        $selectedSubjectId = null;
-
-        if ($type === 'lesson' && $lessonId) {
-            $lesson = Lesson::with(['topic.class', 'topic.subject'])->findOrFail($lessonId);
-            $selectedTopicId = $lesson->topic_id;
-            $selectedClassId = $lesson->topic->class_id ?? null;
-            $selectedSubjectId = $lesson->topic->subject_id ?? null;
-        }
-
-        // Use the existing subjects() BelongsToMany with pivot teacher_id filter
-        // $classes = ClassModel::whereHas('subjects', function ($query) use ($teacherId) {
-        //         $query->where('class_subjects.teacher_id', $teacherId);
-        //     })
-        //     ->with([
-        //         'level',
-        //         'subjects' => function ($query) use ($teacherId) {
-        //             $query->where('class_subjects.teacher_id', $teacherId);
-        //         }
-        //     ])
-        //     ->where('status', 'active')
-        //     ->orderBy('name')
-        //     ->get();
-
-        $classes = ClassModel::where('status', 'active')
-            ->orderBy('name')
-            ->get();
-
-        $subjects = Subject::where('status', 'active')->orderBy('name')->get();
-
-        return view('Teacher.quizzes.create', compact(
-            'type',
-            'lesson',
-            'classes',
-            'subjects',
-            'selectedTopicId',
-            'selectedClassId',
-            'selectedSubjectId'
-        ));
+    if ($type === 'lesson' && $lessonId) {
+        $lesson = Lesson::with(['topic.class', 'topic.subject'])->findOrFail($lessonId);
+        $selectedTopicId = $lesson->topic_id;
+        $selectedClassId = $lesson->topic->class_id ?? null;
+        $selectedSubjectId = $lesson->topic->subject_id ?? null;
     }
+
+    $classes = ClassModel::where('status', 'active')
+        ->with('level.section')
+        ->orderBy('name')
+        ->get();
+
+    $subjects = Subject::where('status', 'active')
+        ->orderBy('name')
+        ->get(['id', 'name', 'code', 'section_id']);
+
+    $classSectionMap = $classes->mapWithKeys(fn($c) => [
+        $c->id => $c->level?->section_id ?? null
+    ]);
+
+    return view('Teacher.quizzes.create', compact(
+        'type', 'lesson', 'classes', 'subjects',
+        'classSectionMap', 'selectedTopicId', 'selectedClassId', 'selectedSubjectId'
+    ));
+}
 
 
     /**

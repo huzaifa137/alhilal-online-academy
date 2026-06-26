@@ -35,7 +35,7 @@ class Helper extends Controller
     public static function instructor_name($user = "")
     {
         $user = (int) $user;
-        $admin = DB::table('users')->where('id', '=', $user)->where('user_role', '!=', 1)->first();
+        $admin = DB::table('users')->where('id', '=', $user)->where('user_role', '=', 2)->first();
 
         return $user = @$admin->firstname . ' ' . @$admin->lastname;
     }

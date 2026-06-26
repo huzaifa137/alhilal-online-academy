@@ -420,8 +420,8 @@
         }
 
         /* ============================================
-           EDIT LESSON MODAL - ENHANCED STYLES
-           ============================================ */
+               EDIT LESSON MODAL - ENHANCED STYLES
+               ============================================ */
 
         /* Modal Overlay Enhancement */
         .modal-overlay {
@@ -918,6 +918,12 @@
                                                     <a href="#" onclick="event.preventDefault(); editLesson({{ $lesson->id }});">
                                                         <i class="fas fa-edit"></i> Edit Lesson
                                                     </a>
+                                                    @if($lesson->teacher_id == session('LoggedTeacher'))
+                                                        <a href="{{ route('teacher.quizzes.create', ['type' => 'lesson', 'lesson_id' => $lesson->id]) }}"
+                                                            class="nav-button" style="padding: 6px 16px;">
+                                                            <i class="fas fa-plus"></i> Add New Quiz
+                                                        </a>
+                                                    @endif
                                                     @if($lesson->status === 'published')
                                                         <a href="#"
                                                             onclick="event.preventDefault(); unpublishLesson({{ $lesson->id }});">

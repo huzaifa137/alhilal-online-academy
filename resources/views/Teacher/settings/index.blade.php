@@ -85,7 +85,7 @@
         /* ─── STAT RAIL ─────────────────────────────── */
         .s-stat-rail {
             display: grid;
-            grid-template-columns: repeat(7, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 14px;
             margin-bottom: 28px;
         }
@@ -770,7 +770,7 @@
                 <div class="s-stat__num">{{ $stats['topics'] }}</div>
                 <div class="s-stat__lbl">Topics</div>
             </div>
-            <div class="s-stat" data-section="class-teachers">
+            <!-- <div class="s-stat" data-section="class-teachers">
                 <div class="s-stat__dot" style="background:#DBEAFE; color:#2563EB;">
                     <i class="fas fa-chalkboard-teacher"></i>
                 </div>
@@ -783,7 +783,7 @@
                 </div>
                 <div class="s-stat__num">{{ $stats['subject_assignments'] }}</div>
                 <div class="s-stat__lbl">Subject Teachers</div>
-            </div>
+            </div> -->
         </div>
 
         {{-- Main Card --}}

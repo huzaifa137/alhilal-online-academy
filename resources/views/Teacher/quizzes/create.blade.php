@@ -502,127 +502,100 @@
             </div>
         </div>
     </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    const allSubjects = @json($subjects->values());
+    const classSectionMap = @json($classSectionMap);
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        @if($type !== 'lesson')
-            // Load subjects for selected class (only for class-based quizzes)
-            document.getElementById('classSelect').addEventListener('change', async function () {
-                const classId = this.value;
-                const subjectSelect = document.getElementById('subjectSelect');
+    const classSelectEl = document.getElementById('classSelect');
+    if (classSelectEl) {
+        classSelectEl.addEventListener('change', function () {
+            const classId = parseInt(this.value);
+            const subjectSelect = document.getElementById('subjectSelect');
 
-                subjectSelect.innerHTML = '<option value="">Loading subjects...</option>';
-                subjectSelect.disabled = true;
+            subjectSelect.innerHTML = '<option value="">-- Select a subject --</option>';
+            subjectSelect.disabled = true;
 
-                if (!classId) {
-                    subjectSelect.innerHTML = '<option value="">-- First select a class --</option>';
-                    return;
-                }
+            if (!classId) return;
 
-                try {
-                    const response = await fetch(`/teacher/lessons/classes/${classId}/subjects`);
+            const sectionId = classSectionMap[classId];
+            if (!sectionId) {
+                subjectSelect.innerHTML = '<option value="">-- No section found for this class --</option>';
+                return;
+            }
 
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
+            const filtered = allSubjects.filter(s => parseInt(s.section_id) === parseInt(sectionId));
 
-                    const data = await response.json();
+            if (filtered.length === 0) {
+                subjectSelect.innerHTML = '<option value="">-- No subjects for this section --</option>';
+                return;
+            }
 
-                    subjectSelect.innerHTML = '<option value="">-- Select a subject --</option>';
-
-                    if (data.subjects && data.subjects.length > 0) {
-                        data.subjects.forEach(subject => {
-                            const option = document.createElement('option');
-                            option.value = subject.id;
-                            option.textContent = `${subject.name} (${subject.code || ''})`;
-                            subjectSelect.appendChild(option);
-                        });
-                        subjectSelect.disabled = false;
-                    } else {
-                        subjectSelect.innerHTML = '<option value="" disabled>-- No subjects assigned to this class --</option>';
-                        subjectSelect.disabled = true;
-                    }
-                } catch (error) {
-                    console.error('Error loading subjects:', error);
-                    subjectSelect.innerHTML = '<option value="" disabled>Error loading subjects</option>';
-                    subjectSelect.disabled = true;
-                    Swal.fire('Error', 'Failed to load subjects for this class.', 'error');
-                }
+            filtered.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject.id;
+                option.textContent = subject.name + (subject.code ? ' (' + subject.code + ')' : '');
+                subjectSelect.appendChild(option);
             });
-        @endif
 
-        // Form submission using AJAX
-        $('#quizForm').on('submit', function (e) {
-            e.preventDefault();
+            subjectSelect.disabled = false;
+        });
+    }
 
-            @if($type !== 'lesson')
-                // Validate subject is selected for class-based quizzes
-                const subjectSelect = $('#subjectSelect');
-                if (!subjectSelect.val()) {
-                    Swal.fire('Error', 'Please select a subject.', 'error');
-                    return;
-                }
-            @endif
+    $('#quizForm').on('submit', function (e) {
+        e.preventDefault();
 
-                    const submitBtn = $('#submitBtn');
-            const originalText = submitBtn.html();
+        const subjectSelectEl = document.getElementById('subjectSelect');
+        if (subjectSelectEl && !subjectSelectEl.value) {
+            Swal.fire('Error', 'Please select a subject.', 'error');
+            return;
+        }
 
-            submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Creating...');
-            submitBtn.prop('disabled', true);
+        const submitBtn = $('#submitBtn');
+        const originalText = submitBtn.html();
+        submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Creating...');
+        submitBtn.prop('disabled', true);
 
-            let formData = new FormData(this);
-            formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+        let formData = new FormData(document.getElementById('quizForm'));
+        formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
 
-            $.ajax({
-                url: '{{ route("teacher.quizzes.store") }}',
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function (data) {
-                    if (data.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Quiz Created!',
-                            text: data.message,
-                            confirmButtonColor: '#5B3FD9',
-                            confirmButtonText: 'Continue to Add Questions'
-                        }).then(() => {
-                            window.location.href = data.redirect;
-                        });
-                    } else {
-                        let errorMsg = 'Failed to create quiz.';
-                        if (data.errors) {
-                            errorMsg = Object.values(data.errors).flat().join('\n');
-                        } else if (data.message) {
-                            errorMsg = data.message;
-                        }
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: errorMsg,
-                            confirmButtonColor: '#DC2626'
-                        });
-                        submitBtn.html(originalText);
-                        submitBtn.prop('disabled', false);
-                    }
-                },
-                error: function (xhr) {
-                    console.error('Error:', xhr);
+        $.ajax({
+            url: '{{ route("teacher.quizzes.store") }}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                if (data.success) {
                     Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Something went wrong. Please try again.',
-                        confirmButtonColor: '#DC2626'
+                        icon: 'success',
+                        title: 'Quiz Created!',
+                        text: data.message,
+                        confirmButtonColor: '#5B3FD9',
+                        confirmButtonText: 'Continue to Add Questions'
+                    }).then(() => {
+                        window.location.href = data.redirect;
                     });
+                } else {
+                    let errorMsg = 'Failed to create quiz.';
+                    if (data.errors) {
+                        errorMsg = Object.values(data.errors).flat().join('\n');
+                    } else if (data.message) {
+                        errorMsg = data.message;
+                    }
+                    Swal.fire({ icon: 'error', title: 'Error', text: errorMsg, confirmButtonColor: '#DC2626' });
                     submitBtn.html(originalText);
                     submitBtn.prop('disabled', false);
                 }
-                //                 error: function(data) {
-                // $('body').html(data.responseText);
-                // }
-            });
+            },
+            error: function (xhr) {
+                console.error('Error:', xhr);
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong. Please try again.', confirmButtonColor: '#DC2626' });
+                submitBtn.html(originalText);
+                submitBtn.prop('disabled', false);
+            }
         });
-    </script>
+    });
+</script>
 @endsection

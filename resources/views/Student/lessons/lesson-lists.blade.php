@@ -1223,7 +1223,7 @@
                                 <div class="sl-class-header-right">
                                     @if($classPaid)
                                         <span class="sl-subjects-badge" style="background:rgba(5,150,105,.25)"><i
-                                                class="fas fa-check-circle"></i> Paid</span>
+                                                class="fas fa-check-circle"></i> Active</span>
                                     @else
                                         <span class="sl-subjects-badge" style="background:rgba(217,119,6,.3);"><i
                                                 class="fas fa-clock"></i> Pending</span>
@@ -1238,15 +1238,18 @@
                         <div class="sl-class-content" style="display:none">
                             {{-- Class Payment Gate --}}
                             @if(!$classPaid)
-                                <div class="sl-class-gate">
+                                <div class="sl-class-gate" style="background:#f0fdf4; border-color:#16a34a;">
                                     <div>
-                                        <div class="sl-gate-text"><i class="fas fa-lock"></i> Class Not Paid</div>
-                                        <div style="font-size:.7rem;color:var(--c-muted);margin-top:3px">Pay for this class to unlock
-                                            all its lessons</div>
+                                        <div class="sl-gate-text" style="color:#15803d;">
+                                            <i class="fas fa-bolt"></i> Activate Class
+                                        </div>
+                                        <div style="font-size:.7rem;color:var(--c-muted);margin-top:3px">
+                                            Activate this class to unlock all its lessons
+                                        </div>
                                     </div>
-                                    <button class="sl-gate-btn"
-                                        onclick="showClassPaymentModal({{ $classData['class_id'] }}, '{{ addslashes($className) }}')">
-                                        <i class="fas fa-credit-card"></i> Pay for Class
+                                    <button class="sl-gate-btn" style="background:#16a34a;"
+                                        onclick="showActivateClassModal({{ $classData['class_id'] }}, '{{ addslashes($className) }}')">
+                                        <i class="fas fa-unlock"></i> Activate Class
                                     </button>
                                 </div>
                             @endif
@@ -1772,8 +1775,8 @@
                 Swal.fire({
                     title: '📱 Check Your Phone!',
                     html: `<p>A payment prompt has been sent to <strong>${phone}</strong>.</p>
-                               <p style="margin-top:10px;color:#7C748E;font-size:.85rem">Approve it on your phone to complete payment.</p>
-                               <p style="margin-top:8px;color:#6B46C1;font-size:.8rem">Waiting for confirmation…</p>`,
+                                               <p style="margin-top:10px;color:#7C748E;font-size:.85rem">Approve it on your phone to complete payment.</p>
+                                               <p style="margin-top:8px;color:#6B46C1;font-size:.8rem">Waiting for confirmation…</p>`,
                     icon: 'info',
                     allowOutsideClick: false,
                     showCancelButton: true,
@@ -1792,7 +1795,7 @@
                 });
 
             } catch (e) {
-                Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong. Please try again.', confirmButtonColor: '#DC2626' });
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong. Please try again121.', confirmButtonColor: '#DC2626' });
             }
         }
 
@@ -1823,9 +1826,28 @@
                 return;
             }
 
-            const amount = parseInt(document.getElementById('lessonPayAmount').value);
-            if (!amount || amount < currentLessonRequired) {
-                Swal.fire({ icon: 'error', title: 'Insufficient Amount', text: `Minimum: UGX ${currentLessonRequired.toLocaleString()}`, confirmButtonColor: '#DC2626' });
+            const amountRaw = document.getElementById('lessonPayAmount').value;
+            const amount = parseInt(amountRaw);
+
+            // 1. Absolute floor — never allow below 500, no matter what the lesson costs
+            if (!amountRaw || isNaN(amount) || amount < 500) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Amount',
+                    text: 'Minimum amount is UGX 500.',
+                    confirmButtonColor: '#6B46C1'
+                });
+                return;
+            }
+
+            // 2. Must also meet (or exceed) the lesson's actual required price
+            if (amount < currentLessonRequired) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Insufficient Amount',
+                    text: `This lesson requires at least UGX ${currentLessonRequired.toLocaleString()}.`,
+                    confirmButtonColor: '#DC2626'
+                });
                 return;
             }
 
@@ -1891,8 +1913,8 @@
                 Swal.fire({
                     title: '📱 Check Your Phone!',
                     html: `<p>A payment prompt has been sent to <strong>${phone}</strong>.</p>
-                               <p style="margin-top:10px;color:#7C748E;font-size:.85rem">Approve it on your phone to complete payment.</p>
-                               <p style="margin-top:8px;color:#6B46C1;font-size:.8rem">Waiting for confirmation…</p>`,
+                                               <p style="margin-top:10px;color:#FFF;font-size:.85rem">Approve it on your phone to complete payment.</p>
+                                               <p style="margin-top:8px;color:#FFF;font-size:.8rem">Waiting for confirmation…</p>`,
                     icon: 'info',
                     allowOutsideClick: false,
                     showCancelButton: true,
@@ -1910,7 +1932,7 @@
                 });
 
             } catch (e) {
-                Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong. Please try again.', confirmButtonColor: '#DC2626' });
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong. Please try again.456', confirmButtonColor: '#DC2626' });
             }
         }
 
@@ -1943,17 +1965,17 @@
             const container = document.getElementById('quizQuestions');
             container.innerHTML = `<div style="margin-bottom:16px;padding:12px;background:#f0f4ff;border-radius:12px;font-size:.82rem;color:#4338ca"><strong>Instructions:</strong> ${quiz.instructions || 'Answer all questions carefully.'} | Pass mark: ${quiz.pass_mark}%</div>` +
                 questions.map((q, i) => `
-                    <div class="q-block">
-                        <div class="q-text">${i + 1}. ${q.question}</div>
-                        ${q.type === 'mcq' ? (Array.isArray(q.options) ? q.options : Object.values(q.options || {})).map((opt, oi) => `
-                            <label class="q-opt">
-                                <input type="radio" name="q${q.id}" value="${opt}" style="width:auto"> ${opt}
-                            </label>`).join('') :
+                                    <div class="q-block">
+                                        <div class="q-text">${i + 1}. ${q.question}</div>
+                                        ${q.type === 'mcq' ? (Array.isArray(q.options) ? q.options : Object.values(q.options || {})).map((opt, oi) => `
+                                            <label class="q-opt">
+                                                <input type="radio" name="q${q.id}" value="${opt}" style="width:auto"> ${opt}
+                                            </label>`).join('') :
                         q.type === 'true_false' ? `
-                            <label class="q-opt"><input type="radio" name="q${q.id}" value="true" style="width:auto"> True</label>
-                            <label class="q-opt"><input type="radio" name="q${q.id}" value="false" style="width:auto"> False</label>` :
+                                            <label class="q-opt"><input type="radio" name="q${q.id}" value="true" style="width:auto"> True</label>
+                                            <label class="q-opt"><input type="radio" name="q${q.id}" value="false" style="width:auto"> False</label>` :
                             `<textarea name="q${q.id}" rows="3" style="width:100%;border:1.5px solid #e3e0f0;border-radius:10px;padding:10px;font-family:inherit;font-size:.82rem;resize:vertical" placeholder="Your answer..."></textarea>`}
-                    </div>`).join('');
+                                    </div>`).join('');
         }
 
         function startTimer(seconds) {
@@ -1969,86 +1991,148 @@
             }, 1000);
         }
 
-       async function submitQuiz() {
-    clearInterval(quizTimer);
-    const answers = [];
-    quizQuestions.forEach(q => {
-        let answer = '';
-        if (q.type === 'mcq' || q.type === 'true_false') {
-            const sel = document.querySelector(`input[name="q${q.id}"]:checked`);
-            answer = sel ? sel.value : '';
-        } else {
-            const ta = document.querySelector(`textarea[name="q${q.id}"]`);
-            answer = ta ? ta.value : '';
-        }
-        answers.push({ question_id: q.id, answer });
-    });
+        async function submitQuiz() {
+            clearInterval(quizTimer);
+            const answers = [];
+            quizQuestions.forEach(q => {
+                let answer = '';
+                if (q.type === 'mcq' || q.type === 'true_false') {
+                    const sel = document.querySelector(`input[name="q${q.id}"]:checked`);
+                    answer = sel ? sel.value : '';
+                } else {
+                    const ta = document.querySelector(`textarea[name="q${q.id}"]`);
+                    answer = ta ? ta.value : '';
+                }
+                answers.push({ question_id: q.id, answer });
+            });
 
-    Swal.fire({ title: 'Submitting...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-    try {
-        const res = await fetch(`/exams/${currentExamId}/submit`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ answers }) });
-        const data = await res.json();
-        Swal.close();
-        if (data.success) {
-            const r = data.result;
-            document.getElementById('quizSubmitBtn').style.display = 'none';
-            document.getElementById('quizTimer').style.display = 'none';
+            Swal.fire({ title: 'Submitting...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            try {
+                const res = await fetch(`/exams/${currentExamId}/submit`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ answers }) });
+                const data = await res.json();
+                Swal.close();
+                if (data.success) {
+                    const r = data.result;
+                    document.getElementById('quizSubmitBtn').style.display = 'none';
+                    document.getElementById('quizTimer').style.display = 'none';
+                    const resDiv = document.getElementById('quizResult');
+                    resDiv.style.display = 'block';
+
+                    if (r.is_passed) {
+                        document.getElementById('quizCloseBtn').style.display = 'inline-flex';
+                        resDiv.className = 'quiz-result passed';
+                        resDiv.innerHTML = `<i class="fas fa-trophy"></i> Congratulations! You scored ${r.percentage}% (${r.score}/${r.total_marks}) — Quiz Passed! 🎉`;
+                        setTimeout(() => location.reload(), 3000);
+                    } else {
+                        resDiv.className = 'quiz-result failed';
+                        resDiv.innerHTML = `
+                                    <i class="fas fa-times-circle"></i> You scored ${r.percentage}% (${r.score}/${r.total_marks}) — Need ${r.pass_mark ?? 60}% to pass.
+                                    <div style="margin-top:12px;display:flex;align-items:center;justify-content:center;gap:10px">
+                                        <button class="sl-btn-quiz" onclick="retryQuiz()">
+                                            <i class="fas fa-redo"></i> Try Again
+                                        </button>
+                                    </div>`;
+                        document.getElementById('quizCloseBtn').style.display = 'inline-flex';
+                    }
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Submission Failed', text: data.message });
+                }
+            } catch (e) { Swal.close(); Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to submit quiz.' }); }
+        }
+
+        function retryQuiz() {
+            // Hide result panel and reset buttons
             const resDiv = document.getElementById('quizResult');
-            resDiv.style.display = 'block';
+            resDiv.style.display = 'none';
+            resDiv.innerHTML = '';
+            document.getElementById('quizSubmitBtn').style.display = 'inline-flex';
+            document.getElementById('quizCloseBtn').style.display = 'none';
 
-            if (r.is_passed) {
-                document.getElementById('quizCloseBtn').style.display = 'inline-flex';
-                resDiv.className = 'quiz-result passed';
-                resDiv.innerHTML = `<i class="fas fa-trophy"></i> Congratulations! You scored ${r.percentage}% (${r.score}/${r.total_marks}) — Quiz Passed! 🎉`;
-                setTimeout(() => location.reload(), 3000);
-            } else {
-                resDiv.className = 'quiz-result failed';
-                resDiv.innerHTML = `
-                    <i class="fas fa-times-circle"></i> You scored ${r.percentage}% (${r.score}/${r.total_marks}) — Need ${r.pass_mark ?? 60}% to pass.
-                    <div style="margin-top:12px;display:flex;align-items:center;justify-content:center;gap:10px">
-                        <button class="sl-btn-quiz" onclick="retryQuiz()">
-                            <i class="fas fa-redo"></i> Try Again
-                        </button>
-                    </div>`;
-                document.getElementById('quizCloseBtn').style.display = 'inline-flex';
+            // Clear all selected answers and text inputs
+            document.querySelectorAll('#quizQuestions input[type="radio"]').forEach(r => r.checked = false);
+            document.querySelectorAll('#quizQuestions textarea').forEach(t => t.value = '');
+
+            // Remove any correct/wrong highlight classes left from a previous attempt
+            document.querySelectorAll('#quizQuestions .q-opt').forEach(opt => {
+                opt.classList.remove('correct', 'wrong');
+            });
+
+            // Restart timer if the quiz had one
+            const timerEl = document.getElementById('quizTimer');
+            const duration = parseInt(timerEl.dataset.duration ?? 0);
+            if (duration > 0) {
+                timerEl.style.display = 'block';
+                startTimer(duration);
             }
-        } else {
-            Swal.fire({ icon: 'error', title: 'Submission Failed', text: data.message });
         }
-    } catch (e) { Swal.close(); Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to submit quiz.' }); }
-}
-
-function retryQuiz() {
-    // Hide result panel and reset buttons
-    const resDiv = document.getElementById('quizResult');
-    resDiv.style.display = 'none';
-    resDiv.innerHTML = '';
-    document.getElementById('quizSubmitBtn').style.display = 'inline-flex';
-    document.getElementById('quizCloseBtn').style.display = 'none';
-
-    // Clear all selected answers and text inputs
-    document.querySelectorAll('#quizQuestions input[type="radio"]').forEach(r => r.checked = false);
-    document.querySelectorAll('#quizQuestions textarea').forEach(t => t.value = '');
-
-    // Remove any correct/wrong highlight classes left from a previous attempt
-    document.querySelectorAll('#quizQuestions .q-opt').forEach(opt => {
-        opt.classList.remove('correct', 'wrong');
-    });
-
-    // Restart timer if the quiz had one
-    const timerEl = document.getElementById('quizTimer');
-    const duration = parseInt(timerEl.dataset.duration ?? 0);
-    if (duration > 0) {
-        timerEl.style.display = 'block';
-        startTimer(duration);
-    }
-}
 
         function closeQuizModal() {
             document.querySelector('.quiz-modal-overlay').style.display = 'none';
             document.body.style.overflow = '';
             clearInterval(quizTimer);
             location.reload();
+        }
+
+        async function showActivateClassModal(classId, className) {
+            const confirmed = await Swal.fire({
+                title: 'Activate Class?',
+                html: `<p>You are about to activate <strong>${className}</strong>.</p>
+                           <p style="margin-top:10px;font-size:.85rem;color:#FFF;">
+                               This will unlock the class and all its lessons for you.
+                           </p>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#16a34a',
+                cancelButtonColor: '#6B46C1',
+                confirmButtonText: '<i class="fas fa-unlock"></i> Yes, Activate',
+                cancelButtonText: 'Cancel'
+            });
+
+            if (!confirmed.isConfirmed) return;
+
+            Swal.fire({
+                title: 'Activating Class…',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            try {
+                const res = await fetch('{{ route("student.activate-class") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ class_id: classId })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Class Activated! 🎉',
+                        text: 'Your class and lessons are now unlocked.',
+                        confirmButtonColor: '#16a34a',
+                        confirmButtonText: 'OK'
+                    });
+                    location.reload();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Activation Failed',
+                        text: data.message,
+                        confirmButtonColor: '#DC2626'
+                    });
+                }
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Something went wrong. Please try again.789',
+                    confirmButtonColor: '#DC2626'
+                });
+            }
         }
     </script>
 @endsection

@@ -547,7 +547,7 @@
                                     <div class="fg">
                                         <label>Correct Answer (Option Letter: A, B, C, D, etc.)</label>
                                         <input type="text" name="questions[{{ $index }}][answer]" class="form-control"
-                                            value="{{ $question->answer }}" placeholder="e.g., A" maxlength="10" style="text-transform: uppercase">
+                                            value="{{ $question->answer }}" placeholder="e.g., A" maxlength="100" style="text-transform: uppercase">
                                     </div>
                                 </div>
 
@@ -652,7 +652,7 @@
                             </div>
                             <div class="fg">
                                 <label>Correct Answer (Option Letter: A, B, C, D, etc.)</label>
-                                <input type="text" name="questions[${index}][answer]" class="form-control" placeholder="e.g., A" maxlength="1" style="text-transform: uppercase">
+                                <input type="text" name="questions[${index}][answer]" class="form-control" placeholder="e.g., A" maxlength="100" style="text-transform: uppercase">
                             </div>
                         </div>
 

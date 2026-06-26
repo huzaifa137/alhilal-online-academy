@@ -12,7 +12,6 @@ use App\Models\Academic\StudentProgress;
 use Illuminate\Http\Request;
 
 class StudentLessonController extends Controller
-
 {
     // ── Browse available classes ──────────────────────────────────────
     public function browseClasses()
@@ -22,7 +21,7 @@ class StudentLessonController extends Controller
 
         $classes = ClassModel::with(['level', 'level.section', 'subjects'])
             ->where('status', 'active')
-            ->orderBy('name')
+            // ->orderBy('name')
             ->get();
 
         $enrolledClassIds = ClassEnrollment::where('student_id', $studentId)
@@ -242,7 +241,7 @@ class StudentLessonController extends Controller
     // ── Show a specific lesson (student lesson view) ──────────────────
     public function showLesson(Lesson $lesson)
     {
-        
+
         $studentId = session('LoggedStudent');
 
         // Load all relationships
@@ -356,5 +355,25 @@ class StudentLessonController extends Controller
         );
 
         return response()->json(['success' => true, 'progress' => $progress]);
+    }
+
+    public function activateClass(Request $request)
+    {
+        $classId = $request->input('class_id');
+        $studentId = session('LoggedStudent');
+
+        $enrollment = ClassEnrollment::where('class_id', $classId)
+            ->where('student_id', $studentId)
+            ->first();
+
+        if (!$enrollment) {
+            return response()->json(['success' => false, 'message' => 'Enrollment not found.']);
+        }
+
+        $enrollment->payment_status = 'paid';
+        $enrollment->status = 'active';
+        $enrollment->save();
+
+        return response()->json(['success' => true, 'message' => 'Class activated successfully.']);
     }
 }

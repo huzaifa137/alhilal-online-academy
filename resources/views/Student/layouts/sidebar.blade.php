@@ -1,3 +1,7 @@
+<?php 
+     use App\Http\Controllers\Helper;
+?>
+
 @extends('layouts.master2')
 
 @section('css')
@@ -7,8 +11,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         /* ═══════════════════════════════════════════════
-                       ALHILAL DESIGN SYSTEM — STUDENT DASHBOARD
-                    ═══════════════════════════════════════════════ */
+                                           ALHILAL DESIGN SYSTEM — STUDENT DASHBOARD
+                                        ═══════════════════════════════════════════════ */
         :root {
             --purple: #6B46C1;
             --purple-dark: #4C2E8A;
@@ -358,11 +362,14 @@
             font-weight: 700;
             color: var(--ink);
             font-family: 'DM Sans', sans-serif;
+            margin-top: 2em;
+            line-height: 1.2;
         }
 
         .sd-header-greeting p {
             font-size: 0.75rem;
             color: var(--muted);
+            margin-top: 2px;
         }
 
         .sd-header-actions {
@@ -1597,20 +1604,22 @@
     <aside class="sd-sidebar" id="sidebar">
 
         {{-- Brand --}}
-        <div class="sd-brand">
-            <img src="{{ asset('assets/images/al-hilaal_update.png') }}" alt="Al-Hilal Online Academy">
-            <div class="sd-brand-text">
-                <div class="sd-brand-name">Al-Hilal Online Academy</div>
-                <div class="sd-brand-sub">Student Portal</div>
+        <a href="{{ url('/student/dashboard') }}" class="sd-brand-link">
+            <div class="sd-brand">
+                <img src="{{ asset('assets/images/al-hilaal_update.png') }}" alt="Al-Hilal Online Academy">
+                <div class="sd-brand-text">
+                    <div class="sd-brand-name">Al-Hilal Online Academy</div>
+                    <div class="sd-brand-sub">Student Portal</div>
+                </div>
             </div>
-        </div>
+        </a>
 
         {{-- Student card --}}
         <div class="sd-student-card">
             <div class="sd-avatar">{{ strtoupper(substr(auth()->user()->name ?? 'S', 0, 2)) }}</div>
             <div>
                 <div class="sd-student-name">{{ auth()->user()->name ?? 'Student Name' }}</div>
-                <div class="sd-student-class">{{ auth()->user()->class ?? 'S.3 — Level 3' }}</div>
+                <div class="sd-student-class">{{ Helper::student_name(Session('LoggedStudent')) }}</div>
             </div>
             <div class="sd-online-dot"></div>
         </div>
@@ -1619,13 +1628,16 @@
         <nav class="sd-nav">
             <div class="sd-nav-section">Main Menu</div>
 
-            <a href="{{ url('/student/dashboard') }}" class="sd-nav-item {{ request()->is('student/dashboard') ? 'active' : '' }}" data-section="overview">
-                <i class="fas fa-grid-2"></i> Dashboard
+            <a href="{{ url('/student/dashboard') }}"
+                class="sd-nav-item {{ request()->is('student/dashboard') ? 'active' : '' }}" data-section="overview">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
             </a>
-            <a href="{{ route('student.classes.browse') }}" class="sd-nav-item {{ request()->is('student/classes/browse') ? 'active' : '' }}" data-section="browse">
+            <a href="{{ route('student.classes.browse') }}"
+                class="sd-nav-item {{ request()->is('student/classes/browse') ? 'active' : '' }}" data-section="browse">
                 <i class="fas fa-school"></i> Browse Classes
             </a>
-            <a href="{{ route('student.lessons.lists') }}" class="sd-nav-item {{ request()->is('student/lessons/lists') ? 'active' : '' }}" data-section="lessons">
+            <a href="{{ route('student.lessons.lists') }}"
+                class="sd-nav-item {{ request()->is('student/lessons/lists') ? 'active' : '' }}" data-section="lessons">
                 <i class="fas fa-play-circle"></i> My Classes &amp; Lessons
             </a>
             {{-- <a href="#" class="sd-nav-item" data-section="quizzes">
@@ -1687,20 +1699,20 @@
                 <i class="fas fa-bars"></i>
             </button>
             <div class="sd-header-greeting">
-                <h2 class="mt-3">
+                <h2>
                     Assalamu Alaikum, {{ explode(' ', auth()->user()->name ?? 'Student')[0] }}
                     <i class="fa-regular fa-hand-paper"></i>
                 </h2>
                 <p>{{ now()->format('l, d F Y') }} &nbsp;·&nbsp; Keep up the great work!</p>
             </div>
             <div class="sd-header-actions">
-                <div class="sd-header-icon-btn" title="Search">
-                    <i class="fas fa-magnifying-glass"></i>
-                </div>
-                <div class="sd-header-icon-btn" title="Notifications" onclick="openModal('notifModal')">
-                    <i class="fas fa-bell"></i>
-                    <span class="sd-notif-dot"></span>
-                </div>
+                <!-- <div class="sd-header-icon-btn" title="Search">
+                                <i class="fas fa-magnifying-glass"></i>
+                            </div>
+                            <div class="sd-header-icon-btn" title="Notifications" onclick="openModal('notifModal')">
+                                <i class="fas fa-bell"></i>
+                                <span class="sd-notif-dot"></span>
+                            </div> -->
                 {{-- Replace this: --}}
                 {{-- <div class="sd-header-avatar" title="Profile">...</div> --}}
 
@@ -1725,7 +1737,15 @@
                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
                 <script>
-                    document.getElementById('logoutLink').addEventListener('click', function(event) {
+
+                    function toggleSidebar() {
+                        const sidebar = document.getElementById('sidebar');
+                        const overlay = document.getElementById('sidebarOverlay');
+                        sidebar.classList.toggle('open');
+                        overlay.classList.toggle('open');
+                    }
+
+                    document.getElementById('logoutLink').addEventListener('click', function (event) {
                         event.preventDefault();
 
                         Swal.fire({
@@ -1860,6 +1880,35 @@
                     .sd-header-avatar.dropdown::before,
                     .sd-header-avatar.dropdown::after {
                         display: none;
+                    }
+
+                    /* ── MOBILE HEADER FIX ── */
+                    @media(max-width:768px) {
+                        .sd-header {
+                            height: auto;
+                            min-height: var(--header-h);
+                            padding: 12px 16px;
+                            flex-wrap: nowrap;
+                            align-items: center;
+                        }
+
+                        .sd-header-greeting h2 {
+                            font-size: 0.88rem;
+                            margin-top: 0 !important;
+                            /* remove the mt-3 Tailwind offset */
+                        }
+
+                        .sd-header-greeting p {
+                            font-size: 0.68rem;
+                        }
+                    }
+
+                    /* ── MOBILE BOTTOM SPACING ── */
+                    @media(max-width:768px) {
+                        .sd-content {
+                            padding: 16px 16px 40px;
+                            /* extra bottom breathing room */
+                        }
                     }
                 </style>
                 <script>

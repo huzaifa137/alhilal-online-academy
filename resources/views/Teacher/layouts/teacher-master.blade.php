@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+<?php 
+     use App\Http\Controllers\Helper;
+?>
 
 <head>
     <meta charset="UTF-8">
@@ -1963,7 +1966,7 @@
                 </div>
                 <div class="teacher-info">
                     <div class="teacher-name">{{ auth()->user()->name ?? 'Teacher Name' }}</div>
-                    <div class="teacher-role">Islamic Studies · Senior</div>
+                    <div class="teacher-role">{{ Helper::instructor_name(Session('LoggedTeacher')) }}</div>
                 </div>
                 <div class="teacher-status"></div>
             </div>
@@ -1974,22 +1977,21 @@
                 <i class="fas fa-th-large nav-icon"></i>
                 Dashboard
             </a>
-            <a href="{{ route('teacher.lessons.lists') }}"
+            <!-- <a href="{{ route('teacher.lessons.lists') }}"
                 class="nav-link {{ request()->routeIs('teacher.lessons.lists') ? 'active' : '' }}">
                 <i class="fas fa-chalkboard nav-icon"></i>
                 My Classes
-                {{-- <span class="nav-badge">10</span> --}}
-            </a>
+                <span class="nav-badge">10</span> 
+            </a> -->
             <a href="{{ route('teacher.lessons.index') }}"
                 class="nav-link {{ request()->routeIs('teacher.lessons.index') ? 'active' : '' }}">
                 <i class="fas fa-users nav-icon"></i>
                 Lessons
             </a>
 
-            <a href="{{ route('teacher.settings.index') }}"
-                class="nav-link {{ request()->routeIs('teacher.settings.index') ? 'active' : '' }}">
-                <i class="fas fa-cogs nav-icon"></i>
-                Settings
+            <a href="{{ route('teacher.quizzes.index') }}" class="nav-link">
+                <i class="fas fa-list-ol"></i>
+                <span>Quiz Setup</span>
             </a>
 
             <a href="{{ route('teacher.enrollments.index') }}" class="nav-link">
@@ -1997,9 +1999,10 @@
                 <span>Enrollment</span>
             </a>
 
-            <a href="{{ route('teacher.quizzes.index') }}" class="nav-link">
-                <i class="fas fa-question-circle"></i>
-                <span>Quiz Management</span>
+            <a href="{{ route('teacher.settings.index') }}"
+                class="nav-link {{ request()->routeIs('teacher.settings.index') ? 'active' : '' }}">
+                <i class="fas fa-cogs nav-icon"></i>
+                Settings
             </a>
 
             {{-- <a href="{{ url('teacher.schedule') }}"
@@ -2088,7 +2091,7 @@
                 </div>
 
                 <div class="topbar-right">
-                    <div class="topbar-search">
+                    <!-- <div class="topbar-search">
                         <i class="fas fa-search" style="color:var(--muted);font-size:0.8rem;flex-shrink:0;"></i>
                         <input type="text" placeholder="Search students, classes…">
                     </div>
@@ -2103,7 +2106,7 @@
                     <a href="#" class="topbar-btn">
                         <i class="fas fa-comment-dots"></i>
                         <span class="dot" style="background:var(--gold);"></span>
-                    </a>
+                    </a> -->
 
                     {{-- Avatar --}}
                     <div class="topbar-avatar" id="profileBtn" onclick="toggleDropdown('profileDropdown','profileBtn')">

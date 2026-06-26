@@ -837,18 +837,22 @@ class TeacherLessonController extends Controller
         ]);
     }
 
-    public function getClassSubjects($classId)
-    {
-        $teacherSession = Session('LoggedTeacher');
-        $teacherId = is_object($teacherSession) ? $teacherSession->id : $teacherSession;
+public function getClassSubjects($classId)
+{
+    // Get the class's section_id via its level
+    $class = \App\Models\Academic\ClassModel::with('level')->findOrFail($classId);
+    $sectionId = $class->level->section_id ?? null;
 
-        $class = ClassModel::findOrFail($classId);
-
-        $subjects = $class->subjects()
-            ->where('class_subjects.teacher_id', $teacherId)
-            ->where('class_subjects.status', 'active')
-            ->get(['subjects.id', 'subjects.name', 'subjects.code']);
-
-        return response()->json(['subjects' => $subjects]);
+    if (!$sectionId) {
+        return response()->json(['subjects' => []]);
     }
+
+    // Return all active subjects that belong to the same section
+    $subjects = \App\Models\Academic\Subject::where('section_id', $sectionId)
+        ->where('status', 'active')
+        ->orderBy('name')
+        ->get(['id', 'name', 'code']);
+
+    return response()->json(['subjects' => $subjects]);
+}
 }
