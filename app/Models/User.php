@@ -65,9 +65,9 @@ class User extends Authenticatable
     // Accessor to get full name
     public function getFullNameAttribute()
     {
-        if ($this->fullname) {
-            return $this->fullname;
-        }
+        // if ($this->fullname) {
+        //     return $this->fullname;
+        // }
         return $this->firstname . ' ' . $this->lastname;
     }
 
@@ -86,5 +86,10 @@ class User extends Authenticatable
     public function lessons()
     {
         return $this->belongsToMany(Lesson::class, 'lesson_user')->withTimestamps();
+    }
+
+    public function certificates()
+    {
+        return $this->hasMany(\App\Models\Academic\Certificate::class, 'student_id');
     }
 }

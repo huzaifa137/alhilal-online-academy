@@ -2894,6 +2894,10 @@
                 class="nav-item {{ request()->routeIs('admin.payments') ? 'active' : '' }}">
                 <i class="fas fa-credit-card nav-ico"></i> Payments
             </a>
+            <a href="{{ route('admin.certificates.index') }}"
+                class="nav-item {{ request()->routeIs('admin.certificates.*') ? 'active' : '' }}">
+                <i class="fas fa-certificate nav-ico"></i> Certificates
+            </a>
 
             {{-- SYSTEM --}}
             <div class="nav-section-label">System</div>

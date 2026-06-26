@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StudentLessonController;
 use App\Http\Controllers\Student\PaymentController;
 use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\Student\CertificateController as StudentCertificateController;
+use App\Http\Controllers\Admin\CertificateController as AdminCertificateController;
 
 Route::get('/all-sessions', function () {
     dd(Session::all());
@@ -259,7 +261,7 @@ Route::middleware(['AdminAuth'])->prefix('student')->name('student.')->group(fun
         Route::post('/lessons/{lesson}/start', 'startLesson')->name('lessons.start');
         Route::post('/lessons/{lesson}/complete', 'completeLesson')->name('lessons.complete');
         Route::post('/lessons/{lesson}/progress', 'updateProgress')->name('lessons.progress');
-        Route::post('/activate-class','activateClass')->name('activate-class');
+        Route::post('/activate-class', 'activateClass')->name('activate-class');
     });
 
     Route::controller(PaymentController::class)->group(function () {
@@ -267,7 +269,32 @@ Route::middleware(['AdminAuth'])->prefix('student')->name('student.')->group(fun
         Route::post('/pay-lesson', 'initiateLessonPayment')->name('pay-lesson');
         Route::get('/payment/status', 'checkStatus')->name('payment.status');
     });
+
+    Route::controller(StudentCertificateController::class)
+        ->prefix('certificates')->name('certificates.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/class/{class}/check', 'checkEligibility')->name('check');
+            Route::get('/class/{class}/preview', 'preview')->name('preview');
+            Route::get('/class/{class}/download', 'download')->name('download');
+        });
 });
+
+
+Route::prefix('admin')->name('admin.')->middleware(['AdminAuth'])->group(function () {
+    Route::prefix('certificates')->name('certificates.')->controller(AdminCertificateController::class)
+        ->group(function () {
+
+            Route::get('/', 'index')->name('index');
+            Route::get('/{certificate}', 'show')->name('show');
+            Route::post('/{certificate}/revoke', 'revoke')->name('revoke');
+            Route::post('/{certificate}/reissue', 'reissue')->name('reissue');
+            Route::get('/{certificate}/download', 'download')->name('download');
+
+        });
+});
+
+Route::get('/certificates/verify', [StudentCertificateController::class, 'verify'])
+    ->name('certificates.verify');
 
 Route::get('/privacy-policy', [LevelController::class, 'index'])->name('privacy-policy');
 

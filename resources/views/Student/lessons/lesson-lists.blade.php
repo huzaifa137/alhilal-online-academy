@@ -1154,6 +1154,146 @@
         .swal2-popup {
             z-index: 100000 !important;
         }
+
+        /* ── Certificate Section ─────────────────────────────────────── */
+        .sl-cert-section {
+            padding: 0 20px 20px;
+        }
+        .sl-cert-divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            margin-top: 6px;
+        }
+        .sl-cert-divider::before,
+        .sl-cert-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(107,70,193,.25), transparent);
+        }
+        .sl-cert-divider-label {
+            font-size: .7rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: #6B46C1;
+            white-space: nowrap;
+        }
+        .sl-cert-loading {
+            text-align: center;
+            color: #9892B0;
+            font-size: .8rem;
+            padding: 14px;
+        }
+        /* Eligible card */
+        .sl-cert-eligible {
+            background: linear-gradient(135deg, #F5F3FD 0%, #FEF3C7 100%);
+            border: 1.5px solid #D97706;
+            border-radius: 14px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .sl-cert-icon-wrap {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6B46C1, #4C2E8A);
+            border: 2px solid #D97706;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .sl-cert-info { flex: 1; min-width: 0; }
+        .sl-cert-title {
+            font-weight: 700;
+            font-size: .95rem;
+            color: #1A0A2E;
+            margin-bottom: 3px;
+        }
+        .sl-cert-sub {
+            font-size: .75rem;
+            color: #6B6584;
+        }
+        .sl-cert-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .sl-cert-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: .77rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all .2s;
+        }
+        .sl-cert-btn-gold {
+            background: linear-gradient(135deg, #D97706, #F59E0B);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(217,119,6,.3);
+        }
+        .sl-cert-btn-gold:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(217,119,6,.4);
+            color: #fff;
+        }
+        .sl-cert-btn-outline {
+            background: #fff;
+            color: #6B46C1;
+            border: 1.5px solid #6B46C1;
+        }
+        .sl-cert-btn-outline:hover { background: #EDE9FA; }
+        /* Locked card */
+        .sl-cert-locked {
+            background: #F9F7FF;
+            border: 1.5px dashed rgba(107,70,193,.25);
+            border-radius: 14px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            opacity: .82;
+        }
+        .sl-cert-locked-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(107,70,193,.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #6B46C1;
+            flex-shrink: 0;
+        }
+        .sl-cert-locked-info { flex: 1; }
+        .sl-cert-locked-title {
+            font-weight: 600;
+            font-size: .88rem;
+            color: #3B2459;
+            margin-bottom: 3px;
+        }
+        .sl-cert-progress-bar-wrap {
+            background: rgba(107,70,193,.12);
+            border-radius: 999px;
+            height: 5px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .sl-cert-progress-bar {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #6B46C1, #D97706);
+            transition: width .6s ease;
+        }
     </style>
 
     <div class="sl-wrap">
@@ -1418,7 +1558,23 @@
                                 </div>
                             @endforeach
                         </div>
+
+                        {{-- ── Certificate Section ─────────────────────────────────────────── --}}
+                        <div class="sl-cert-section" id="cert-section-{{ $classData['class_id'] }}"
+                             data-class-id="{{ $classData['class_id'] }}">
+                            <div class="sl-cert-divider">
+                                <span class="sl-cert-divider-label"><i class="fas fa-certificate"></i> Class Certificate</span>
+                            </div>
+                            <div class="sl-cert-banner" id="cert-banner-{{ $classData['class_id'] }}">
+                                {{-- Placeholder shown before JS check --}}
+                                <div class="sl-cert-loading">
+                                    <i class="fas fa-spinner fa-spin"></i> Checking eligibility…
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
+                </div>
                 @endforeach
             </div>
         @else
@@ -2126,7 +2282,8 @@
                     });
                 }
             } catch (e) {
-                Swal.fire({
+                Swal.fire(
+                {
                     icon: 'error',
                     title: 'Error',
                     text: 'Something went wrong. Please try again.789',
@@ -2134,5 +2291,68 @@
                 });
             }
         }
+
+        // ── Certificate eligibility check ─────────────────────────────────────
+        async function checkCertEligibility(classId) {
+            const banner = document.getElementById('cert-banner-' + classId);
+            if (!banner) return;
+            try {
+                const res  = await fetch(`/student/certificates/class/${classId}/check`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                });
+                const data = await res.json();
+
+                if (data.eligible) {
+                    banner.innerHTML = `
+                        <div class="sl-cert-eligible">
+                            <div class="sl-cert-icon-wrap">🎓</div>
+                            <div class="sl-cert-info">
+                                <div class="sl-cert-title">🎉 Certificate Ready!</div>
+                                <div class="sl-cert-sub">You have completed all lessons and passed all quizzes for this class.</div>
+                            </div>
+                            <div class="sl-cert-actions">
+                                <a href="/student/certificates/class/${classId}/download" class="sl-cert-btn sl-cert-btn-gold">
+                                    <i class="fas fa-download"></i> Download Certificate
+                                </a>
+                                <a href="javascript:void();" class="sl-cert-btn sl-cert-btn-outline">
+                                    <i class="fas fa-eye"></i> Preview
+                                </a>
+                            </div>
+                        </div>`;
+                } else {
+                    const pct   = data.lesson_progress_percentage || 0;
+                    const done  = data.completed_lessons || 0;
+                    const total = data.total_lessons || 0;
+                    const qpct  = data.total_quizzes > 0
+                        ? Math.round((data.passed_quizzes / data.total_quizzes) * 100)
+                        : null;
+                    const reasonText = data.reason || 'Complete all lessons and quizzes to earn your certificate.';
+                    banner.innerHTML = `
+                        <div class="sl-cert-locked">
+                            <div class="sl-cert-locked-icon"><i class="fas fa-lock"></i></div>
+                            <div class="sl-cert-locked-info">
+                                <div class="sl-cert-locked-title">Certificate Locked</div>
+                                <div style="font-size:.73rem;color:#6B6584;margin-bottom:4px;">${reasonText}</div>
+                                <div style="font-size:.7rem;color:#9892B0;">
+                                    Lessons: ${done}/${total}
+                                    ${qpct !== null ? ` &nbsp;·&nbsp; Quizzes: ${data.passed_quizzes}/${data.total_quizzes}` : ''}
+                                </div>
+                                <div class="sl-cert-progress-bar-wrap">
+                                    <div class="sl-cert-progress-bar" style="width:${pct}%"></div>
+                                </div>
+                            </div>
+                        </div>`;
+                }
+            } catch (e) {
+                if (banner) banner.innerHTML = '';
+            }
+        }
+
+        // Run checks for every visible class card
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.sl-cert-section[data-class-id]').forEach(function (el) {
+                checkCertEligibility(el.dataset.classId);
+            });
+        });
     </script>
 @endsection

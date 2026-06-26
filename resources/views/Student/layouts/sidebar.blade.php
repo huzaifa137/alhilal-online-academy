@@ -1650,8 +1650,10 @@
             <a href="#" class="sd-nav-item" data-section="reports">
                 <i class="fas fa-chart-bar"></i> My Reports
             </a> --}}
-            <a href="#" class="sd-nav-item" data-section="certificates">
-                <i class="fas fa-award"></i> Certificates
+            <a href="{{ route('student.certificates.index') }}"
+                class="sd-nav-item {{ request()->is('student/certificates*') ? 'active' : '' }}"
+                data-section="certificates">
+                <i class="fas fa-award"></i> My Certificates
             </a>
 
             {{-- <div class="sd-nav-section">Resources</div> --}}
