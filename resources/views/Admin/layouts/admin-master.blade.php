@@ -2733,34 +2733,35 @@
                 align-items: flex-start;
             }
         }
+
         .logout-confirm-btn {
-    background: #ffffff;
-    color: #ff0000;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 6px;
-    font-weight: 600;
-    margin-right: 10px;
-    cursor: pointer;
-}
+            background: #ffffff;
+            color: #ff0000;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-right: 10px;
+            cursor: pointer;
+        }
 
-.logout-cancel-btn {
-    background: gray;
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-}
+        .logout-cancel-btn {
+            background: gray;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
 
-.logout-confirm-btn:hover {
-    opacity: 0.9;
-}
+        .logout-confirm-btn:hover {
+            opacity: 0.9;
+        }
 
-.logout-cancel-btn:hover {
-    opacity: 0.9;
-}
+        .logout-cancel-btn:hover {
+            opacity: 0.9;
+        }
     </style>
 </head>
 
@@ -2782,13 +2783,13 @@
             </div>
 
             {{-- Brand --}}
-            <a href="{{ url('home') }}" class="sidebar-brand">
+            <a href="{{ url('/admin/students') }}" class="sidebar-brand">
                 <div class="brand-logomark"><i class="fas fa-graduation-cap"></i></div>
                 <div class="brand-text-wrap">
                     <div class="brand-name">AlHilal Academy</div>
                     <div class="brand-tagline">Online Learning Platform</div>
                 </div>
-                <div class="brand-version">v2.4</div>
+                <div class="brand-version">v1.1</div>
             </a>
 
             {{-- Admin identity --}}
@@ -2816,81 +2817,46 @@
 
             {{-- OVERVIEW --}}
             <div class="nav-section-label">Overview</div>
-            <a href="{{ url('admin.dashboard') }}"
+            <a href="{{ route('admin.dashboard') }}"
                 class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                 <i class="fas fa-th-large nav-ico"></i> Command Centre
             </a>
-            <a href="{{ url('admin.analytics') }}"
-                class="nav-item {{ request()->routeIs('admin.analytics') ? 'active' : '' }}">
-                <i class="fas fa-chart-area nav-ico"></i> Analytics
-                <span class="nav-new">New</span>
-            </a>
-            <a href="{{ url('admin.reports') }}"
-                class="nav-item {{ request()->routeIs('admin.reports') ? 'active' : '' }}">
-                <i class="fas fa-file-chart-line nav-ico"></i> Reports
-            </a>
+           <a href="{{ route('admin.reports') }}"
+   class="nav-item {{ request()->routeIs('admin.reports') ? 'active' : '' }}">
+    <i class="fas fa-chart-bar nav-ico"></i> Reports
+</a>
 
             {{-- PEOPLE --}}
             <div class="nav-section-label">People</div>
-            <a href="{{ url('admin.students') }}"
+            <a href="{{ route('admin.students') }}"
                 class="nav-item {{ request()->routeIs('admin.students') ? 'active' : '' }}">
                 <i class="fas fa-user-graduate nav-ico"></i> Students
-                <span class="nav-badge nb-purple">{{ $totalStudents ?? '142' }}</span>
+                <span class="nav-badge nb-purple">{{ $totalStudents ?? '' }}</span>
             </a>
-            <a href="{{ url('admin.teachers') }}"
+            <a href="{{ route('admin.teachers') }}"
                 class="nav-item {{ request()->routeIs('admin.teachers') ? 'active' : '' }}">
                 <i class="fas fa-chalkboard-teacher nav-ico"></i> Teachers
-                <span class="nav-badge nb-purple">{{ $totalTeachers ?? '18' }}</span>
+                <span class="nav-badge nb-purple">{{ $totalTeachers ?? '' }}</span>
             </a>
-            <a href="{{ url('admin.parents') }}"
-                class="nav-item {{ request()->routeIs('admin.parents') ? 'active' : '' }}">
-                <i class="fas fa-users nav-ico"></i> Parents / Guardians
-            </a>
-            <a href="{{ url('admin.enrollments') }}"
+            <a href="{{ route('admin.enrollments') }}"
                 class="nav-item {{ request()->routeIs('admin.enrollments') ? 'active' : '' }}">
                 <i class="fas fa-user-plus nav-ico"></i> Enrollments
-                <span class="nav-badge nb-green">7</span>
             </a>
 
             {{-- ACADEMICS --}}
-            <div class="nav-section-label">Academics</div>
-            <a href="{{ url('admin.classes') }}"
-                class="nav-item {{ request()->routeIs('admin.classes') ? 'active' : '' }}">
+            <!-- <div class="nav-section-label">Academics</div>
+            <a href="{{ route('admin.classes.index') }}"
+                class="nav-item {{ request()->routeIs('admin.classes.*') ? 'active' : '' }}">
                 <i class="fas fa-chalkboard nav-ico"></i> Classes
             </a>
-            <a href="{{ url('admin.curriculum') }}"
-                class="nav-item {{ request()->routeIs('admin.curriculum') ? 'active' : '' }}">
-                <i class="fas fa-book-open nav-ico"></i> Curriculum
-            </a>
-            <a href="{{ url('admin.assignments') }}"
-                class="nav-item {{ request()->routeIs('admin.assignments') ? 'active' : '' }}">
-                <i class="fas fa-tasks nav-ico"></i> Assignments
-            </a>
-            <a href="{{ url('admin.exams') }}" class="nav-item {{ request()->routeIs('admin.exams') ? 'active' : '' }}">
-                <i class="fas fa-clipboard-list nav-ico"></i> Exams & Quizzes
-                <span class="nav-badge nb-gold">3</span>
-            </a>
-            <a href="{{ url('admin.attendance') }}"
-                class="nav-item {{ request()->routeIs('admin.attendance') ? 'active' : '' }}">
-                <i class="fas fa-calendar-check nav-ico"></i> Attendance
-            </a>
+            <a href="{{ route('admin.sections.index') }}"
+                class="nav-item {{ request()->routeIs('admin.sections.*') ? 'active' : '' }}">
+                <i class="fas fa-layer-group nav-ico"></i> Sections
+            </a> -->
 
             {{-- PLATFORM --}}
             <div class="nav-section-label">Platform</div>
-            <a href="{{ url('admin.content') }}"
-                class="nav-item {{ request()->routeIs('admin.content') ? 'active' : '' }}">
-                <i class="fas fa-photo-video nav-ico"></i> Content Library
-            </a>
-            <a href="{{ url('admin.announcements') }}"
-                class="nav-item {{ request()->routeIs('admin.announcements') ? 'active' : '' }}">
-                <i class="fas fa-bullhorn nav-ico"></i> Announcements
-            </a>
-            <a href="{{ url('admin.messages') }}"
-                class="nav-item {{ request()->routeIs('admin.messages') ? 'active' : '' }}">
-                <i class="fas fa-comment-dots nav-ico"></i> Messages
-                <span class="nav-badge nb-red">12</span>
-            </a>
-            <a href="{{ url('admin.payments') }}"
+            <a href="{{ route('admin.payments') }}"
                 class="nav-item {{ request()->routeIs('admin.payments') ? 'active' : '' }}">
                 <i class="fas fa-credit-card nav-ico"></i> Payments
             </a>
@@ -2899,38 +2865,14 @@
                 <i class="fas fa-certificate nav-ico"></i> Certificates
             </a>
 
-            {{-- SYSTEM --}}
-            <div class="nav-section-label">System</div>
-            <a href="{{ url('admin.settings') }}"
-                class="nav-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
-                <i class="fas fa-cog nav-ico"></i> Settings
-            </a>
-            <a href="{{ url('admin.permissions') }}"
-                class="nav-item {{ request()->routeIs('admin.permissions') ? 'active' : '' }}">
-                <i class="fas fa-shield-alt nav-ico"></i> Roles & Permissions
-            </a>
-            <a href="{{ url('admin.logs') }}" class="nav-item {{ request()->routeIs('admin.logs') ? 'active' : '' }}">
-                <i class="fas fa-history nav-ico"></i> Audit Logs
-            </a>
-            <a href="{{ url('admin.backup') }}"
-                class="nav-item {{ request()->routeIs('admin.backup') ? 'active' : '' }}">
-                <i class="fas fa-database nav-ico"></i> Backup & System
-            </a>
-
             {{-- Footer --}}
             <div class="sidebar-footer">
-                <a href="{{ url('admin.profile') }}" class="sidebar-foot-btn">
+                <a href="{{ route('users-profile') }}" class="sidebar-foot-btn">
                     <i class="fas fa-user-circle" style="width:16px;text-align:center;"></i> My Profile
                 </a>
-                <a href="{{ url('admin.help') }}" class="sidebar-foot-btn">
-                    <i class="fas fa-question-circle" style="width:16px;text-align:center;"></i> Help & Support
+                <a href="{{ route('user-logout') }}" class="sidebar-foot-btn danger">
+                    <i class="fas fa-sign-out-alt" style="width:16px;text-align:center;"></i> Sign Out
                 </a>
-                <form method="POST" action="{{ url('logout') }}">
-                    @csrf
-                    <button type="submit" class="sidebar-foot-btn danger">
-                        <i class="fas fa-sign-out-alt" style="width:16px;text-align:center;"></i> Sign Out
-                    </button>
-                </form>
             </div>
 
         </aside>
@@ -2957,26 +2899,11 @@
                 </div>
 
                 <div class="topbar-right">
-                    <div class="topbar-search">
-                        <i class="fas fa-search"></i>
-                        <input type="text" placeholder="Search students, teachers, classes…">
-                        <i class="fas fa-slash" style="font-size:0.65rem;opacity:0.3;"></i>
-                    </div>
-
+                   
                     <div class="tb-date-chip">
                         <i class="fas fa-calendar-alt"></i>
                         {{ now()->format('D, d M Y') }}
                     </div>
-
-                    <button class="tb-icon-btn" onclick="openDrop('notifDrop')" id="notifTrigger">
-                        <i class="fas fa-bell"></i>
-                        <span class="tb-badge tb-badge-red"></span>
-                    </button>
-
-                    <a href="#" class="tb-icon-btn">
-                        <i class="fas fa-comment-dots"></i>
-                        <span class="tb-badge tb-badge-gold"></span>
-                    </a>
 
                     <a href="#" class="tb-icon-btn" title="Full screen">
                         <i class="fas fa-expand-alt"></i>
@@ -3062,35 +2989,35 @@
 
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    document.getElementById('logoutLink').addEventListener('click', function (event) {
-        event.preventDefault();
+            <script>
+                document.getElementById('logoutLink').addEventListener('click', function (event) {
+                    event.preventDefault();
 
-        Swal.fire({
-            title: "Are you sure?",
-            text: "Do you really want to sign out?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Yes, Sign out",
-            cancelButtonText: "Cancel",
+                    Swal.fire({
+                        title: "Are you sure?",
+                        text: "Do you really want to sign out?",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Yes, Sign out",
+                        cancelButtonText: "Cancel",
 
-            background: "#783896",
-            color: "#ffffff",
+                        background: "#783896",
+                        color: "#ffffff",
 
-            customClass: {
-                confirmButton: 'logout-confirm-btn',
-                cancelButton: 'logout-cancel-btn',
-                popup: 'logout-popup'
-            },
+                        customClass: {
+                            confirmButton: 'logout-confirm-btn',
+                            cancelButton: 'logout-cancel-btn',
+                            popup: 'logout-popup'
+                        },
 
-            buttonsStyling: false
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = '{{ route('user-logout') }}';
-            }
-        });
-    });
-</script>
+                        buttonsStyling: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '{{ route('user-logout') }}';
+                        }
+                    });
+                });
+            </script>
 
             {{-- ═══════════════════════════════
             PAGE BODY

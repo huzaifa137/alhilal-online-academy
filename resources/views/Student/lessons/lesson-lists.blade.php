@@ -1159,6 +1159,7 @@
         .sl-cert-section {
             padding: 0 20px 20px;
         }
+
         .sl-cert-divider {
             display: flex;
             align-items: center;
@@ -1166,13 +1167,15 @@
             margin-bottom: 14px;
             margin-top: 6px;
         }
+
         .sl-cert-divider::before,
         .sl-cert-divider::after {
             content: '';
             flex: 1;
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(107,70,193,.25), transparent);
+            background: linear-gradient(90deg, transparent, rgba(107, 70, 193, .25), transparent);
         }
+
         .sl-cert-divider-label {
             font-size: .7rem;
             font-weight: 700;
@@ -1181,12 +1184,14 @@
             color: #6B46C1;
             white-space: nowrap;
         }
+
         .sl-cert-loading {
             text-align: center;
             color: #9892B0;
             font-size: .8rem;
             padding: 14px;
         }
+
         /* Eligible card */
         .sl-cert-eligible {
             background: linear-gradient(135deg, #F5F3FD 0%, #FEF3C7 100%);
@@ -1198,6 +1203,7 @@
             gap: 16px;
             flex-wrap: wrap;
         }
+
         .sl-cert-icon-wrap {
             width: 52px;
             height: 52px;
@@ -1211,18 +1217,30 @@
             color: #fff;
             flex-shrink: 0;
         }
-        .sl-cert-info { flex: 1; min-width: 0; }
+
+        .sl-cert-info {
+            flex: 1;
+            min-width: 0;
+        }
+
         .sl-cert-title {
             font-weight: 700;
             font-size: .95rem;
             color: #1A0A2E;
             margin-bottom: 3px;
         }
+
         .sl-cert-sub {
             font-size: .75rem;
             color: #6B6584;
         }
-        .sl-cert-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .sl-cert-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
         .sl-cert-btn {
             display: inline-flex;
             align-items: center;
@@ -1234,26 +1252,33 @@
             text-decoration: none;
             transition: all .2s;
         }
+
         .sl-cert-btn-gold {
             background: linear-gradient(135deg, #D97706, #F59E0B);
             color: #fff;
-            box-shadow: 0 2px 8px rgba(217,119,6,.3);
+            box-shadow: 0 2px 8px rgba(217, 119, 6, .3);
         }
+
         .sl-cert-btn-gold:hover {
             transform: translateY(-1px);
-            box-shadow: 0 4px 14px rgba(217,119,6,.4);
+            box-shadow: 0 4px 14px rgba(217, 119, 6, .4);
             color: #fff;
         }
+
         .sl-cert-btn-outline {
             background: #fff;
             color: #6B46C1;
             border: 1.5px solid #6B46C1;
         }
-        .sl-cert-btn-outline:hover { background: #EDE9FA; }
+
+        .sl-cert-btn-outline:hover {
+            background: #EDE9FA;
+        }
+
         /* Locked card */
         .sl-cert-locked {
             background: #F9F7FF;
-            border: 1.5px dashed rgba(107,70,193,.25);
+            border: 1.5px dashed rgba(107, 70, 193, .25);
             border-radius: 14px;
             padding: 16px 20px;
             display: flex;
@@ -1262,11 +1287,12 @@
             flex-wrap: wrap;
             opacity: .82;
         }
+
         .sl-cert-locked-icon {
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            background: rgba(107,70,193,.1);
+            background: rgba(107, 70, 193, .1);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1274,20 +1300,26 @@
             color: #6B46C1;
             flex-shrink: 0;
         }
-        .sl-cert-locked-info { flex: 1; }
+
+        .sl-cert-locked-info {
+            flex: 1;
+        }
+
         .sl-cert-locked-title {
             font-weight: 600;
             font-size: .88rem;
             color: #3B2459;
             margin-bottom: 3px;
         }
+
         .sl-cert-progress-bar-wrap {
-            background: rgba(107,70,193,.12);
+            background: rgba(107, 70, 193, .12);
             border-radius: 999px;
             height: 5px;
             margin-top: 8px;
             overflow: hidden;
         }
+
         .sl-cert-progress-bar {
             height: 100%;
             border-radius: 999px;
@@ -1297,6 +1329,18 @@
     </style>
 
     <div class="sl-wrap">
+        @if(session('error'))
+            <div
+                style="margin-bottom:18px;padding:12px 18px;background:var(--c-red-lt);border:1px solid rgba(220,38,38,.25);border-radius:var(--radius-lg);color:var(--c-red);font-size:0.86rem;font-weight:600;">
+                <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
+            </div>
+        @endif
+        @if(session('success'))
+            <div
+                style="margin-bottom:18px;padding:12px 18px;background:var(--c-green-lt);border:1px solid rgba(5,150,105,.25);border-radius:var(--radius-lg);color:var(--c-emerald);font-size:0.86rem;font-weight:600;">
+                <i class="fas fa-check-circle"></i> {{ session('success') }}
+            </div>
+        @endif
         <div class="sl-header">
             <div>
                 <div class="sl-eyebrow"><i class="fas fa-graduation-cap"></i> My Learning</div>
@@ -1340,254 +1384,254 @@
         </div>
 
         @if(isset($groupedLessons) && count($groupedLessons) > 0)
-            <div id="classGridContainer" class="sl-class-grid">
-                @foreach($groupedLessons as $className => $classData)
-                    @php
-                        $classPaid = $classData['class_paid'] ?? false;
-                        $classPending = $classData['class_pending'] ?? false;
-                        $enrollment = $classData['enrollment'] ?? null;
-                    @endphp
-                    <div class="sl-class-card" data-classname="{{ strtolower($className) }}">
-                        <div class="sl-class-header" onclick="toggleClass(this)">
-                            <div class="sl-class-header-content">
-                                <div class="sl-class-header-left">
-                                    <div class="sl-class-icon"><i class="fas fa-chalkboard"></i></div>
-                                    <div>
-                                        <h3 class="sl-class-name">{{ $className }}</h3>
-                                        @if($classData['level'])
-                                            <span class="sl-class-level"><i class="fas fa-graduation-cap"></i>
-                                                {{ $classData['level'] }}</span>
-                                        @endif
-                                    </div>
-                                </div>
-                                <div class="sl-class-header-right">
-                                    @if($classPaid)
-                                        <span class="sl-subjects-badge" style="background:rgba(5,150,105,.25)"><i
-                                                class="fas fa-check-circle"></i> Active</span>
-                                    @else
-                                        <span class="sl-subjects-badge" style="background:rgba(217,119,6,.3);"><i
-                                                class="fas fa-clock"></i> Pending</span>
-                                    @endif
-                                    <span class="sl-subjects-badge"><i class="fas fa-book"></i> {{ count($classData['subjects']) }}
-                                        Subjects</span>
-                                    <i class="fas fa-chevron-down sl-chevron"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="sl-class-content" style="display:none">
-                            {{-- Class Payment Gate --}}
-                            @if(!$classPaid)
-                                <div class="sl-class-gate" style="background:#f0fdf4; border-color:#16a34a;">
-                                    <div>
-                                        <div class="sl-gate-text" style="color:#15803d;">
-                                            <i class="fas fa-bolt"></i> Activate Class
-                                        </div>
-                                        <div style="font-size:.7rem;color:var(--c-muted);margin-top:3px">
-                                            Activate this class to unlock all its lessons
-                                        </div>
-                                    </div>
-                                    <button class="sl-gate-btn" style="background:#16a34a;"
-                                        onclick="showActivateClassModal({{ $classData['class_id'] }}, '{{ addslashes($className) }}')">
-                                        <i class="fas fa-unlock"></i> Activate Class
-                                    </button>
-                                </div>
-                            @endif
-
-                            @foreach($classData['subjects'] as $subjectName => $subjectData)
-                                <div class="sl-subject-section">
-                                    <div class="sl-subject-header" onclick="toggleSubject(this)">
-                                        <div class="sl-subject-header-content">
+                <div id="classGridContainer" class="sl-class-grid">
+                    @foreach($groupedLessons as $className => $classData)
+                            @php
+                                $classPaid = $classData['class_paid'] ?? false;
+                                $classPending = $classData['class_pending'] ?? false;
+                                $enrollment = $classData['enrollment'] ?? null;
+                            @endphp
+                            <div class="sl-class-card" data-classname="{{ strtolower($className) }}">
+                                <div class="sl-class-header" onclick="toggleClass(this)">
+                                    <div class="sl-class-header-content">
+                                        <div class="sl-class-header-left">
+                                            <div class="sl-class-icon"><i class="fas fa-chalkboard"></i></div>
                                             <div>
-                                                <i class="fas fa-book-open" style="color:var(--c-accent);margin-right:8px"></i>
-                                                <span class="sl-subject-name">{{ $subjectName }}</span>
-                                                @if($subjectData['subject_code'])
-                                                    <span class="sl-subject-code">({{ $subjectData['subject_code'] }})</span>
+                                                <h3 class="sl-class-name">{{ $className }}</h3>
+                                                @if($classData['level'])
+                                                    <span class="sl-class-level"><i class="fas fa-graduation-cap"></i>
+                                                        {{ $classData['level'] }}</span>
                                                 @endif
-                                            </div>
-                                            <div style="display:flex;align-items:center;gap:8px">
-                                                <span class="sl-subject-badge"><i class="fas fa-layer-group"></i>
-                                                    {{ count($subjectData['topics']) }} Topics</span>
-                                                <i class="fas fa-chevron-down" style="font-size:.7rem"></i>
                                             </div>
                                         </div>
+                                        <div class="sl-class-header-right">
+                                            @if($classPaid)
+                                                <span class="sl-subjects-badge" style="background:rgba(5,150,105,.25)"><i
+                                                        class="fas fa-check-circle"></i> Active</span>
+                                            @else
+                                                <span class="sl-subjects-badge" style="background:rgba(217,119,6,.3);"><i
+                                                        class="fas fa-clock"></i> Pending</span>
+                                            @endif
+                                            <span class="sl-subjects-badge"><i class="fas fa-book"></i> {{ count($classData['subjects']) }}
+                                                Subjects</span>
+                                            <i class="fas fa-chevron-down sl-chevron"></i>
+                                        </div>
                                     </div>
-                                    <div class="sl-subject-content" style="display:none">
-                                        @foreach($subjectData['topics'] as $topicName => $topicData)
-                                            <div class="sl-topic-section">
-                                                <div class="sl-topic-title">
-                                                    <i class="fas fa-folder-open" style="color:var(--c-accent)"></i>
-                                                    <span>{{ $topicName }}</span>
-                                                    <span class="sl-topic-badge"><i class="fas fa-video"></i>
-                                                        {{ count($topicData['lessons']) }} Lessons</span>
+                                </div>
+
+                                <div class="sl-class-content" style="display:none">
+                                    {{-- Class Payment Gate --}}
+                                    @if(!$classPaid)
+                                        <div class="sl-class-gate" style="background:#f0fdf4; border-color:#16a34a;">
+                                            <div>
+                                                <div class="sl-gate-text" style="color:#15803d;">
+                                                    <i class="fas fa-bolt"></i> Activate Class
                                                 </div>
-                                                @if($topicData['topic_description'])
-                                                    <p class="sl-topic-desc">{{ Str::limit($topicData['topic_description'], 120) }}</p>
-                                                @endif
+                                                <div style="font-size:.7rem;color:var(--c-muted);margin-top:3px">
+                                                    Activate this class to unlock all its lessons
+                                                </div>
+                                            </div>
+                                            <button class="sl-gate-btn" style="background:#16a34a;"
+                                                onclick="showActivateClassModal({{ $classData['class_id'] }}, '{{ addslashes($className) }}')">
+                                                <i class="fas fa-unlock"></i> Activate Class
+                                            </button>
+                                        </div>
+                                    @endif
 
-                                                @foreach($topicData['lessons'] as $lesson)
-                                                    @php
-                                                        $lessonPaid = strtolower($lesson->lesson_payment_status ?? '') === 'paid';
-                                                        $canAccessLesson = $classPaid && $lessonPaid;
-                                                        $progress = $lesson->student_progress ?? null;
-                                                        $hasQuizzes = ($lesson->quiz_count ?? 0) > 0;
-                                                    @endphp
-                                                    <div class="sl-lesson-item">
-                                                        <div class="sl-lesson-main">
-                                                            <div class="sl-lesson-icon">
-                                                                <i class="fas fa-{{ $canAccessLesson ? 'play-circle' : 'lock' }}"></i>
-                                                            </div>
-                                                            <div class="sl-lesson-details">
-                                                                <div class="sl-lesson-title">
-                                                                    {{ $lesson->title }}
-                                                                    @if(!$classPaid)
-                                                                        <span class="sl-lesson-lock"><i class="fas fa-lock"></i> Pay class
-                                                                            first</span>
-                                                                    @elseif(!$lessonPaid)
-                                                                        <span class="sl-lesson-lock"><i class="fas fa-lock"></i> Locked</span>
-                                                                    @endif
-                                                                </div>
-                                                                <div class="sl-lesson-meta">
-                                                                    <span class="sl-lesson-meta-item"><i class="fas fa-hourglass-half"></i>
-                                                                        {{ $lesson->duration ?? 'N/A' }} min</span>
-                                                                    <span class="sl-lesson-meta-item"><i class="fas fa-sort-numeric-down"></i>
-                                                                        Lesson {{ $lesson->lesson_order }}</span>
-                                                                    <span class="sl-lesson-meta-item"><i
-                                                                            class="fas fa-{{ $lesson->lesson_type === 'video' ? 'video' : ($lesson->lesson_type === 'pdf' ? 'file-pdf' : 'headphones') }}"></i>
-                                                                        {{ ucfirst($lesson->lesson_type) }}</span>
-                                                                    @if($hasQuizzes)
-                                                                        <span class="sl-lesson-meta-item" style="color:#4338ca"><i
-                                                                                class="fas fa-question-circle"></i> {{ $lesson->quiz_count }}
-                                                                            Quiz</span>
-                                                                    @endif
-                                                                </div>
-                                                            </div>
+                                    @foreach($classData['subjects'] as $subjectName => $subjectData)
+                                        <div class="sl-subject-section">
+                                            <div class="sl-subject-header" onclick="toggleSubject(this)">
+                                                <div class="sl-subject-header-content">
+                                                    <div>
+                                                        <i class="fas fa-book-open" style="color:var(--c-accent);margin-right:8px"></i>
+                                                        <span class="sl-subject-name">{{ $subjectName }}</span>
+                                                        @if($subjectData['subject_code'])
+                                                            <span class="sl-subject-code">({{ $subjectData['subject_code'] }})</span>
+                                                        @endif
+                                                    </div>
+                                                    <div style="display:flex;align-items:center;gap:8px">
+                                                        <span class="sl-subject-badge"><i class="fas fa-layer-group"></i>
+                                                            {{ count($subjectData['topics']) }} Topics</span>
+                                                        <i class="fas fa-chevron-down" style="font-size:.7rem"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="sl-subject-content" style="display:none">
+                                                @foreach($subjectData['topics'] as $topicName => $topicData)
+                                                    <div class="sl-topic-section">
+                                                        <div class="sl-topic-title">
+                                                            <i class="fas fa-folder-open" style="color:var(--c-accent)"></i>
+                                                            <span>{{ $topicName }}</span>
+                                                            <span class="sl-topic-badge"><i class="fas fa-video"></i>
+                                                                {{ count($topicData['lessons']) }} Lessons</span>
                                                         </div>
-                                                        <div class="sl-lesson-footer">
-                                                            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                                                                @if($lesson->lesson_amount)
-                                                                    <div class="sl-lesson-price">
-                                                                        <i class="fas fa-money-bill-wave"></i>
-                                                                        UGX {{ number_format((int) str_replace(',', '', $lesson->lesson_amount)) }}
-                                                                    </div>
-                                                                @else
-                                                                    <div class="sl-lesson-price"
-                                                                        style="background:var(--c-green-lt);color:var(--c-emerald)">
-                                                                        <i class="fas fa-check-circle"></i> Free
-                                                                    </div>
-                                                                @endif
-                                                                @if($progress === 'completed')
-                                                                    <span class="sl-badge-progress completed"><i class="fas fa-check-circle"></i>
-                                                                        Completed</span>
-                                                                @elseif($progress === 'in_progress')
-                                                                    <span class="sl-badge-progress inprogress"><i class="fas fa-spinner"></i> In
-                                                                        Progress</span>
-                                                                @endif
-                                                            </div>
-                                                            <div class="sl-lesson-actions">
-                                                                @if(!$classPaid)
-                                                                    {{-- class must be paid first, button disabled --}}
-                                                                @elseif(!$lessonPaid && $lesson->lesson_amount)
-                                                                    <button class="sl-btn-pay"
-                                                                        onclick="showLessonPaymentModal({{ $lesson->id }}, '{{ addslashes($lesson->title) }}', '{{ $lesson->lesson_amount }}')">
-                                                                        <i class="fas fa-credit-card"></i> Pay
-                                                                    </button>
-                                                                @else
-                                                                    <a href="{{ route('student.lessons.show', $lesson) }}" class="sl-btn-view">
-                                                                        <i class="fas fa-play"></i>
-                                                                        {{ $progress === 'completed' ? 'Review' : ($progress === 'in_progress' ? 'Continue' : 'Start Lesson') }}
-                                                                    </a>
-                                                                @endif
-                                                            </div>
-                                                        </div>
+                                                        @if($topicData['topic_description'])
+                                                            <p class="sl-topic-desc">{{ Str::limit($topicData['topic_description'], 120) }}</p>
+                                                        @endif
 
-                                                        {{-- Quiz Section --}}
-                                                        @if($hasQuizzes && $canAccessLesson)
-                                                            <div class="sl-quiz-section">
-                                                                <div class="sl-quiz-header">
-                                                                    <i class="fas fa-question-circle"></i> Lesson Quiz
-                                                                </div>
-                                                                @php
-                                                                    $lessonQuizzes = \App\Models\Academic\Exam::where('lesson_id', $lesson->id)
-                                                                        ->where('exam_type', 'quiz')
-                                                                        ->where('status', 'published')
-                                                                        ->with('questions')
-                                                                        ->get();
-                                                                @endphp
-                                                                @foreach($lessonQuizzes as $quiz)
-                                                                    @php
-                                                                        $studentId = session('LoggedStudent');
-                                                                        $quizResult = \App\Models\Academic\ExamResult::where('exam_id', $quiz->id)
-                                                                            ->where('student_id', $studentId)
-                                                                            ->orderBy('attempt_number', 'desc')
-                                                                            ->first();
-                                                                        $quizPassed = $quizResult && $quizResult->is_passed;
-                                                                    @endphp
-                                                                    <div class="sl-quiz-item">
-                                                                        <div>
-                                                                            <div class="sl-quiz-title">{{ $quiz->title }}</div>
-                                                                            <div class="sl-quiz-meta">
-                                                                                {{ $quiz->questions->count() }} Questions · Pass {{ $quiz->pass_mark }}%
-                                                                                @if($quiz->duration_minutes) · {{ $quiz->duration_minutes }} min @endif
-                                                                                @if($quizResult) · Last: {{ round($quizResult->percentage, 1) }}% @endif
-                                                                            </div>
+                                                        @foreach($topicData['lessons'] as $lesson)
+                                                            @php
+                                                                $lessonPaid = $lesson->is_paid_by_student ?? false;
+                                                                $canAccessLesson = $classPaid && $lessonPaid;
+                                                                $progress = $lesson->student_progress ?? null;
+                                                                $hasQuizzes = ($lesson->quiz_count ?? 0) > 0;
+                                                            @endphp
+                                                            <div class="sl-lesson-item">
+                                                                <div class="sl-lesson-main">
+                                                                    <div class="sl-lesson-icon">
+                                                                        <i class="fas fa-{{ $canAccessLesson ? 'play-circle' : 'lock' }}"></i>
+                                                                    </div>
+                                                                    <div class="sl-lesson-details">
+                                                                        <div class="sl-lesson-title">
+                                                                            {{ $lesson->title }}
+                                                                            @if(!$classPaid)
+                                                                                <span class="sl-lesson-lock"><i class="fas fa-lock"></i> Activate class
+                                                                                    first</span>
+                                                                            @elseif(!$lessonPaid)
+                                                                                <span class="sl-lesson-lock"><i class="fas fa-lock"></i> Locked</span>
+                                                                            @endif
                                                                         </div>
-                                                                        @if($quizPassed)
-                                                                            <span class="sl-quiz-passed"><i class="fas fa-check-circle"></i> Passed</span>
+                                                                        <div class="sl-lesson-meta">
+                                                                            <span class="sl-lesson-meta-item"><i class="fas fa-hourglass-half"></i>
+                                                                                {{ $lesson->duration ?? 'N/A' }} min</span>
+                                                                            <span class="sl-lesson-meta-item"><i class="fas fa-sort-numeric-down"></i>
+                                                                                Lesson {{ $lesson->lesson_order }}</span>
+                                                                            <span class="sl-lesson-meta-item"><i
+                                                                                    class="fas fa-{{ $lesson->lesson_type === 'video' ? 'video' : ($lesson->lesson_type === 'pdf' ? 'file-pdf' : 'headphones') }}"></i>
+                                                                                {{ ucfirst($lesson->lesson_type) }}</span>
+                                                                            @if($hasQuizzes)
+                                                                                <span class="sl-lesson-meta-item" style="color:#4338ca"><i
+                                                                                        class="fas fa-question-circle"></i> {{ $lesson->quiz_count }}
+                                                                                    Quiz</span>
+                                                                            @endif
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="sl-lesson-footer">
+                                                                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                                                                        @if($lesson->lesson_amount)
+                                                                            <div class="sl-lesson-price">
+                                                                                <i class="fas fa-money-bill-wave"></i>
+                                                                                UGX {{ number_format((int) str_replace(',', '', $lesson->lesson_amount)) }}
+                                                                            </div>
                                                                         @else
-                                                                            <button class="sl-btn-quiz"
-                                                                                onclick="takeQuiz({{ $quiz->id }}, '{{ addslashes($quiz->title) }}', {{ $quiz->duration_minutes ?? 0 }})">
-                                                                                <i class="fas fa-pencil-alt"></i>
-                                                                                {{ $quizResult ? 'Retry' : 'Attempt' }}
-                                                                            </button>
+                                                                            <div class="sl-lesson-price"
+                                                                                style="background:var(--c-green-lt);color:var(--c-emerald)">
+                                                                                <i class="fas fa-check-circle"></i> Free
+                                                                            </div>
+                                                                        @endif
+                                                                        @if($progress === 'completed')
+                                                                            <span class="sl-badge-progress completed"><i class="fas fa-check-circle"></i>
+                                                                                Completed</span>
+                                                                        @elseif($progress === 'in_progress')
+                                                                            <span class="sl-badge-progress inprogress"><i class="fas fa-spinner"></i> In
+                                                                                Progress</span>
                                                                         @endif
                                                                     </div>
-                                                                @endforeach
+                                                                    <div class="sl-lesson-actions">
+                                                                        @if(!$classPaid)
+                                                                            {{-- class must be paid first, button disabled --}}
+                                                                        @elseif(!$lessonPaid && $lesson->lesson_amount)
+                                                                            <button class="sl-btn-pay"
+                                                                                onclick="showLessonPaymentModal({{ $lesson->id }}, '{{ addslashes($lesson->title) }}', '{{ $lesson->lesson_amount }}')">
+                                                                                <i class="fas fa-credit-card"></i> Pay
+                                                                            </button>
+                                                                        @else
+                                                                            <a href="{{ route('student.lessons.show', $lesson) }}" class="sl-btn-view">
+                                                                                <i class="fas fa-play"></i>
+                                                                                {{ $progress === 'completed' ? 'Review' : ($progress === 'in_progress' ? 'Continue' : 'Start Lesson') }}
+                                                                            </a>
+                                                                        @endif
+                                                                    </div>
+                                                                </div>
+
+                                                                {{-- Quiz Section --}}
+                                                                @if($hasQuizzes && $canAccessLesson)
+                                                                    <div class="sl-quiz-section">
+                                                                        <div class="sl-quiz-header">
+                                                                            <i class="fas fa-question-circle"></i> Lesson Quiz
+                                                                        </div>
+                                                                        @php
+                                                                            $lessonQuizzes = \App\Models\Academic\Exam::where('lesson_id', $lesson->id)
+                                                                                ->where('exam_type', 'quiz')
+                                                                                ->where('status', 'published')
+                                                                                ->with('questions')
+                                                                                ->get();
+                                                                        @endphp
+                                                                        @foreach($lessonQuizzes as $quiz)
+                                                                            @php
+                                                                                $studentId = session('LoggedStudent');
+                                                                                $quizResult = \App\Models\Academic\ExamResult::where('exam_id', $quiz->id)
+                                                                                    ->where('student_id', $studentId)
+                                                                                    ->orderBy('attempt_number', 'desc')
+                                                                                    ->first();
+                                                                                $quizPassed = $quizResult && $quizResult->is_passed;
+                                                                            @endphp
+                                                                            <div class="sl-quiz-item">
+                                                                                <div>
+                                                                                    <div class="sl-quiz-title">{{ $quiz->title }}</div>
+                                                                                    <div class="sl-quiz-meta">
+                                                                                        {{ $quiz->questions->count() }} Questions · Pass {{ $quiz->pass_mark }}%
+                                                                                        @if($quiz->duration_minutes) · {{ $quiz->duration_minutes }} min @endif
+                                                                                        @if($quizResult) · Last: {{ round($quizResult->percentage, 1) }}% @endif
+                                                                                    </div>
+                                                                                </div>
+                                                                                @if($quizPassed)
+                                                                                    <span class="sl-quiz-passed"><i class="fas fa-check-circle"></i> Passed</span>
+                                                                                @else
+                                                                                    <button class="sl-btn-quiz"
+                                                                                        onclick="takeQuiz({{ $quiz->id }}, '{{ addslashes($quiz->title) }}', {{ $quiz->duration_minutes ?? 0 }})">
+                                                                                        <i class="fas fa-pencil-alt"></i>
+                                                                                        {{ $quizResult ? 'Retry' : 'Attempt' }}
+                                                                                    </button>
+                                                                                @endif
+                                                                            </div>
+                                                                        @endforeach
+                                                                    </div>
+                                                                @elseif($hasQuizzes && !$canAccessLesson)
+                                                                    <div class="sl-quiz-section" style="opacity:.5">
+                                                                        <div class="sl-quiz-header"><i class="fas fa-lock"></i> Quiz locked — pay for lesson
+                                                                            to access</div>
+                                                                    </div>
+                                                                @endif
                                                             </div>
-                                                        @elseif($hasQuizzes && !$canAccessLesson)
-                                                            <div class="sl-quiz-section" style="opacity:.5">
-                                                                <div class="sl-quiz-header"><i class="fas fa-lock"></i> Quiz locked — pay for lesson
-                                                                    to access</div>
-                                                            </div>
-                                                        @endif
+                                                        @endforeach
                                                     </div>
                                                 @endforeach
                                             </div>
-                                        @endforeach
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                {{-- ── Certificate Section ─────────────────────────────────────────── --}}
+                                <div class="sl-cert-section" id="cert-section-{{ $classData['class_id'] }}"
+                                    data-class-id="{{ $classData['class_id'] }}">
+                                    <div class="sl-cert-divider">
+                                        <span class="sl-cert-divider-label"><i class="fas fa-certificate"></i> Class Certificate</span>
+                                    </div>
+                                    <div class="sl-cert-banner" id="cert-banner-{{ $classData['class_id'] }}">
+                                        {{-- Placeholder shown before JS check --}}
+                                        <div class="sl-cert-loading">
+                                            <i class="fas fa-spinner fa-spin"></i> Checking eligibility…
+                                        </div>
                                     </div>
                                 </div>
-                            @endforeach
-                        </div>
 
-                        {{-- ── Certificate Section ─────────────────────────────────────────── --}}
-                        <div class="sl-cert-section" id="cert-section-{{ $classData['class_id'] }}"
-                             data-class-id="{{ $classData['class_id'] }}">
-                            <div class="sl-cert-divider">
-                                <span class="sl-cert-divider-label"><i class="fas fa-certificate"></i> Class Certificate</span>
-                            </div>
-                            <div class="sl-cert-banner" id="cert-banner-{{ $classData['class_id'] }}">
-                                {{-- Placeholder shown before JS check --}}
-                                <div class="sl-cert-loading">
-                                    <i class="fas fa-spinner fa-spin"></i> Checking eligibility…
-                                </div>
                             </div>
                         </div>
-
-                    </div>
-                </div>
-                @endforeach
+                    @endforeach
             </div>
         @else
-            <div class="sl-empty">
-                <div class="sl-empty-ring"><i class="fas fa-graduation-cap"></i></div>
-                <h3 style="font-size:1.1rem;color:var(--c-ink);margin-bottom:8px">No Classes Enrolled Yet</h3>
-                <p style="color:var(--c-muted);margin-bottom:24px">You haven't enrolled in any classes yet. Browse available
-                    classes to get started!</p>
-                <a href="{{ route('student.classes.browse') }}" class="btn-primary-custom">
-                    <i class="fas fa-plus-circle"></i> Browse & Enroll in Classes
-                </a>
-            </div>
-        @endif
+        <div class="sl-empty">
+            <div class="sl-empty-ring"><i class="fas fa-graduation-cap"></i></div>
+            <h3 style="font-size:1.1rem;color:var(--c-ink);margin-bottom:8px">No Classes Enrolled Yet</h3>
+            <p style="color:var(--c-muted);margin-bottom:24px">You haven't enrolled in any classes yet. Browse available
+                classes to get started!</p>
+            <a href="{{ route('student.classes.browse') }}" class="btn-primary-custom">
+                <i class="fas fa-plus-circle"></i> Browse & Enroll in Classes
+            </a>
+        </div>
+    @endif
     </div>
 
     {{-- Class Payment Modal --}}
@@ -1931,8 +1975,8 @@
                 Swal.fire({
                     title: '📱 Check Your Phone!',
                     html: `<p>A payment prompt has been sent to <strong>${phone}</strong>.</p>
-                                               <p style="margin-top:10px;color:#7C748E;font-size:.85rem">Approve it on your phone to complete payment.</p>
-                                               <p style="margin-top:8px;color:#6B46C1;font-size:.8rem">Waiting for confirmation…</p>`,
+                                                   <p style="margin-top:10px;color:#7C748E;font-size:.85rem">Approve it on your phone to complete payment.</p>
+                                                   <p style="margin-top:8px;color:#6B46C1;font-size:.8rem">Waiting for confirmation…</p>`,
                     icon: 'info',
                     allowOutsideClick: false,
                     showCancelButton: true,
@@ -2069,8 +2113,8 @@
                 Swal.fire({
                     title: '📱 Check Your Phone!',
                     html: `<p>A payment prompt has been sent to <strong>${phone}</strong>.</p>
-                                               <p style="margin-top:10px;color:#FFF;font-size:.85rem">Approve it on your phone to complete payment.</p>
-                                               <p style="margin-top:8px;color:#FFF;font-size:.8rem">Waiting for confirmation…</p>`,
+                                                   <p style="margin-top:10px;color:#FFF;font-size:.85rem">Approve it on your phone to complete payment.</p>
+                                                   <p style="margin-top:8px;color:#FFF;font-size:.8rem">Waiting for confirmation…</p>`,
                     icon: 'info',
                     allowOutsideClick: false,
                     showCancelButton: true,
@@ -2121,17 +2165,17 @@
             const container = document.getElementById('quizQuestions');
             container.innerHTML = `<div style="margin-bottom:16px;padding:12px;background:#f0f4ff;border-radius:12px;font-size:.82rem;color:#4338ca"><strong>Instructions:</strong> ${quiz.instructions || 'Answer all questions carefully.'} | Pass mark: ${quiz.pass_mark}%</div>` +
                 questions.map((q, i) => `
-                                    <div class="q-block">
-                                        <div class="q-text">${i + 1}. ${q.question}</div>
-                                        ${q.type === 'mcq' ? (Array.isArray(q.options) ? q.options : Object.values(q.options || {})).map((opt, oi) => `
-                                            <label class="q-opt">
-                                                <input type="radio" name="q${q.id}" value="${opt}" style="width:auto"> ${opt}
-                                            </label>`).join('') :
+                                        <div class="q-block">
+                                            <div class="q-text">${i + 1}. ${q.question}</div>
+                                            ${q.type === 'mcq' ? (Array.isArray(q.options) ? q.options : Object.values(q.options || {})).map((opt, oi) => `
+                                                <label class="q-opt">
+                                                    <input type="radio" name="q${q.id}" value="${opt}" style="width:auto"> ${opt}
+                                                </label>`).join('') :
                         q.type === 'true_false' ? `
-                                            <label class="q-opt"><input type="radio" name="q${q.id}" value="true" style="width:auto"> True</label>
-                                            <label class="q-opt"><input type="radio" name="q${q.id}" value="false" style="width:auto"> False</label>` :
+                                                <label class="q-opt"><input type="radio" name="q${q.id}" value="true" style="width:auto"> True</label>
+                                                <label class="q-opt"><input type="radio" name="q${q.id}" value="false" style="width:auto"> False</label>` :
                             `<textarea name="q${q.id}" rows="3" style="width:100%;border:1.5px solid #e3e0f0;border-radius:10px;padding:10px;font-family:inherit;font-size:.82rem;resize:vertical" placeholder="Your answer..."></textarea>`}
-                                    </div>`).join('');
+                                        </div>`).join('');
         }
 
         function startTimer(seconds) {
@@ -2182,12 +2226,12 @@
                     } else {
                         resDiv.className = 'quiz-result failed';
                         resDiv.innerHTML = `
-                                    <i class="fas fa-times-circle"></i> You scored ${r.percentage}% (${r.score}/${r.total_marks}) — Need ${r.pass_mark ?? 60}% to pass.
-                                    <div style="margin-top:12px;display:flex;align-items:center;justify-content:center;gap:10px">
-                                        <button class="sl-btn-quiz" onclick="retryQuiz()">
-                                            <i class="fas fa-redo"></i> Try Again
-                                        </button>
-                                    </div>`;
+                                        <i class="fas fa-times-circle"></i> You scored ${r.percentage}% (${r.score}/${r.total_marks}) — Need ${r.pass_mark ?? 60}% to pass.
+                                        <div style="margin-top:12px;display:flex;align-items:center;justify-content:center;gap:10px">
+                                            <button class="sl-btn-quiz" onclick="retryQuiz()">
+                                                <i class="fas fa-redo"></i> Try Again
+                                            </button>
+                                        </div>`;
                         document.getElementById('quizCloseBtn').style.display = 'inline-flex';
                     }
                 } else {
@@ -2233,9 +2277,9 @@
             const confirmed = await Swal.fire({
                 title: 'Activate Class?',
                 html: `<p>You are about to activate <strong>${className}</strong>.</p>
-                           <p style="margin-top:10px;font-size:.85rem;color:#FFF;">
-                               This will unlock the class and all its lessons for you.
-                           </p>`,
+                               <p style="margin-top:10px;font-size:.85rem;color:#FFF;">
+                                   This will unlock the class and all its lessons for you.
+                               </p>`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#16a34a',
@@ -2283,12 +2327,12 @@
                 }
             } catch (e) {
                 Swal.fire(
-                {
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Something went wrong. Please try again.789',
-                    confirmButtonColor: '#DC2626'
-                });
+                    {
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong. Please try again.789',
+                        confirmButtonColor: '#DC2626'
+                    });
             }
         }
 
@@ -2297,51 +2341,51 @@
             const banner = document.getElementById('cert-banner-' + classId);
             if (!banner) return;
             try {
-                const res  = await fetch(`/student/certificates/class/${classId}/check`, {
+                const res = await fetch(`/student/certificates/class/${classId}/check`, {
                     headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
                 });
                 const data = await res.json();
 
                 if (data.eligible) {
                     banner.innerHTML = `
-                        <div class="sl-cert-eligible">
-                            <div class="sl-cert-icon-wrap">🎓</div>
-                            <div class="sl-cert-info">
-                                <div class="sl-cert-title">🎉 Certificate Ready!</div>
-                                <div class="sl-cert-sub">You have completed all lessons and passed all quizzes for this class.</div>
-                            </div>
-                            <div class="sl-cert-actions">
-                                <a href="/student/certificates/class/${classId}/download" class="sl-cert-btn sl-cert-btn-gold">
-                                    <i class="fas fa-download"></i> Download Certificate
-                                </a>
-                                <a href="javascript:void();" class="sl-cert-btn sl-cert-btn-outline">
-                                    <i class="fas fa-eye"></i> Preview
-                                </a>
-                            </div>
-                        </div>`;
+                            <div class="sl-cert-eligible">
+                                <div class="sl-cert-icon-wrap">🎓</div>
+                                <div class="sl-cert-info">
+                                    <div class="sl-cert-title">🎉 Certificate Ready!</div>
+                                    <div class="sl-cert-sub">You have completed all lessons and passed all quizzes for this class.</div>
+                                </div>
+                                <div class="sl-cert-actions">
+                                    <a href="/student/certificates/class/${classId}/download" class="sl-cert-btn sl-cert-btn-gold">
+                                        <i class="fas fa-download"></i> Download Certificate
+                                    </a>
+                                    <a href="javascript:void();" class="sl-cert-btn sl-cert-btn-outline">
+                                        <i class="fas fa-eye"></i> Preview
+                                    </a>
+                                </div>
+                            </div>`;
                 } else {
-                    const pct   = data.lesson_progress_percentage || 0;
-                    const done  = data.completed_lessons || 0;
+                    const pct = data.lesson_progress_percentage || 0;
+                    const done = data.completed_lessons || 0;
                     const total = data.total_lessons || 0;
-                    const qpct  = data.total_quizzes > 0
+                    const qpct = data.total_quizzes > 0
                         ? Math.round((data.passed_quizzes / data.total_quizzes) * 100)
                         : null;
                     const reasonText = data.reason || 'Complete all lessons and quizzes to earn your certificate.';
                     banner.innerHTML = `
-                        <div class="sl-cert-locked">
-                            <div class="sl-cert-locked-icon"><i class="fas fa-lock"></i></div>
-                            <div class="sl-cert-locked-info">
-                                <div class="sl-cert-locked-title">Certificate Locked</div>
-                                <div style="font-size:.73rem;color:#6B6584;margin-bottom:4px;">${reasonText}</div>
-                                <div style="font-size:.7rem;color:#9892B0;">
-                                    Lessons: ${done}/${total}
-                                    ${qpct !== null ? ` &nbsp;·&nbsp; Quizzes: ${data.passed_quizzes}/${data.total_quizzes}` : ''}
+                            <div class="sl-cert-locked">
+                                <div class="sl-cert-locked-icon"><i class="fas fa-lock"></i></div>
+                                <div class="sl-cert-locked-info">
+                                    <div class="sl-cert-locked-title">Certificate Locked</div>
+                                    <div style="font-size:.73rem;color:#6B6584;margin-bottom:4px;">${reasonText}</div>
+                                    <div style="font-size:.7rem;color:#9892B0;">
+                                        Lessons: ${done}/${total}
+                                        ${qpct !== null ? ` &nbsp;·&nbsp; Quizzes: ${data.passed_quizzes}/${data.total_quizzes}` : ''}
+                                    </div>
+                                    <div class="sl-cert-progress-bar-wrap">
+                                        <div class="sl-cert-progress-bar" style="width:${pct}%"></div>
+                                    </div>
                                 </div>
-                                <div class="sl-cert-progress-bar-wrap">
-                                    <div class="sl-cert-progress-bar" style="width:${pct}%"></div>
-                                </div>
-                            </div>
-                        </div>`;
+                            </div>`;
                 }
             } catch (e) {
                 if (banner) banner.innerHTML = '';

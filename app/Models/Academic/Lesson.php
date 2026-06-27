@@ -49,7 +49,12 @@ protected $casts = [
     {
         return $this->hasMany(Exam::class);
     }
-    
+
+    public function lessonPayments(): HasMany
+    {
+        return $this->hasMany(LessonPayment::class);
+    }
+
     // Scopes
     public function scopePublished($query)
     {
@@ -104,5 +109,37 @@ protected $casts = [
                    ->where('lesson_order', '<', $this->lesson_order)
                    ->orderBy('lesson_order', 'desc')
                    ->first();
+    }
+
+    /**
+     * A lesson with no price (or a price of 0) is free for everyone.
+     */
+    public function isFree(): bool
+    {
+        $amount = (float) str_replace(',', '', (string) $this->lesson_amount);
+        return $amount <= 0;
+    }
+
+    /**
+     * Whether THIS specific student has paid for THIS lesson.
+     * Free lessons are always accessible. Paid lessons require a
+     * matching row in lesson_payments for this exact student.
+     */
+    public function isPaidByStudent(?int $studentId): bool
+    {
+        if ($this->isFree()) {
+            return true;
+        }
+
+        if (!$studentId) {
+            return false;
+        }
+
+        // Use already-loaded relation when available to avoid N+1 queries.
+        if ($this->relationLoaded('lessonPayments')) {
+            return $this->lessonPayments->contains('student_id', $studentId);
+        }
+
+        return $this->lessonPayments()->where('student_id', $studentId)->exists();
     }
 }

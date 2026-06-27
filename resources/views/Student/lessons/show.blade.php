@@ -564,7 +564,7 @@
     <div class="ls-wrap">
 
         {{-- HERO --}}
-        <div class="ls-hero">
+        <div class="ls-hero mt-5">
             <div class="ls-hero-top">
                 <a href="{{ route('student.lessons.lists') }}" class="ls-back"><i class="fas fa-arrow-left"></i> Back to
                     Lessons</a>
@@ -758,7 +758,8 @@
                     </div>
                 @endif
 
-                {{-- Navigation --}}
+                @if (false)
+                                    {{-- Navigation --}}
                 <div class="ls-nav-row">
                     @if($prevLesson)
                         <a href="{{ route('student.lessons.show', $prevLesson) }}" class="ls-nav-btn">
@@ -775,6 +776,7 @@
                         <span class="ls-nav-btn disabled">No Next Lesson <i class="fas fa-arrow-right"></i></span>
                     @endif
                 </div>
+                @endif
             </div>
 
             {{-- SIDEBAR --}}

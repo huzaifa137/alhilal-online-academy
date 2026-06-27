@@ -3,6 +3,7 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Academic\Lesson;
 
 class User extends Authenticatable
 {
@@ -88,8 +89,14 @@ class User extends Authenticatable
         return $this->belongsToMany(Lesson::class, 'lesson_user')->withTimestamps();
     }
 
+    // Lessons created by this user as a teacher
+    public function createdLessons()
+    {
+        return $this->hasMany(Lesson::class, 'teacher_id');
+    }
+
     public function certificates()
     {
-        return $this->hasMany(\App\Models\Academic\Certificate::class, 'student_id');
+        return $this->hasMany(\App\Models\Certificate::class, 'student_id');
     }
 }

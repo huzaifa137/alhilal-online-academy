@@ -171,7 +171,7 @@
                 <a href="{{ route('admin.certificates.download', $certificate->id) }}" class="as-btn as-btn-primary">
                     <i class="fas fa-download"></i> Download PDF
                 </a>
-                <a href="{{ route('student.certificates.preview', $certificate->class_id) }}" class="as-btn as-btn-outline" target="_blank">
+                <a href="javascript:void();" class="as-btn as-btn-outline">
                     <i class="fas fa-eye"></i> Preview Certificate
                 </a>
                 @if($certificate->status === 'issued')

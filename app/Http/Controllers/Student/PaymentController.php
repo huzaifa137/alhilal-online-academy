@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Academic\ClassEnrollment;
 use App\Models\Academic\ClassModel;
 use App\Models\Academic\Lesson;
+use App\Models\Academic\LessonPayment;
 use App\Models\PaymentTransaction;
 use App\Services\MarzPayService;
 use Illuminate\Http\JsonResponse;
@@ -298,11 +299,20 @@ class PaymentController extends Controller
                     'amount_paid'    => $transaction->amount,
                 ]);
         } elseif ($transaction->payment_type === 'lesson') {
-            Lesson::where('id', $transaction->payable_id)
-                ->update([
-                    'lesson_payment_status' => 'Paid',
-                    'lesson_amount'         => $transaction->amount,
-                ]);
+            // IMPORTANT: this must be scoped to THIS student only.
+            // Writing to lessons.lesson_payment_status here would mark the
+            // lesson "Paid" for every student, not just the one who paid.
+            LessonPayment::updateOrCreate(
+                [
+                    'lesson_id'  => $transaction->payable_id,
+                    'student_id' => $transaction->student_id,
+                ],
+                [
+                    'payment_transaction_id' => $transaction->id,
+                    'amount_paid'            => $transaction->amount,
+                    'paid_at'                => now(),
+                ]
+            );
         }
 
         Log::info('MarzPay payment applied', [

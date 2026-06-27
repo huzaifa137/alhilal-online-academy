@@ -158,54 +158,8 @@ class UserController extends Controller
 
     public function dashboard()
     {
-        // Users
-        $totalStudents  = \App\Models\User::where('user_role', 1)->count();
-        $totalTeachers  = \App\Models\User::where('user_role', 2)->count();
-        $totalAdmins    = \App\Models\User::whereIn('user_role', [0, 3])->count();
-        $totalUsers     = \App\Models\User::count();
-
-        // Academic
-        $totalClasses   = \App\Models\Academic\ClassModel::where('status', 'active')->count();
-        $totalLessons   = \App\Models\Academic\Lesson::count();
-        $publishedLessons = \App\Models\Academic\Lesson::where('status', 'published')->count();
-        $totalSubjects  = \App\Models\Academic\Subject::where('status', 'active')->count();
-        $totalTopics    = \App\Models\Academic\Topic::where('status', 'published')->count();
-        $totalExams     = \App\Models\Academic\Exam::count();
-        $totalEnrollments = \App\Models\Academic\ClassEnrollment::where('status', 'active')->count();
-
-        // Progress
-        $totalCompletions = \App\Models\Academic\StudentProgress::where('status', 'completed')->count();
-        $totalProgressRecords = \App\Models\Academic\StudentProgress::count();
-        $overallCompletionRate = $totalProgressRecords > 0
-            ? round(($totalCompletions / $totalProgressRecords) * 100) : 0;
-
-        // Recent users
-        $recentStudents = \App\Models\User::where('user_role', 1)
-            ->orderByDesc('created_at')->limit(8)->get();
-
-        // Recent lessons
-        $recentLessons = \App\Models\Academic\Lesson::with(['topic.subject', 'teacher'])
-            ->orderByDesc('created_at')->limit(6)->get();
-
-        // Recent enrollments
-        $recentEnrollments = \App\Models\Academic\ClassEnrollment::with(['student', 'class'])
-            ->orderByDesc('created_at')->limit(6)->get();
-
-        // Active academic year
-        $currentAcademicYear = \App\Models\Academic\AcademicYear::where('is_current', true)->first();
-
-        // Sections & levels counts
-        $totalSections = \App\Models\Academic\Section::where('status', 'active')->count();
-        $totalLevels   = \App\Models\Academic\Level::where('status', 'active')->count();
-
-        return view('Admin.dashboard', compact(
-            'totalStudents', 'totalTeachers', 'totalAdmins', 'totalUsers',
-            'totalClasses', 'totalLessons', 'publishedLessons',
-            'totalSubjects', 'totalTopics', 'totalExams', 'totalEnrollments',
-            'totalCompletions', 'overallCompletionRate',
-            'recentStudents', 'recentLessons', 'recentEnrollments',
-            'currentAcademicYear', 'totalSections', 'totalLevels'
-        ));
+        // Delegate to Admin DashboardController to keep logic in one place
+        return app(\App\Http\Controllers\Admin\DashboardController::class)->index();
     }
 
     public function checkUser(Request $request)
@@ -282,13 +236,109 @@ class UserController extends Controller
 
     public function homePage()
     {
-        $totalStudents  = \App\Models\User::where('user_role', 1)->count();
-        $totalTeachers  = \App\Models\User::where('user_role', 2)->count();
-        $totalLessons   = \App\Models\Academic\Lesson::where('status', 'published')->count();
-        $totalClasses   = \App\Models\Academic\ClassModel::where('status', 'active')->count();
-        $totalSubjects  = \App\Models\Academic\Subject::where('status', 'active')->count();
-        $currentAcademicYear = \App\Models\Academic\AcademicYear::where('is_current', true)->first();
-        return view('home-page', compact('totalStudents', 'totalTeachers', 'totalLessons', 'totalClasses', 'totalSubjects', 'currentAcademicYear'));
+        // ── Headline stats (hero + stats banner) ───────────────────────────
+        $totalTeachers   = User::where('user_role', 2)->count();
+        $totalLessons    = Lesson::where('status', 'published')->count();
+        $totalClasses    = ClassModel::where('status', 'active')->count();
+        $totalSubjects   = Subject::where('status', 'active')->count();
+        $totalLevels     = Level::where('status', 'active')->count();
+        $currentAcademicYear = AcademicYear::where('is_current', true)->first();
+
+        // Real enrolled students = active class enrollments, not just every
+        // registered user with the student role (some never enroll in a class).
+        $totalEnrolledStudents = ClassEnrollment::where('status', 'active')
+            ->distinct('student_id')
+            ->count('student_id');
+
+        $totalQuizzes = Exam::where('exam_type', 'quiz')->count();
+
+        // ── Curriculum tree: Section > Level > Class > Subject > Topic > Lesson ──
+        // Built once here so the Blade view can render it server-side instead
+        // of the old client-side fake-data generator.
+        $sections = Section::with([
+            'levels' => function ($query) {
+                $query->where('status', 'active')
+                    ->orderBy('sort_order')
+                    ->with([
+                        'classes' => function ($q) {
+                            $q->where('status', 'active')
+                                ->orderBy('name')
+                                ->with([
+                                    'subjects' => function ($sq) {
+                                        $sq->where('subjects.status', 'active')->orderBy('subjects.sort_order');
+                                    },
+                                ]);
+                        },
+                    ]);
+            },
+        ])
+            ->where('status', 'active')
+            ->orderBy('sort_order')
+            ->get();
+
+        // For every class+subject combination actually present, pull the
+        // published topics and their published lessons (with resource types)
+        // in one batch, so we don't run N+1 queries while building the tree below.
+        $classSubjectPairs = [];
+        foreach ($sections as $section) {
+            foreach ($section->levels as $level) {
+                foreach ($level->classes as $class) {
+                    foreach ($class->subjects as $subject) {
+                        $classSubjectPairs[] = ['class_id' => $class->id, 'subject_id' => $subject->id];
+                    }
+                }
+            }
+        }
+
+        $topicsByClassSubject = collect();
+        if (!empty($classSubjectPairs)) {
+            $classIds = array_unique(array_column($classSubjectPairs, 'class_id'));
+            $subjectIds = array_unique(array_column($classSubjectPairs, 'subject_id'));
+
+            $topicsByClassSubject = Topic::whereIn('topics.class_id', $classIds)
+                ->whereIn('topics.subject_id', $subjectIds)
+                ->where('topics.status', 'published')
+                ->orderBy('topics.order_no')
+                ->with([
+                    'lessons' => function ($query) {
+                        $query->where('lessons.status', 'published')
+                            ->whereNotNull('lessons.published_at')
+                            ->where('lessons.published_at', '<=', now())
+                            ->orderBy('lessons.lesson_order')
+                            ->withCount(['exams as quiz_count' => function ($q) {
+                                $q->where('exams.exam_type', 'quiz');
+                            }]);
+                    },
+                ])
+                ->get()
+                ->groupBy(fn ($topic) => $topic->class_id . '-' . $topic->subject_id);
+        }
+
+        // Attach the matching topics directly onto each subject the Blade
+        // view will loop over, keyed by class so a subject shown under
+        // multiple classes still gets the right topic list.
+        foreach ($sections as $section) {
+            foreach ($section->levels as $level) {
+                foreach ($level->classes as $class) {
+                    foreach ($class->subjects as $subject) {
+                        $key = $class->id . '-' . $subject->id;
+                        $subject->topicsForClass = $topicsByClassSubject->get($key, collect());
+                    }
+                }
+            }
+        }
+
+        return view('home-page', compact(
+            'totalTeachers',
+            'totalLessons',
+            'totalClasses',
+            'totalSubjects',
+            'totalLevels',
+            'totalEnrolledStudents',
+            'totalQuizzes',
+            'currentAcademicYear',
+            'sections'
+        ));
     }
 
     public function editUserInformation()

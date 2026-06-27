@@ -151,6 +151,10 @@ class StudentLessonController extends Controller
                     $completedLessons++;
                 }
 
+                // Per-student payment status (NOT the global lessons.lesson_payment_status —
+                // that column reflects nothing student-specific and must not be used for gating).
+                $lesson->is_paid_by_student = $lesson->isPaidByStudent($studentId);
+
                 // Quiz count
                 $lesson->quiz_count = Exam::where('lesson_id', $lesson->id)
                     ->where('exam_type', 'quiz')
@@ -227,10 +231,10 @@ class StudentLessonController extends Controller
             ]);
         }
 
-        $lesson->update([
-            'lesson_payment_status' => 'Paid',
-            'lesson_amount' => $request->required_amount,
-        ]);
+        \App\Models\Academic\LessonPayment::updateOrCreate(
+            ['lesson_id' => $lesson->id, 'student_id' => $studentId],
+            ['amount_paid' => $request->required_amount, 'paid_at' => now()]
+        );
 
         return response()->json([
             'success' => true,
@@ -243,6 +247,32 @@ class StudentLessonController extends Controller
     {
 
         $studentId = session('LoggedStudent');
+
+        $lesson->loadMissing('topic.class');
+        $classId = $lesson->topic->class_id ?? null;
+
+        $enrollment = ClassEnrollment::where('class_id', $classId)
+            ->where('student_id', $studentId)
+            ->where('status', 'active')
+            ->first();
+
+        $classPaid  = $enrollment && strtolower($enrollment->payment_status) === 'paid';
+        $lessonPaid = $lesson->isPaidByStudent($studentId);
+
+        if (!$enrollment) {
+            return redirect()->route('student.lessons.lists')
+                ->with('error', 'You are not enrolled in this class.');
+        }
+
+        if (!$classPaid) {
+            return redirect()->route('student.lessons.lists')
+                ->with('error', 'Please pay for the class before accessing its lessons.');
+        }
+
+        if (!$lessonPaid) {
+            return redirect()->route('student.lessons.lists')
+                ->with('error', 'Please pay for this lesson to access it.');
+        }
 
         // Load all relationships
         $lesson->load([

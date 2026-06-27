@@ -137,7 +137,6 @@
             cursor: pointer;
             font-family: 'DM Sans', sans-serif;
             transition: var(--transition);
-            letter-spacing: 0.1px;
         }
 
         .bta-primary {
@@ -164,18 +163,6 @@
             color: white;
         }
 
-        .bta-outline {
-            background: transparent;
-            color: var(--purple);
-            border: 1.5px solid var(--border3);
-        }
-
-        .bta-outline:hover {
-            background: var(--purple);
-            color: white;
-        }
-
-        /* Banner right — live metrics strip */
         .banner-metrics {
             padding: 28px 36px 28px 20px;
             position: relative;
@@ -205,7 +192,6 @@
             font-size: 0.68rem;
             color: rgba(255, 255, 255, 0.4);
             margin-top: 2px;
-            letter-spacing: 0.5px;
         }
 
         .bm-trend {
@@ -221,17 +207,13 @@
             color: #86efac;
         }
 
-        .bm-down {
-            color: #FCA5A5;
-        }
-
         .bm-divider {
             width: 100%;
             height: 1px;
             background: rgba(255, 255, 255, 0.07);
         }
 
-        /* ── KPI ROW ── */
+        /* KPI */
         .kpi-row {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -327,11 +309,6 @@
             color: var(--blue);
         }
 
-        .ki-c {
-            background: var(--cyan-light);
-            color: var(--cyan);
-        }
-
         .kpi-trend {
             display: flex;
             align-items: center;
@@ -345,11 +322,6 @@
         .kt-up {
             background: var(--green-light);
             color: var(--green);
-        }
-
-        .kt-down {
-            background: var(--red-light);
-            color: var(--red);
         }
 
         .kt-flat {
@@ -385,7 +357,7 @@
             font-weight: 600;
         }
 
-        /* ── SECTION GRID HELPERS ── */
+        /* Grids */
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -404,25 +376,18 @@
             gap: 20px;
         }
 
-        .grid-4-6 {
-            display: grid;
-            grid-template-columns: 4fr 6fr;
-            gap: 20px;
-        }
-
         .grid-7-5 {
             display: grid;
             grid-template-columns: 7fr 5fr;
             gap: 20px;
         }
 
-        /* Chart wrapper */
         .main-chart-wrap {
             position: relative;
             height: 270px;
         }
 
-        /* ── DATA TABLE ── */
+        /* Table */
         .data-table {
             width: 100%;
             border-collapse: collapse;
@@ -445,10 +410,6 @@
             font-size: 0.84rem;
             border-bottom: 1px solid var(--border);
             vertical-align: middle;
-        }
-
-        .data-table tbody tr {
-            transition: background 0.15s;
         }
 
         .data-table tbody tr:hover {
@@ -533,7 +494,7 @@
             color: var(--muted);
         }
 
-        /* Progress cell */
+        /* Progress */
         .prog-cell {
             display: flex;
             align-items: center;
@@ -564,7 +525,6 @@
             text-align: right;
         }
 
-        /* Score cell */
         .score-cell {
             font-family: 'DM Mono', monospace;
             font-size: 0.82rem;
@@ -583,28 +543,7 @@
             color: var(--red);
         }
 
-        /* Action dots */
-        .action-dots {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .action-dot {
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: var(--muted2);
-            transition: background 0.2s;
-        }
-
-        .action-dots:hover .action-dot {
-            background: var(--purple);
-        }
-
-        /* ── ACTIVITY TIMELINE ── */
+        /* Timeline */
         .timeline {
             display: flex;
             flex-direction: column;
@@ -687,7 +626,7 @@
             margin-left: 6px;
         }
 
-        /* ── TOP TEACHERS LEADERBOARD ── */
+        /* Leaderboard */
         .leaderboard {
             display: flex;
             flex-direction: column;
@@ -718,7 +657,6 @@
             width: 24px;
             text-align: center;
             flex-shrink: 0;
-            line-height: 1;
         }
 
         .lb-rank-1 {
@@ -759,7 +697,6 @@
             font-size: 0.86rem;
             font-weight: 600;
             color: var(--ink);
-            line-height: 1.2;
         }
 
         .lb-subject {
@@ -784,7 +721,7 @@
             color: var(--muted);
         }
 
-        /* ── RATING BARS ── */
+        /* Rating bars */
         .rating-rows {
             display: flex;
             flex-direction: column;
@@ -825,10 +762,265 @@
             color: var(--ink);
             width: 38px;
             text-align: right;
+        }
+
+        /* Cmd strip */
+        .cmd-strip {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .cmd-btn {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 10px 18px;
+            border-radius: var(--radius-md);
+            font-size: 0.82rem;
+            font-weight: 600;
+            border: 1.5px solid var(--border2);
+            background: white;
+            color: var(--ink);
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transition);
+            font-family: 'DM Sans', sans-serif;
+            white-space: nowrap;
+        }
+
+        .cmd-btn:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .cmd-btn-primary {
+            background: var(--gradient);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 14px rgba(107, 70, 193, 0.3);
+        }
+
+        .cmd-btn-primary:hover {
+            color: white;
+            box-shadow: 0 8px 22px rgba(107, 70, 193, 0.4);
+        }
+
+        /* Enroll grid */
+        .enroll-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .enroll-card {
+            padding: 14px 16px;
+            background: var(--cream);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: var(--transition);
+        }
+
+        .enroll-card:hover {
+            border-color: var(--purple);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .enroll-ava {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.82rem;
             flex-shrink: 0;
         }
 
-        /* ── MINI CALENDAR ── */
+        .enroll-info {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .enroll-name {
+            font-size: 0.83rem;
+            font-weight: 600;
+            color: var(--ink);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .enroll-class {
+            font-size: 0.7rem;
+            color: var(--muted);
+        }
+
+        .enroll-time {
+            font-size: 0.68rem;
+            color: var(--muted2);
+            white-space: nowrap;
+        }
+
+        /* Sys cards */
+        .sys-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+
+        .sys-card {
+            background: white;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 18px 20px;
+            transition: var(--transition);
+        }
+
+        .sys-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .sys-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .sys-card-label {
+            font-size: 0.72rem;
+            color: var(--muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sys-card-status {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .scs-ok {
+            color: var(--green);
+        }
+
+        .scs-warn {
+            color: var(--gold);
+        }
+
+        .sys-card-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .dot-green {
+            background: var(--green);
+            box-shadow: 0 0 6px rgba(22, 163, 74, 0.6);
+        }
+
+        .dot-gold {
+            background: var(--gold);
+        }
+
+        .sys-card-num {
+            font-family: 'DM Mono', monospace;
+            font-size: 1.6rem;
+            font-weight: 500;
+            color: var(--ink);
+            line-height: 1;
+        }
+
+        .sys-card-sub {
+            font-size: 0.7rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .sys-prog {
+            margin-top: 10px;
+        }
+
+        .sys-prog-bar {
+            height: 4px;
+            background: var(--cream3);
+            border-radius: 40px;
+            overflow: hidden;
+        }
+
+        .sys-prog-fill {
+            height: 100%;
+            border-radius: 40px;
+            transition: width 1s ease;
+        }
+
+        .spf-green {
+            background: var(--green);
+        }
+
+        .spf-gold {
+            background: var(--gold);
+        }
+
+        .spf-purple {
+            background: var(--gradient);
+        }
+
+        /* Mini tiles */
+        .mini-tiles {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .mini-tile {
+            padding: 14px 16px;
+            border-radius: var(--radius-md);
+            border: 1.5px solid var(--border);
+            background: var(--cream);
+            transition: var(--transition);
+        }
+
+        .mini-tile:hover {
+            border-color: var(--border3);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .mt-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.65rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .mt-label {
+            font-size: 0.72rem;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .mt-ico {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        /* Calendar */
         .mini-cal {}
 
         .cal-header {
@@ -908,24 +1100,6 @@
             box-shadow: 0 4px 12px rgba(107, 70, 193, 0.35);
         }
 
-        .cal-day.has-event {
-            position: relative;
-            color: var(--ink);
-            font-weight: 600;
-        }
-
-        .cal-day.has-event::after {
-            content: '';
-            position: absolute;
-            bottom: 3px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: var(--red);
-        }
-
         .cal-day.other-month {
             color: var(--muted2);
             opacity: 0.4;
@@ -973,283 +1147,8 @@
             white-space: nowrap;
         }
 
-        /* ── QUICK ACTIONS COMMAND STRIP ── */
-        .cmd-strip {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .cmd-btn {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            padding: 10px 18px;
-            border-radius: var(--radius-md);
-            font-size: 0.82rem;
-            font-weight: 600;
-            border: 1.5px solid var(--border2);
-            background: white;
-            color: var(--ink);
-            cursor: pointer;
-            text-decoration: none;
-            transition: var(--transition);
-            font-family: 'DM Sans', sans-serif;
-            white-space: nowrap;
-        }
-
-        .cmd-btn:hover {
-            border-color: var(--purple);
-            color: var(--purple);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .cmd-btn i {
-            font-size: 0.9rem;
-        }
-
-        .cmd-btn-primary {
-            background: var(--gradient);
-            color: white;
-            border-color: transparent;
-            box-shadow: 0 4px 14px rgba(107, 70, 193, 0.3);
-        }
-
-        .cmd-btn-primary:hover {
-            color: white;
-            box-shadow: 0 8px 22px rgba(107, 70, 193, 0.4);
-        }
-
-        /* ── ENROLLMENT CARDS ── */
-        .enroll-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .enroll-card {
-            padding: 14px 16px;
-            background: var(--cream);
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: var(--transition);
-            cursor: pointer;
-        }
-
-        .enroll-card:hover {
-            border-color: var(--purple);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .enroll-ava {
-            width: 38px;
-            height: 38px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 0.82rem;
-            flex-shrink: 0;
-        }
-
-        .enroll-info {
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .enroll-name {
-            font-size: 0.83rem;
-            font-weight: 600;
-            color: var(--ink);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .enroll-class {
-            font-size: 0.7rem;
-            color: var(--muted);
-        }
-
-        .enroll-time {
-            font-size: 0.68rem;
-            color: var(--muted2);
-            white-space: nowrap;
-        }
-
-        /* ── SYSTEM HEALTH CARDS ── */
-        .sys-cards {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 14px;
-        }
-
-        .sys-card {
-            background: white;
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 18px 20px;
-            transition: var(--transition);
-        }
-
-        .sys-card:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .sys-card-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
-        }
-
-        .sys-card-label {
-            font-size: 0.72rem;
-            color: var(--muted);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .sys-card-status {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .scs-ok {
-            color: var(--green);
-        }
-
-        .scs-warn {
-            color: var(--gold);
-        }
-
-        .scs-err {
-            color: var(--red);
-        }
-
-        .sys-card-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-        }
-
-        .dot-green {
-            background: var(--green);
-            box-shadow: 0 0 6px rgba(22, 163, 74, 0.6);
-        }
-
-        .dot-gold {
-            background: var(--gold);
-            box-shadow: 0 0 6px rgba(217, 119, 6, 0.6);
-        }
-
-        .dot-red {
-            background: var(--red);
-            box-shadow: 0 0 6px rgba(220, 38, 38, 0.6);
-        }
-
-        .sys-card-num {
-            font-family: 'DM Mono', monospace;
-            font-size: 1.6rem;
-            font-weight: 500;
-            color: var(--ink);
-            line-height: 1;
-        }
-
-        .sys-card-sub {
-            font-size: 0.7rem;
-            color: var(--muted);
-            margin-top: 4px;
-        }
-
-        .sys-prog {
-            margin-top: 10px;
-        }
-
-        .sys-prog-bar {
-            height: 4px;
-            background: var(--cream3);
-            border-radius: 40px;
-            overflow: hidden;
-        }
-
-        .sys-prog-fill {
-            height: 100%;
-            border-radius: 40px;
-            transition: width 1s ease;
-        }
-
-        .spf-green {
-            background: var(--green);
-        }
-
-        .spf-gold {
-            background: var(--gold);
-        }
-
-        .spf-red {
-            background: var(--red);
-        }
-
-        .spf-purple {
-            background: var(--gradient);
-        }
-
-        /* ── MINI TILES ── */
-        .mini-tiles {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .mini-tile {
-            padding: 14px 16px;
-            border-radius: var(--radius-md);
-            border: 1.5px solid var(--border);
-            background: var(--cream);
-            transition: var(--transition);
-        }
-
-        .mini-tile:hover {
-            border-color: var(--border3);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .mt-num {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.65rem;
-            font-weight: 700;
-            line-height: 1;
-            margin-bottom: 4px;
-        }
-
-        .mt-label {
-            font-size: 0.72rem;
-            color: var(--muted);
-            font-weight: 500;
-        }
-
-        .mt-ico {
-            font-size: 1.1rem;
-            margin-bottom: 8px;
-        }
-
-        /* ── RESPONSIVE ── */
-        @media (max-width: 1400px) {
+        /* Responsive */
+        @media(max-width:1400px) {
             .kpi-row {
                 grid-template-columns: repeat(4, 1fr);
             }
@@ -1263,10 +1162,9 @@
             }
         }
 
-        @media (max-width: 1100px) {
+        @media(max-width:1100px) {
 
             .grid-6-4,
-            .grid-4-6,
             .grid-7-5 {
                 grid-template-columns: 1fr;
             }
@@ -1280,7 +1178,7 @@
             }
         }
 
-        @media (max-width: 900px) {
+        @media(max-width:900px) {
             .kpi-row {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -1316,7 +1214,7 @@
             }
         }
 
-        @media (max-width: 600px) {
+        @media(max-width:600px) {
             .kpi-row {
                 grid-template-columns: 1fr;
             }
@@ -1338,6 +1236,7 @@
 @endsection
 
 @section('content')
+
     {{-- ── COMMAND BANNER ── --}}
     <div class="command-banner">
         <div class="banner-bg-grid"></div>
@@ -1352,19 +1251,28 @@
             </div>
             <div class="banner-title">
                 Assalamu Alaikum,
-                <span class="banner-title-grad">{{ auth()->user()->first_name ?? 'Administrator' }}</span>
+                <span
+                    class="banner-title-grad">{{ auth()->user()->firstname ?? auth()->user()->name ?? 'Administrator' }}</span>
             </div>
             <div class="banner-sub">
                 AlHilal Academy is running smoothly. You have
-                <strong style="color:#C084FC;">7 enrollment requests</strong>,
+                <strong style="color:#C084FC;">{{ $pendingEnrollments }} enrollment requests</strong>,
                 <strong style="color:#F87171;">{{ $totalEnrollments }} active enrollments</strong> and
                 <strong style="color:#FCD34D;">{{ $totalExams }} exams</strong> in the system.
+                @if($currentAcademicYear)
+                    · Academic Year <strong style="color:#86efac;">{{ $currentAcademicYear->name }}</strong>
+                @endif
             </div>
             <div class="banner-actions">
-                <a href="{{ route('users.user-information') }}" class="btn-action bta-primary"><i class="fas fa-users"></i>
-                    Manage Users</a>
-                <a href="{{ route('teacher.lessons.lists') }}" class="btn-action bta-ghost"><i class="fas fa-book"></i> View
-                    Lessons</a>
+                <a href="{{ route('admin.students') }}" class="btn-action bta-primary"><i class="fas fa-users"></i> Manage
+                    Students</a>
+                <a href="{{ route('admin.enrollments') }}" class="btn-action bta-ghost"><i class="fas fa-user-plus"></i>
+                    Enrollments
+                    @if($pendingEnrollments > 0)
+                        <span
+                            style="background:var(--red);color:white;font-size:0.6rem;padding:1px 6px;border-radius:20px;">{{ $pendingEnrollments }}</span>
+                    @endif
+                </a>
             </div>
         </div>
 
@@ -1393,43 +1301,82 @@
     <div class="card">
         <div class="card-body" style="padding:16px 22px;">
             <div class="cmd-strip">
-                <a href="#" class="cmd-btn cmd-btn-primary"><i class="fas fa-user-plus"></i> Add Student</a>
-                <a href="#" class="cmd-btn"><i class="fas fa-chalkboard-teacher"></i> Add Teacher</a>
-                <a href="#" class="cmd-btn"><i class="fas fa-calendar-plus"></i> Schedule Class</a>
-                <a href="#" class="cmd-btn"><i class="fas fa-bullhorn"></i> Announcement</a>
-                <a href="#" class="cmd-btn"><i class="fas fa-file-invoice"></i> Generate Invoice</a>
-                <a href="#" class="cmd-btn"><i class="fas fa-clipboard-list"></i> Take Attendance</a>
-                <a href="#" class="cmd-btn"><i class="fas fa-database"></i> Backup Now</a>
-                <a href="#" class="cmd-btn"><i class="fas fa-chart-bar"></i> Full Analytics</a>
+                <a href="{{ route('admin.students') }}" class="cmd-btn cmd-btn-primary"><i class="fas fa-user-graduate"></i>
+                    Students</a>
+                <a href="{{ route('admin.teachers') }}" class="cmd-btn"><i class="fas fa-chalkboard-teacher"></i>
+                    Teachers</a>
+                <a href="{{ route('admin.enrollments') }}" class="cmd-btn"><i class="fas fa-user-plus"></i> Enrollments
+                    @if($pendingEnrollments > 0)
+                        <span
+                            style="background:var(--red);color:white;font-size:0.6rem;padding:1px 6px;border-radius:20px;">{{ $pendingEnrollments }}</span>
+                    @endif
+                </a>
+                <a href="{{ route('admin.payments') }}" class="cmd-btn"><i class="fas fa-credit-card"></i> Payments</a>
+                <a href="{{ route('admin.certificates.index') }}" class="cmd-btn"><i class="fas fa-certificate"></i>
+                    Certificates</a>
+                <a href="{{ route('admin.reports') }}" class="cmd-btn"><i class="fas fa-chart-bar"></i> Reports</a>
+                <!-- <a href="{{ route('admin.sections.index') }}" class="cmd-btn"><i class="fas fa-layer-group"></i>
+                    Sections</a>
+                <a href="{{ route('users.user-information') }}" class="cmd-btn"><i class="fas fa-database"></i> All
+                    Users</a> -->
             </div>
         </div>
     </div>
 
     {{-- ── KPI CARDS ── --}}
     <div class="kpi-row">
-        @php
-            $kpiCards = [
-                ['watermark' => $totalStudents, 'icon' => 'ki-p', 'icon_class' => 'fa-user-graduate', 'trend' => 'kt-up', 'trend_icon' => 'fa-arrow-up', 'trend_text' => 'Students', 'num' => $totalStudents, 'label' => 'Total Students', 'footer' => '<strong>' . $totalEnrollments . '</strong> active enrollments'],
-                ['watermark' => $totalTeachers, 'icon' => 'ki-b', 'icon_class' => 'fa-chalkboard-teacher', 'trend' => 'kt-up', 'trend_icon' => 'fa-arrow-up', 'trend_text' => 'Teachers', 'num' => $totalTeachers, 'label' => 'Active Teachers', 'footer' => 'Across <strong>' . $totalClasses . '</strong> active classes'],
-                ['watermark' => $totalClasses, 'icon' => 'ki-r', 'icon_class' => 'fa-chalkboard', 'trend' => 'kt-flat', 'trend_icon' => 'fa-minus', 'trend_text' => 'Stable', 'num' => $totalClasses, 'label' => 'Active Classes', 'footer' => '<strong>' . $totalSubjects . '</strong> subjects · <strong>' . $totalTopics . '</strong> topics'],
-                ['watermark' => $overallCompletionRate . '%', 'icon' => 'ki-gr', 'icon_class' => 'fa-chart-line', 'trend' => 'kt-up', 'trend_icon' => 'fa-arrow-up', 'trend_text' => $overallCompletionRate . '%', 'num' => $overallCompletionRate . '%', 'label' => 'Completion Rate', 'footer' => '<strong>' . $totalCompletions . '</strong> lessons completed by students'],
-                ['watermark' => $totalLessons, 'icon' => 'ki-g', 'icon_class' => 'fa-book', 'trend' => 'kt-up', 'trend_icon' => 'fa-arrow-up', 'trend_text' => 'Lessons', 'num' => $totalLessons, 'label' => 'Total Lessons', 'footer' => '<strong>' . $publishedLessons . '</strong> published · ' . ($totalLessons - $publishedLessons) . ' drafts'],
-            ];
-        @endphp
-
-        @foreach($kpiCards as $card)
-            <div class="kpi-card">
-                <div class="kpi-watermark">{{ $card['watermark'] }}</div>
-                <div class="kpi-top">
-                    <div class="kpi-ico {{ $card['icon'] }}"><i class="fas {{ $card['icon_class'] }}"></i></div>
-                    <div class="kpi-trend {{ $card['trend'] }}"><i class="fas {{ $card['trend_icon'] }}"></i>
-                        {{ $card['trend_text'] }}</div>
-                </div>
-                <div class="kpi-num">{{ $card['num'] }}</div>
-                <div class="kpi-label">{{ $card['label'] }}</div>
-                <div class="kpi-footer">{!! $card['footer'] !!}</div>
+        <a href="{{ route('admin.students') }}" class="kpi-card" style="text-decoration:none;">
+            <div class="kpi-watermark">{{ $totalStudents }}</div>
+            <div class="kpi-top">
+                <div class="kpi-ico ki-p"><i class="fas fa-user-graduate"></i></div>
+                <div class="kpi-trend kt-up"><i class="fas fa-arrow-up"></i> Students</div>
             </div>
-        @endforeach
+            <div class="kpi-num">{{ $totalStudents }}</div>
+            <div class="kpi-label">Total Students</div>
+            <div class="kpi-footer"><strong>{{ $totalEnrollments }}</strong> active enrollments</div>
+        </a>
+        <a href="{{ route('admin.teachers') }}" class="kpi-card" style="text-decoration:none;">
+            <div class="kpi-watermark">{{ $totalTeachers }}</div>
+            <div class="kpi-top">
+                <div class="kpi-ico ki-b"><i class="fas fa-chalkboard-teacher"></i></div>
+                <div class="kpi-trend kt-up"><i class="fas fa-arrow-up"></i> Teachers</div>
+            </div>
+            <div class="kpi-num">{{ $totalTeachers }}</div>
+            <div class="kpi-label">Active Teachers</div>
+            <div class="kpi-footer">Across <strong>{{ $totalClasses }}</strong> active classes</div>
+        </a>
+        <div class="kpi-card">
+            <div class="kpi-watermark">{{ $totalClasses }}</div>
+            <div class="kpi-top">
+                <div class="kpi-ico ki-r"><i class="fas fa-chalkboard"></i></div>
+                <div class="kpi-trend kt-flat"><i class="fas fa-minus"></i> Stable</div>
+            </div>
+            <div class="kpi-num">{{ $totalClasses }}</div>
+            <div class="kpi-label">Active Classes</div>
+            <div class="kpi-footer"><strong>{{ $totalSubjects }}</strong> subjects · <strong>{{ $totalTopics }}</strong>
+                topics</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-watermark">{{ $overallCompletionRate }}%</div>
+            <div class="kpi-top">
+                <div class="kpi-ico ki-gr"><i class="fas fa-chart-line"></i></div>
+                <div class="kpi-trend kt-up"><i class="fas fa-arrow-up"></i> {{ $overallCompletionRate }}%</div>
+            </div>
+            <div class="kpi-num">{{ $overallCompletionRate }}%</div>
+            <div class="kpi-label">Completion Rate</div>
+            <div class="kpi-footer"><strong>{{ $totalCompletions }}</strong> lessons completed</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-watermark">{{ $totalLessons }}</div>
+            <div class="kpi-top">
+                <div class="kpi-ico ki-g"><i class="fas fa-book"></i></div>
+                <div class="kpi-trend kt-up"><i class="fas fa-arrow-up"></i> Content</div>
+            </div>
+            <div class="kpi-num">{{ $totalLessons }}</div>
+            <div class="kpi-label">Total Lessons</div>
+            <div class="kpi-footer"><strong>{{ $publishedLessons }}</strong> published ·
+                {{ $totalLessons - $publishedLessons }} drafts</div>
+        </div>
     </div>
 
     {{-- ── MAIN CHART + LEADERBOARD ── --}}
@@ -1438,7 +1385,7 @@
             <div class="card-head">
                 <div class="card-head-left">
                     <div class="card-head-title">Enrollment & Revenue Trends</div>
-                    <div class="card-head-sub">Monthly overview across the academic year</div>
+                    <div class="card-head-sub">Monthly overview across the last 12 months</div>
                 </div>
                 <div class="card-head-right">
                     <div class="pill-filters">
@@ -1446,7 +1393,8 @@
                         <button class="pill" onclick="setPeriod(this,'6m')">6M</button>
                         <button class="pill" onclick="setPeriod(this,'3m')">3M</button>
                     </div>
-                    <a href="#" class="card-link" style="margin-left:8px;">Export <i class="fas fa-arrow-right"></i></a>
+                    <a href="{{ route('admin.reports') }}" class="card-link" style="margin-left:8px;">Export <i
+                            class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
             <div class="card-body">
@@ -1461,13 +1409,13 @@
                     </div>
                     <div style="display:flex;align-items:center;gap:7px;font-size:0.78rem;color:var(--muted);">
                         <span
-                            style="width:24px;height:3px;background:var(--red);border-radius:2px;display:inline-block;"></span>
-                        Revenue (×10K UGX)
+                            style="width:24px;height:3px;background:var(--green);border-radius:2px;display:inline-block;"></span>
+                        Completions
                     </div>
                     <div style="display:flex;align-items:center;gap:7px;font-size:0.78rem;color:var(--muted);">
                         <span
-                            style="width:24px;height:3px;background:var(--gold);border-radius:2px;display:inline-block;border-style:dashed;border-width:0 0 2px;"></span>
-                        Completions
+                            style="width:24px;height:3px;background:var(--gold);border-radius:2px;display:inline-block;"></span>
+                        Revenue (UGX)
                     </div>
                 </div>
             </div>
@@ -1479,76 +1427,67 @@
                     <div class="card-head-title">Top Teachers</div>
                     <div class="card-head-sub">Ranked by student performance</div>
                 </div>
-                <a href="#" class="card-link">Full List <i class="fas fa-arrow-right"></i></a>
+                <a href="{{ route('admin.teachers') }}" class="card-link">Full List <i class="fas fa-arrow-right"></i></a>
             </div>
             <div class="card-body">
                 <div class="leaderboard">
-                    @php
-                        $teachers = [
-                            ['rank' => 1, 'rank_class' => 'lb-rank-1', 'initials' => 'SH', 'ava_class' => 'ua-1', 'name' => 'Sheikh Haruna Kato', 'subject' => 'Quran & Tajweed', 'score' => '98.2'],
-                            ['rank' => 2, 'rank_class' => 'lb-rank-2', 'initials' => 'US', 'ava_class' => 'ua-2', 'name' => 'Ustadha Safiyya', 'subject' => 'Arabic Language', 'score' => '95.7'],
-                            ['rank' => 3, 'rank_class' => 'lb-rank-3', 'initials' => 'MN', 'ava_class' => 'ua-3', 'name' => 'Mwalimu Nasur', 'subject' => 'Fiqh & Aqeedah', 'score' => '93.1'],
-                            ['rank' => 4, 'rank_class' => 'lb-rank-n', 'initials' => 'IK', 'ava_class' => 'ua-4', 'name' => 'Imam Kasirye', 'subject' => 'Seerah & History', 'score' => '90.8'],
-                            ['rank' => 5, 'rank_class' => 'lb-rank-n', 'initials' => 'FA', 'ava_class' => 'ua-5', 'name' => 'Fatima Al-Amin', 'subject' => 'Islamic Studies', 'score' => '88.4'],
-                        ];
-                    @endphp
-
-                    @foreach($teachers as $teacher)
+                    @php $avaClasses = ['ua-1', 'ua-2', 'ua-3', 'ua-4', 'ua-5'];
+                    $rankClasses = ['lb-rank-1', 'lb-rank-2', 'lb-rank-3', 'lb-rank-n', 'lb-rank-n']; @endphp
+                    @forelse($topTeachers as $i => $teacher)
                         <div class="lb-item">
-                            <div class="lb-rank {{ $teacher['rank_class'] }}">{{ $teacher['rank'] }}</div>
-                            <div class="lb-ava {{ $teacher['ava_class'] }}">{{ $teacher['initials'] }}</div>
+                            <div class="lb-rank {{ $rankClasses[$i] ?? 'lb-rank-n' }}">{{ $i + 1 }}</div>
+                            <div class="lb-ava {{ $avaClasses[$i] ?? 'ua-1' }}">
+                                {{ strtoupper(substr($teacher->firstname ?? 'T', 0, 1) . substr($teacher->lastname ?? '', 0, 1)) }}
+                            </div>
                             <div class="lb-info">
-                                <div class="lb-name">{{ $teacher['name'] }}</div>
-                                <div class="lb-subject">{{ $teacher['subject'] }}</div>
+                                <div class="lb-name">{{ $teacher->firstname }} {{ $teacher->lastname }}</div>
+                                <div class="lb-subject">{{ $teacher->lesson_count }} lessons</div>
                             </div>
                             <div class="lb-score">
-                                <div class="lb-score-num">{{ $teacher['score'] }}</div>
+                                <div class="lb-score-num">{{ $teacher->avg_score }}</div>
                                 <div class="lb-score-lbl">avg score</div>
                             </div>
                         </div>
-                    @endforeach
+                    @empty
+                        <div style="text-align:center;padding:30px;color:var(--muted);font-size:0.85rem;">
+                            <i class="fas fa-chalkboard-teacher"
+                                style="font-size:2rem;opacity:0.3;display:block;margin-bottom:8px;"></i>
+                            No teacher performance data yet.
+                        </div>
+                    @endforelse
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- ── ALL USERS TABLE + ACTIVITY ── --}}
+    {{-- ── USER TABLE + ACTIVITY ── --}}
     <div class="grid-6-4">
         <div class="card">
             <div class="card-head">
                 <div class="card-head-left">
-                    <div class="card-head-title">User Management</div>
-                    <div class="card-head-sub">All platform users · sorted by last activity</div>
+                    <div class="card-head-title">Recent Users</div>
+                    <div class="card-head-sub">Latest registered students</div>
                 </div>
                 <div class="card-head-right">
-                    <div class="pill-filters">
-                        <button class="pill active">All</button>
-                        <button class="pill">Students</button>
-                        <button class="pill">Teachers</button>
-                    </div>
-                    <a href="#" class="card-link">Manage <i class="fas fa-arrow-right"></i></a>
+                    <a href="{{ route('admin.students') }}" class="card-link">All Students <i
+                            class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
             <div class="card-body-0">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>User</th>
-                            <th>Role</th>
+                            <th>Student</th>
                             <th>Progress</th>
                             <th class="text-center">Score</th>
                             <th>Status</th>
                             <th class="text-right">Joined</th>
-                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($recentStudents as $user)
+                        @forelse($recentStudents as $i => $user)
                             @php
                                 $initials = strtoupper(substr($user->firstname ?? 'U', 0, 1) . substr($user->lastname ?? 'S', 0, 1));
-                                $roleLabel = match ($user->user_role) { 0 => 'Admin', 1 => 'Student', 2 => 'Teacher', default => 'User'};
-                                $roleClass = match ($user->user_role) { 1 => 'rt-student', 2 => 'rt-teacher', default => 'rt-admin'};
-                                $roleIcon = match ($user->user_role) { 1 => 'fa-user-graduate', 2 => 'fa-chalkboard-teacher', default => 'fa-user-shield'};
                                 $completedCount = \App\Models\Academic\StudentProgress::where('student_id', $user->id)->whereIn('status', ['completed', 'passed'])->count();
                                 $totalCount = \App\Models\Academic\StudentProgress::where('student_id', $user->id)->count();
                                 $progress = $totalCount > 0 ? round(($completedCount / $totalCount) * 100) : 0;
@@ -1556,22 +1495,18 @@
                                 $avgScore = $avgScore ? number_format($avgScore, 1) : '—';
                                 $scoreClass = $avgScore === '—' ? '' : ($avgScore >= 80 ? 'score-high' : ($avgScore >= 60 ? 'score-mid' : 'score-low'));
                                 $statusLabel = $user->account_status == 10 ? 'Active' : 'Inactive';
+                                $avaClass = 'ua-' . (($i % 8) + 1);
                             @endphp
                             <tr>
                                 <td>
                                     <div class="user-cell">
-                                        <div class="user-ava ua-1">{{ $initials }}</div>
+                                        <div class="user-ava {{ $avaClass }}">{{ $initials }}</div>
                                         <div>
                                             <div class="user-name">{{ $user->firstname ?? '' }} {{ $user->lastname ?? '' }}
                                             </div>
                                             <div class="user-meta">{{ $user->email }}</div>
                                         </div>
                                     </div>
-                                </td>
-                                <td>
-                                    <span class="role-tag {{ $roleClass }}">
-                                        <i class="fas {{ $roleIcon }}"></i> {{ $roleLabel }}
-                                    </span>
                                 </td>
                                 <td>
                                     <div class="prog-cell">
@@ -1582,24 +1517,15 @@
                                     </div>
                                 </td>
                                 <td class="text-center"><span class="score-cell {{ $scoreClass }}">{{ $avgScore }}</span></td>
-                                <td>
-                                    <span class="badge badge-{{ strtolower($statusLabel) }}">
-                                        <i class="fas fa-circle"></i> {{ $statusLabel }}
-                                    </span>
-                                </td>
+                                <td><span class="badge badge-{{ strtolower($statusLabel) }}"><i class="fas fa-circle"></i>
+                                        {{ $statusLabel }}</span></td>
                                 <td class="text-right" style="font-size:0.75rem;color:var(--muted);">
                                     {{ $user->created_at?->format('M Y') }}</td>
-                                <td>
-                                    <div class="action-dots">
-                                        <div class="action-dot"></div>
-                                        <div class="action-dot"></div>
-                                        <div class="action-dot"></div>
-                                    </div>
-                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" style="text-align:center;padding:24px;color:var(--muted);">No students yet.</td>
+                                <td colspan="5" style="text-align:center;padding:24px;color:var(--muted);">No students
+                                    registered yet.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -1610,10 +1536,11 @@
         <div class="card">
             <div class="card-head">
                 <div class="card-head-left">
-                    <div class="card-head-title">Audit Activity</div>
+                    <div class="card-head-title">Recent Activity</div>
                     <div class="card-head-sub">Platform-wide events · live</div>
                 </div>
-                <a href="#" class="card-link">All Logs <i class="fas fa-arrow-right"></i></a>
+                <a href="{{ route('admin.enrollments') }}" class="card-link">Enrollments <i
+                        class="fas fa-arrow-right"></i></a>
             </div>
             <div class="card-body" style="padding-top:0;">
                 <div class="timeline">
@@ -1625,7 +1552,7 @@
                             </div>
                             <div class="tl-body">
                                 <div class="tl-msg">
-                                    Student <strong>{{ $enrollment->student?->firstname ?? '' }}
+                                    <strong>{{ $enrollment->student?->firstname ?? '' }}
                                         {{ $enrollment->student?->lastname ?? 'Unknown' }}</strong>
                                     enrolled in <strong>{{ $enrollment->class?->name ?? 'a class' }}</strong>
                                     <span class="tl-tag"
@@ -1645,10 +1572,10 @@
                             </div>
                             <div class="tl-body">
                                 <div class="tl-msg">
-                                    Teacher <strong>{{ $lesson->teacher?->firstname ?? '' }}
+                                    <strong>{{ $lesson->teacher?->firstname ?? '' }}
                                         {{ $lesson->teacher?->lastname ?? '' }}</strong>
                                     {{ $lesson->status === 'published' ? 'published' : 'created' }} lesson
-                                    <strong>{{ Str::limit($lesson->title, 40) }}</strong>
+                                    <strong>{{ Str::limit($lesson->title, 35) }}</strong>
                                     <span class="tl-tag"
                                         style="background:var(--green-light);color:var(--green);">Content</span>
                                 </div>
@@ -1672,38 +1599,65 @@
         <div class="card">
             <div class="card-head">
                 <div class="card-head-left">
-                    <div class="card-head-title">Attendance</div>
-                    <div class="card-head-sub">This week · all classes</div>
+                    <div class="card-head-title">Platform Overview</div>
+                    <div class="card-head-sub">Content & Academic</div>
                 </div>
             </div>
             <div class="card-body">
-                <div style="display:flex;justify-content:center;margin-bottom:20px;position:relative;height:160px;">
-                    <canvas id="attendDonut"></canvas>
-                    <div
-                        style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;pointer-events:none;">
-                        <span
-                            style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:800;color:var(--ink);line-height:1;">91%</span>
-                        <span style="font-size:0.68rem;color:var(--muted);margin-top:2px;">Present</span>
+                <div class="rating-rows">
+                    <div class="rating-row">
+                        <div class="rating-label">Lessons</div>
+                        <div class="rating-bar-wrap">
+                            <div class="rating-fill"
+                                style="width:{{ $totalLessons > 0 ? min(100, round($publishedLessons / $totalLessons * 100)) : 0 }}%;background:var(--gradient);">
+                            </div>
+                        </div>
+                        <div class="rating-pct">{{ $totalLessons > 0 ? round($publishedLessons / $totalLessons * 100) : 0 }}%
+                        </div>
+                    </div>
+                    <div class="rating-row">
+                        <div class="rating-label">Completion</div>
+                        <div class="rating-bar-wrap">
+                            <div class="rating-fill"
+                                style="width:{{ $overallCompletionRate }}%;background:linear-gradient(90deg,var(--green),var(--cyan));">
+                            </div>
+                        </div>
+                        <div class="rating-pct">{{ $overallCompletionRate }}%</div>
+                    </div>
+                    <div class="rating-row">
+                        <div class="rating-label">Enrollment</div>
+                        <div class="rating-bar-wrap">
+                            <div class="rating-fill"
+                                style="width:{{ $totalStudents > 0 ? min(100, round($totalEnrollments / $totalStudents * 100)) : 0 }}%;background:linear-gradient(90deg,var(--blue),var(--purple));">
+                            </div>
+                        </div>
+                        <div class="rating-pct">
+                            {{ $totalStudents > 0 ? min(100, round($totalEnrollments / $totalStudents * 100)) : 0 }}%</div>
+                    </div>
+                    <div class="rating-row">
+                        <div class="rating-label">Published</div>
+                        <div class="rating-bar-wrap">
+                            <div class="rating-fill"
+                                style="width:{{ $totalLessons > 0 ? round($publishedLessons / $totalLessons * 100) : 0 }}%;background:linear-gradient(90deg,var(--gold),var(--red));">
+                            </div>
+                        </div>
+                        <div class="rating-pct">{{ $publishedLessons }}</div>
                     </div>
                 </div>
-                <div style="display:flex;flex-direction:column;gap:8px;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;">
-                        <div style="display:flex;align-items:center;gap:6px;"><span
-                                style="width:10px;height:10px;border-radius:3px;background:var(--green);display:inline-block;"></span>
-                            Present</div>
-                        <strong>129 students</strong>
+                <div style="margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                    <div
+                        style="text-align:center;padding:12px;background:var(--cream);border-radius:var(--radius-sm);border:1px solid var(--border);">
+                        <div
+                            style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--purple);">
+                            {{ $totalExams }}</div>
+                        <div style="font-size:0.7rem;color:var(--muted);">Exams</div>
                     </div>
-                    <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;">
-                        <div style="display:flex;align-items:center;gap:6px;"><span
-                                style="width:10px;height:10px;border-radius:3px;background:var(--red);display:inline-block;"></span>
-                            Absent</div>
-                        <strong>9 students</strong>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;">
-                        <div style="display:flex;align-items:center;gap:6px;"><span
-                                style="width:10px;height:10px;border-radius:3px;background:var(--gold);display:inline-block;"></span>
-                            Late</div>
-                        <strong>4 students</strong>
+                    <div
+                        style="text-align:center;padding:12px;background:var(--cream);border-radius:var(--radius-sm);border:1px solid var(--border);">
+                        <div
+                            style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--gold);">
+                            {{ $totalCertificates }}</div>
+                        <div style="font-size:0.7rem;color:var(--muted);">Certificates</div>
                     </div>
                 </div>
             </div>
@@ -1718,28 +1672,34 @@
             </div>
             <div class="card-body">
                 <div class="rating-rows">
-                    @php
-                        $subjects = [
-                            ['name' => 'Quran', 'pct' => 96, 'color' => 'var(--gradient)'],
-                            ['name' => 'Tajweed', 'pct' => 91, 'color' => 'linear-gradient(90deg,var(--purple),var(--blue))'],
-                            ['name' => 'Arabic', 'pct' => 84, 'color' => 'linear-gradient(90deg,var(--blue),var(--cyan))'],
-                            ['name' => 'Fiqh', 'pct' => 79, 'color' => 'linear-gradient(90deg,var(--gold),var(--red))'],
-                            ['name' => 'Aqeedah', 'pct' => 86, 'color' => 'linear-gradient(90deg,var(--green),var(--cyan))'],
-                            ['name' => 'Seerah', 'pct' => 88, 'color' => 'linear-gradient(90deg,#DB2777,var(--purple))'],
-                            ['name' => 'Islamic St.', 'pct' => 77, 'color' => 'linear-gradient(90deg,var(--red),var(--gold))'],
-                        ];
-                    @endphp
-
-                    @foreach($subjects as $subject)
+                    @forelse($subjectPerformance as $i => $subject)
+                        @php
+                            $colors = ['var(--gradient)', 'linear-gradient(90deg,var(--purple),var(--blue))', 'linear-gradient(90deg,var(--blue),var(--cyan))', 'linear-gradient(90deg,var(--gold),var(--red))', 'linear-gradient(90deg,var(--green),var(--cyan))', 'linear-gradient(90deg,#DB2777,var(--purple))', 'linear-gradient(90deg,var(--red),var(--gold))'];
+                        @endphp
                         <div class="rating-row">
-                            <div class="rating-label">{{ $subject['name'] }}</div>
+                            <div class="rating-label">{{ Str::limit($subject->name, 10) }}</div>
                             <div class="rating-bar-wrap">
                                 <div class="rating-fill"
-                                    style="width:{{ $subject['pct'] }}%;background:{{ $subject['color'] }};"></div>
+                                    style="width:{{ $subject->avg_score }}%;background:{{ $colors[$i % count($colors)] }};">
+                                </div>
                             </div>
-                            <div class="rating-pct">{{ $subject['pct'] }}%</div>
+                            <div class="rating-pct">{{ $subject->avg_score }}%</div>
                         </div>
-                    @endforeach
+                    @empty
+                        @php
+                            $demoSubjects = [['Quran', 96], ['Tajweed', 91], ['Arabic', 84], ['Fiqh', 79], ['Aqeedah', 86], ['Seerah', 88], ['Islamic St.', 77]];
+                            $demoColors = ['var(--gradient)', 'linear-gradient(90deg,var(--purple),var(--blue))', 'linear-gradient(90deg,var(--blue),var(--cyan))', 'linear-gradient(90deg,var(--gold),var(--red))', 'linear-gradient(90deg,var(--green),var(--cyan))', 'linear-gradient(90deg,#DB2777,var(--purple))', 'linear-gradient(90deg,var(--red),var(--gold))'];
+                        @endphp
+                        @foreach($demoSubjects as $i => $s)
+                            <div class="rating-row">
+                                <div class="rating-label">{{ $s[0] }}</div>
+                                <div class="rating-bar-wrap">
+                                    <div class="rating-fill" style="width:{{ $s[1] }}%;background:{{ $demoColors[$i] }};"></div>
+                                </div>
+                                <div class="rating-pct">{{ $s[1] }}%</div>
+                            </div>
+                        @endforeach
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -1747,19 +1707,14 @@
         <div class="card">
             <div class="card-head">
                 <div class="card-head-left">
-                    <div class="card-head-title">Upcoming Events</div>
+                    <div class="card-head-title">Academic Calendar</div>
                     <div class="card-head-sub">{{ now()->format('F Y') }}</div>
                 </div>
-                <a href="#" class="card-link">Full Cal <i class="fas fa-arrow-right"></i></a>
             </div>
             <div class="card-body">
                 <div class="mini-cal">
                     <div class="cal-header">
                         <div class="cal-month">{{ now()->format('F Y') }}</div>
-                        <div class="cal-nav">
-                            <button class="cal-nav-btn"><i class="fas fa-chevron-left"></i></button>
-                            <button class="cal-nav-btn"><i class="fas fa-chevron-right"></i></button>
-                        </div>
                     </div>
                     <div class="cal-grid">
                         <div class="cal-dow">Su</div>
@@ -1769,50 +1724,37 @@
                         <div class="cal-dow">Th</div>
                         <div class="cal-dow">Fr</div>
                         <div class="cal-dow">Sa</div>
-                        <div class="cal-day other-month">30</div>
-                        <div class="cal-day other-month">31</div>
-                        <div class="cal-day">1</div>
-                        <div class="cal-day has-event">2</div>
-                        <div class="cal-day">3</div>
-                        <div class="cal-day">4</div>
-                        <div class="cal-day">5</div>
-                        <div class="cal-day today">6</div>
-                        <div class="cal-day">7</div>
-                        <div class="cal-day has-event">8</div>
-                        <div class="cal-day">9</div>
-                        <div class="cal-day">10</div>
-                        <div class="cal-day">11</div>
-                        <div class="cal-day">12</div>
-                        <div class="cal-day">13</div>
-                        <div class="cal-day has-event">14</div>
-                        <div class="cal-day">15</div>
-                        <div class="cal-day has-event">16</div>
-                        <div class="cal-day">17</div>
-                        <div class="cal-day">18</div>
-                        <div class="cal-day">19</div>
-                        <div class="cal-day">20</div>
-                        <div class="cal-day">21</div>
-                        <div class="cal-day">22</div>
-                        <div class="cal-day has-event">23</div>
-                        <div class="cal-day">24</div>
-                        <div class="cal-day">25</div>
-                        <div class="cal-day">26</div>
+                        @php
+                            $startDay = now()->startOfMonth()->dayOfWeek;
+                            $daysInMonth = now()->daysInMonth;
+                            $today = now()->day;
+                            $prevDays = now()->startOfMonth()->subDays(1);
+                        @endphp
+                        @for($blank = 0; $blank < $startDay; $blank++)
+                            <div class="cal-day other-month">{{ $prevDays->subDays($startDay - $blank - 1)->day }}</div>
+                        @endfor
+                        @for($d = 1; $d <= $daysInMonth; $d++)
+                            <div class="cal-day {{ $d == $today ? 'today' : '' }}">{{ $d }}</div>
+                        @endfor
                     </div>
-
-                    <div class="cal-events">
-                        <div class="cal-event ce-purple">
-                            <div class="cal-event-name">Mid-Term Exams Begin</div>
-                            <div class="cal-event-time">Apr 8</div>
+                    @if($currentAcademicYear)
+                        <div class="cal-events" style="margin-top:12px;">
+                            <div class="cal-event ce-purple">
+                                <div class="cal-event-name">{{ $currentAcademicYear->name }}</div>
+                                <div class="cal-event-time">Current Year</div>
+                            </div>
+                            <div class="cal-event ce-gold">
+                                <div class="cal-event-name">{{ $totalEnrollments }} Active Enrollments</div>
+                                <div class="cal-event-time">This term</div>
+                            </div>
+                            @if($pendingEnrollments > 0)
+                                <div class="cal-event ce-red">
+                                    <div class="cal-event-name">{{ $pendingEnrollments }} Pending Approvals</div>
+                                    <div class="cal-event-time">Action needed</div>
+                                </div>
+                            @endif
                         </div>
-                        <div class="cal-event ce-red">
-                            <div class="cal-event-name">Parent-Teacher Meeting</div>
-                            <div class="cal-event-time">Apr 14</div>
-                        </div>
-                        <div class="cal-event ce-gold">
-                            <div class="cal-event-name">Quran Recitation Event</div>
-                            <div class="cal-event-time">Apr 23</div>
-                        </div>
-                    </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -1822,86 +1764,129 @@
     <div class="card">
         <div class="card-head">
             <div class="card-head-left">
-                <div class="card-head-title">System Health Monitor</div>
-                <div class="card-head-sub">Real-time infrastructure metrics · auto-refreshes every 60s</div>
+                <div class="card-head-title">System Overview</div>
+                <div class="card-head-sub">Platform-wide metrics at a glance</div>
             </div>
             <div class="card-head-right">
                 <div style="display:flex;align-items:center;gap:6px;font-size:0.74rem;color:var(--green);font-weight:600;">
                     <div class="sys-card-dot dot-green" style="animation:pulse-green 2s ease-in-out infinite;"></div>
                     All Systems Operational
                 </div>
-                <a href="#" class="card-link" style="margin-left:8px;">Details <i class="fas fa-arrow-right"></i></a>
             </div>
         </div>
         <div class="card-body">
             <div class="sys-cards">
-                @php
-                    $sysCards = [
-                        ['icon' => 'fa-microchip', 'label' => 'CPU Usage', 'status' => 'Normal', 'status_class' => 'scs-ok', 'dot' => 'dot-green', 'num' => '34', 'sub' => 'Peak today: 94% at 10:22 AM', 'prog_class' => 'spf-green', 'prog_width' => '34'],
-                        ['icon' => 'fa-memory', 'label' => 'RAM Usage', 'status' => 'Moderate', 'status_class' => 'scs-warn', 'dot' => 'dot-gold', 'num' => '71', 'sub' => '6.4 GB of 9 GB allocated', 'prog_class' => 'spf-gold', 'prog_width' => '71'],
-                        ['icon' => 'fa-hdd', 'label' => 'Disk Space', 'status' => 'Healthy', 'status_class' => 'scs-ok', 'dot' => 'dot-green', 'num' => '48', 'sub' => '241 GB of 500 GB used', 'prog_class' => 'spf-purple', 'prog_width' => '48'],
-                        ['icon' => 'fa-users', 'label' => 'Active Sessions', 'status' => 'Live', 'status_class' => 'scs-ok', 'dot' => 'dot-green', 'num' => '63', 'sub' => 'Peak today: 112 users online', 'prog_class' => 'spf-purple', 'prog_width' => '56'],
-                    ];
-                @endphp
-
-                @foreach($sysCards as $card)
-                    <div class="sys-card">
-                        <div class="sys-card-top">
-                            <div class="sys-card-label"><i class="fas {{ $card['icon'] }}"
-                                    style="margin-right:4px;"></i>{{ $card['label'] }}</div>
-                            <div class="sys-card-status {{ $card['status_class'] }}">
-                                <div class="sys-card-dot {{ $card['dot'] }}"></div> {{ $card['status'] }}
-                            </div>
+                <div class="sys-card">
+                    <div class="sys-card-top">
+                        <div class="sys-card-label"><i class="fas fa-user-graduate" style="margin-right:4px;"></i>Students
                         </div>
-                        <div class="sys-card-num">{{ $card['num'] }}<span style="font-size:1rem;">%</span></div>
-                        <div class="sys-card-sub">{{ $card['sub'] }}</div>
-                        <div class="sys-prog">
-                            <div class="sys-prog-bar">
-                                <div class="sys-prog-fill {{ $card['prog_class'] }}" style="width:{{ $card['prog_width'] }}%;">
-                                </div>
+                        <div class="sys-card-status scs-ok">
+                            <div class="sys-card-dot dot-green"></div> Active
+                        </div>
+                    </div>
+                    <div class="sys-card-num">{{ $totalStudents }}</div>
+                    <div class="sys-card-sub">{{ $totalEnrollments }} enrolled · {{ $pendingEnrollments }} pending</div>
+                    <div class="sys-prog">
+                        <div class="sys-prog-bar">
+                            <div class="sys-prog-fill spf-green"
+                                style="width:{{ $totalStudents > 0 ? min(100, round($totalEnrollments / $totalStudents * 100)) : 0 }}%;">
                             </div>
                         </div>
                     </div>
-                @endforeach
+                </div>
+                <div class="sys-card">
+                    <div class="sys-card-top">
+                        <div class="sys-card-label"><i class="fas fa-book" style="margin-right:4px;"></i>Lessons</div>
+                        <div class="sys-card-status scs-ok">
+                            <div class="sys-card-dot dot-green"></div> Live
+                        </div>
+                    </div>
+                    <div class="sys-card-num">{{ $publishedLessons }}</div>
+                    <div class="sys-card-sub">{{ $publishedLessons }} of {{ $totalLessons }} published</div>
+                    <div class="sys-prog">
+                        <div class="sys-prog-bar">
+                            <div class="sys-prog-fill spf-purple"
+                                style="width:{{ $totalLessons > 0 ? round($publishedLessons / $totalLessons * 100) : 0 }}%;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sys-card">
+                    <div class="sys-card-top">
+                        <div class="sys-card-label"><i class="fas fa-chart-line" style="margin-right:4px;"></i>Progress
+                        </div>
+                        <div class="sys-card-status {{ $overallCompletionRate >= 70 ? 'scs-ok' : 'scs-warn' }}">
+                            <div class="sys-card-dot {{ $overallCompletionRate >= 70 ? 'dot-green' : 'dot-gold' }}"></div>
+                            {{ $overallCompletionRate >= 70 ? 'Good' : 'Growing' }}
+                        </div>
+                    </div>
+                    <div class="sys-card-num">{{ $overallCompletionRate }}<span style="font-size:1rem;">%</span></div>
+                    <div class="sys-card-sub">{{ $totalCompletions }} lessons completed by students</div>
+                    <div class="sys-prog">
+                        <div class="sys-prog-bar">
+                            <div class="sys-prog-fill {{ $overallCompletionRate >= 70 ? 'spf-green' : 'spf-gold' }}"
+                                style="width:{{ $overallCompletionRate }}%;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sys-card">
+                    <div class="sys-card-top">
+                        <div class="sys-card-label"><i class="fas fa-credit-card" style="margin-right:4px;"></i>Payments
+                        </div>
+                        <div class="sys-card-status {{ $pendingPayments > 0 ? 'scs-warn' : 'scs-ok' }}">
+                            <div class="sys-card-dot {{ $pendingPayments > 0 ? 'dot-gold' : 'dot-green' }}"></div>
+                            {{ $pendingPayments > 0 ? 'Pending' : 'Clear' }}
+                        </div>
+                    </div>
+                    <div class="sys-card-num">{{ number_format($totalRevenue / 1000, 0) }}K</div>
+                    <div class="sys-card-sub">UGX collected · {{ $pendingPayments }} pending</div>
+                    <div class="sys-prog">
+                        <div class="sys-prog-bar">
+                            <div class="sys-prog-fill spf-purple" style="width:80%;"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    {{-- ── RECENT ENROLLMENTS + PENDING PAYMENTS ── --}}
+    {{-- ── RECENT ENROLLMENTS + PAYMENTS ── --}}
     <div class="grid-2">
         <div class="card">
             <div class="card-head">
                 <div class="card-head-left">
                     <div class="card-head-title">Recent Enrollments</div>
-                    <div class="card-head-sub">7 pending approval · sorted by date</div>
+                    <div class="card-head-sub">{{ $pendingEnrollments }} pending approval</div>
                 </div>
-                <a href="#" class="card-link">Manage <i class="fas fa-arrow-right"></i></a>
+                <a href="{{ route('admin.enrollments') }}" class="card-link">Manage <i class="fas fa-arrow-right"></i></a>
             </div>
             <div class="card-body">
                 <div class="enroll-grid">
-                    @php
-                        $enrollments = [
-                            ['initials' => 'OK', 'ava_class' => 'ua-1', 'name' => 'Omar Kiggundu', 'class' => 'Arabic Beginners', 'time' => '10 min ago', 'status' => 'Pending', 'badge' => 'badge-pending'],
-                            ['initials' => 'ZM', 'ava_class' => 'ua-2', 'name' => 'Zahra Mutebi', 'class' => 'Quran Level 1', 'time' => '45 min ago', 'status' => 'Pending', 'badge' => 'badge-pending'],
-                            ['initials' => 'HA', 'ava_class' => 'ua-3', 'name' => 'Hassan Atuhaire', 'class' => 'Fiqh Grade 4', 'time' => '2 hrs ago', 'status' => 'Review', 'badge' => 'badge-review'],
-                            ['initials' => 'NB', 'ava_class' => 'ua-4', 'name' => 'Nadia Babirye', 'class' => 'Tajweed Adv.', 'time' => 'Yesterday', 'status' => 'Approved', 'badge' => 'badge-active'],
-                        ];
-                    @endphp
-
-                    @foreach($enrollments as $enrollment)
+                    @php $avaClasses = ['ua-1', 'ua-2', 'ua-3', 'ua-4', 'ua-5', 'ua-6', 'ua-7', 'ua-8']; @endphp
+                    @forelse($recentEnrollments->take(4) as $i => $enrollment)
+                        @php
+                            $status = $enrollment->status;
+                            $badgeClass = match ($status) { 'active' => 'badge-active', 'pending' => 'badge-pending', 'rejected' => 'badge-inactive', default => 'badge-review'};
+                            $statusLabel = match ($status) { 'active' => 'Active', 'pending' => 'Pending', 'rejected' => 'Rejected', default => 'Review'};
+                        @endphp
                         <div class="enroll-card">
-                            <div class="enroll-ava {{ $enrollment['ava_class'] }}">{{ $enrollment['initials'] }}</div>
+                            <div class="enroll-ava {{ $avaClasses[$i % 8] }}">
+                                {{ strtoupper(substr($enrollment->student?->firstname ?? 'U', 0, 1) . substr($enrollment->student?->lastname ?? 'S', 0, 1)) }}
+                            </div>
                             <div class="enroll-info">
-                                <div class="enroll-name">{{ $enrollment['name'] }}</div>
-                                <div class="enroll-class">{{ $enrollment['class'] }}</div>
+                                <div class="enroll-name">{{ $enrollment->student?->firstname }}
+                                    {{ $enrollment->student?->lastname }}</div>
+                                <div class="enroll-class">{{ $enrollment->class?->name ?? 'Unknown class' }}</div>
                             </div>
                             <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
-                                <div class="enroll-time">{{ $enrollment['time'] }}</div>
-                                <span class="badge {{ $enrollment['badge'] }}"
-                                    style="font-size:0.62rem;">{{ $enrollment['status'] }}</span>
+                                <div class="enroll-time">{{ $enrollment->created_at?->diffForHumans() }}</div>
+                                <span class="badge {{ $badgeClass }}" style="font-size:0.62rem;">{{ $statusLabel }}</span>
                             </div>
                         </div>
-                    @endforeach
+                    @empty
+                        <div style="grid-column:span 2;text-align:center;padding:20px;color:var(--muted);">No recent
+                            enrollments.</div>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -1910,9 +1895,9 @@
             <div class="card-head">
                 <div class="card-head-left">
                     <div class="card-head-title">Payment Overview</div>
-                    <div class="card-head-sub">Fees tracking · current term</div>
+                    <div class="card-head-sub">Financial summary · current period</div>
                 </div>
-                <a href="#" class="card-link">Finance <i class="fas fa-arrow-right"></i></a>
+                <a href="{{ route('admin.payments') }}" class="card-link">Finance <i class="fas fa-arrow-right"></i></a>
             </div>
             <div class="card-body">
                 <div style="display:flex;justify-content:center;position:relative;height:150px;margin-bottom:16px;">
@@ -1922,42 +1907,39 @@
                         <span
                             style="font-size:0.65rem;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase;">Collected</span>
                         <span
-                            style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:800;color:var(--ink);line-height:1;">78%</span>
+                            style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:800;color:var(--ink);line-height:1;">{{ $totalRevenue > 0 ? round($totalRevenue / ($totalRevenue + $overdueAmount + 1) * 100) : 0 }}%</span>
                     </div>
                 </div>
                 <div class="mini-tiles">
                     <div class="mini-tile">
                         <div class="mt-ico" style="color:var(--green);">💰</div>
-                        <div class="mt-num" style="color:var(--green);">3.8M</div>
+                        <div class="mt-num" style="color:var(--green);">{{ number_format($totalRevenue / 1000, 0) }}K</div>
                         <div class="mt-label">UGX Collected</div>
                     </div>
                     <div class="mini-tile">
                         <div class="mt-ico" style="color:var(--red);">⏳</div>
-                        <div class="mt-num" style="color:var(--red);">620K</div>
-                        <div class="mt-label">UGX Overdue</div>
+                        <div class="mt-num" style="color:var(--red);">{{ $pendingPayments }}</div>
+                        <div class="mt-label">Pending Payments</div>
                     </div>
                     <div class="mini-tile">
                         <div class="mt-ico" style="color:var(--gold);">🔔</div>
-                        <div class="mt-num" style="color:var(--gold);">3</div>
-                        <div class="mt-label">Pending</div>
+                        <div class="mt-num" style="color:var(--gold);">{{ $totalEnrollments }}</div>
+                        <div class="mt-label">Active Students</div>
                     </div>
                     <div class="mini-tile">
                         <div class="mt-ico" style="color:var(--purple);">📊</div>
-                        <div class="mt-num" style="color:var(--purple);">4.9M</div>
-                        <div class="mt-label">UGX Total Due</div>
+                        <div class="mt-num" style="color:var(--purple);">{{ $totalCertificates }}</div>
+                        <div class="mt-label">Certificates Issued</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 @endsection
 
 @section('js')
     <script>
-        /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-           CHART.JS INITIALIZATION
-        ━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
         Chart.defaults.font.family = 'DM Sans';
         Chart.defaults.color = '#6B6584';
 
@@ -1969,49 +1951,30 @@
             borderColor: 'rgba(107,70,193,0.3)', borderWidth: 1,
         };
 
-        /* ── MAIN AREA CHART ── */
+        // Real monthly data from controller
+        const monthlyData = @json($monthlyData);
+        const labels = monthlyData.map(d => d.label);
+        const enrollments = monthlyData.map(d => d.enrollments);
+        const completions = monthlyData.map(d => d.completions);
+        const revenues = monthlyData.map(d => Math.round(d.revenue / 1000));
+
         (function () {
             const ctx = document.getElementById('mainChart').getContext('2d');
             const gPurp = ctx.createLinearGradient(0, 0, 0, 270);
             gPurp.addColorStop(0, 'rgba(107,70,193,0.28)');
             gPurp.addColorStop(1, 'rgba(107,70,193,0)');
-            const gRed = ctx.createLinearGradient(0, 0, 0, 270);
-            gRed.addColorStop(0, 'rgba(220,38,38,0.2)');
-            gRed.addColorStop(1, 'rgba(220,38,38,0)');
+            const gGreen = ctx.createLinearGradient(0, 0, 0, 270);
+            gGreen.addColorStop(0, 'rgba(22,163,74,0.2)');
+            gGreen.addColorStop(1, 'rgba(22,163,74,0)');
 
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'],
+                    labels,
                     datasets: [
-                        {
-                            label: 'Enrollments',
-                            data: [38, 42, 51, 59, 64, 72, 80, 88, 95, 108, 128, 142],
-                            borderColor: '#6B46C1',
-                            backgroundColor: gPurp,
-                            borderWidth: 2.5, fill: true, tension: 0.42,
-                            pointBackgroundColor: '#6B46C1', pointRadius: 4, pointHoverRadius: 7,
-                            yAxisID: 'y',
-                        },
-                        {
-                            label: 'Revenue (×10K UGX)',
-                            data: [180, 210, 250, 290, 310, 340, 370, 400, 430, 460, 350, 380],
-                            borderColor: '#DC2626',
-                            backgroundColor: gRed,
-                            borderWidth: 2, fill: true, tension: 0.42,
-                            pointBackgroundColor: '#DC2626', pointRadius: 3, pointHoverRadius: 6,
-                            yAxisID: 'y1',
-                        },
-                        {
-                            label: 'Completions',
-                            data: [32, 36, 44, 50, 55, 65, 72, 80, 88, 98, 110, 124],
-                            borderColor: '#D97706',
-                            backgroundColor: 'transparent',
-                            borderWidth: 2, fill: false, tension: 0.42,
-                            borderDash: [6, 4],
-                            pointBackgroundColor: '#D97706', pointRadius: 3, pointHoverRadius: 5,
-                            yAxisID: 'y',
-                        }
+                        { label: 'Enrollments', data: enrollments, borderColor: '#6B46C1', backgroundColor: gPurp, borderWidth: 2.5, fill: true, tension: 0.42, pointBackgroundColor: '#6B46C1', pointRadius: 4, pointHoverRadius: 7, yAxisID: 'y' },
+                        { label: 'Completions', data: completions, borderColor: '#16A34A', backgroundColor: gGreen, borderWidth: 2, fill: true, tension: 0.42, pointBackgroundColor: '#16A34A', pointRadius: 3, pointHoverRadius: 6, yAxisID: 'y' },
+                        { label: 'Revenue (×1K UGX)', data: revenues, borderColor: '#D97706', backgroundColor: 'transparent', borderWidth: 2, fill: false, tension: 0.42, borderDash: [6, 4], pointBackgroundColor: '#D97706', pointRadius: 3, pointHoverRadius: 5, yAxisID: 'y1' },
                     ]
                 },
                 options: {
@@ -2020,82 +1983,36 @@
                     plugins: { legend: { display: false }, tooltip: tooltipStyle },
                     scales: {
                         x: { grid: { color: 'rgba(107,70,193,0.06)' }, ticks: { font: { size: 11 } } },
-                        y: {
-                            type: 'linear', position: 'left',
-                            grid: { color: 'rgba(107,70,193,0.06)' },
-                            ticks: { font: { size: 11 } }
-                        },
-                        y1: {
-                            type: 'linear', position: 'right',
-                            grid: { drawOnChartArea: false },
-                            ticks: { font: { size: 11 }, callback: v => v + 'K' }
-                        }
+                        y: { type: 'linear', position: 'left', grid: { color: 'rgba(107,70,193,0.06)' }, ticks: { font: { size: 11 } } },
+                        y1: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, ticks: { font: { size: 11 }, callback: v => v + 'K' } }
                     }
                 }
             });
         })();
 
-        /* ── ATTENDANCE DONUT ── */
-        (function () {
-            const ctx = document.getElementById('attendDonut').getContext('2d');
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Present', 'Absent', 'Late'],
-                    datasets: [{
-                        data: [91, 6, 3],
-                        backgroundColor: ['#16A34A', '#DC2626', '#D97706'],
-                        borderColor: 'white', borderWidth: 3, hoverOffset: 6,
-                    }]
-                },
-                options: {
-                    responsive: false, cutout: '72%',
-                    plugins: { legend: { display: false }, tooltip: tooltipStyle },
-                    width: 160, height: 160,
-                }
-            });
-        })();
-
-        /* ── REVENUE DONUT ── */
+        // Revenue donut
         (function () {
             const ctx = document.getElementById('revenueDonut').getContext('2d');
+            const total = {{ $totalRevenue }};
+            const pending = {{ $overdueAmount }};
             new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Collected', 'Pending', 'Overdue'],
-                    datasets: [{
-                        data: [78, 9, 13],
-                        backgroundColor: ['#16A34A', '#D97706', '#DC2626'],
-                        borderColor: 'white', borderWidth: 3, hoverOffset: 6,
-                    }]
+                    labels: ['Collected', 'Pending/Failed'],
+                    datasets: [{ data: [Math.max(total, 1), Math.max(pending, total > 0 ? 0 : 1)], backgroundColor: ['#16A34A', '#D97706'], borderColor: 'white', borderWidth: 3, hoverOffset: 6 }]
                 },
-                options: {
-                    responsive: false, cutout: '70%',
-                    plugins: { legend: { display: false }, tooltip: tooltipStyle },
-                    width: 150, height: 150,
-                }
+                options: { responsive: false, cutout: '70%', plugins: { legend: { display: false }, tooltip: tooltipStyle }, width: 150, height: 150 }
             });
         })();
 
-        /* Chart period toggle */
         function setPeriod(btn, period) {
             btn.closest('.pill-filters').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
             btn.classList.add('active');
         }
 
-        /* KPI hover ripple numbers */
         document.querySelectorAll('.kpi-card').forEach(card => {
-            card.addEventListener('mouseenter', () => {
-                const num = card.querySelector('.kpi-num');
-                if (num) {
-                    num.style.transform = 'scale(1.04)';
-                    num.style.transition = 'transform 0.2s ease';
-                }
-            });
-            card.addEventListener('mouseleave', () => {
-                const num = card.querySelector('.kpi-num');
-                if (num) num.style.transform = 'scale(1)';
-            });
+            card.addEventListener('mouseenter', () => { const n = card.querySelector('.kpi-num'); if (n) { n.style.transform = 'scale(1.04)'; n.style.transition = 'transform 0.2s ease'; } });
+            card.addEventListener('mouseleave', () => { const n = card.querySelector('.kpi-num'); if (n) n.style.transform = 'scale(1)'; });
         });
     </script>
 @endsection

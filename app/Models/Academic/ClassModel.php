@@ -65,6 +65,11 @@ class ClassModel extends Model
         return $this->hasMany(Topic::class, 'class_id');
     }
 
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(ClassEnrollment::class, 'class_id');
+    }
+
     public function certificates(): HasMany
     {
         return $this->hasMany(Certificate::class, 'class_id');

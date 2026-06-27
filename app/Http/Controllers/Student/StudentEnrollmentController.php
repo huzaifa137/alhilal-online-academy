@@ -224,10 +224,10 @@ class StudentEnrollmentController extends Controller
             ]);
         }
 
-        $lesson->update([
-            'lesson_payment_status' => 'Paid',
-            'lesson_amount'         => $request->required_amount,
-        ]);
+        \App\Models\Academic\LessonPayment::updateOrCreate(
+            ['lesson_id' => $lesson->id, 'student_id' => $studentId],
+            ['amount_paid' => $request->required_amount, 'paid_at' => now()]
+        );
 
         return response()->json([
             'success' => true,

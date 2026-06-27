@@ -17,6 +17,12 @@ use App\Http\Controllers\Student\PaymentController;
 use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\Student\CertificateController as StudentCertificateController;
 use App\Http\Controllers\Admin\CertificateController as AdminCertificateController;
+use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\EnrollmentController as AdminEnrollmentController;
+use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ClassController as AdminClassController;
 
 Route::get('/all-sessions', function () {
     dd(Session::all());
@@ -299,3 +305,38 @@ Route::get('/certificates/verify', [StudentCertificateController::class, 'verify
 Route::get('/privacy-policy', [LevelController::class, 'index'])->name('privacy-policy');
 
 Route::post('/payment/webhook', [PaymentController::class, 'webhook'])->name('payment.webhook');
+
+// ─── Admin Portal Routes ──────────────────────────────────────────────────────
+Route::prefix('admin')->name('admin.')->middleware(['AdminAuth'])->group(function () {
+
+    // Dashboard (direct)
+    Route::get('/home', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard.home');
+
+    // User Management — Students
+    Route::get('/students',          [\App\Http\Controllers\Admin\UserManagementController::class, 'students'])->name('students');
+    Route::get('/students/{id}',     [\App\Http\Controllers\Admin\UserManagementController::class, 'showStudent'])->name('students.show');
+    Route::post('/students/{id}/toggle', [\App\Http\Controllers\Admin\UserManagementController::class, 'toggleStudentStatus'])->name('students.toggle');
+    Route::delete('/students/{id}',  [\App\Http\Controllers\Admin\UserManagementController::class, 'destroyStudent'])->name('students.destroy');
+
+    // User Management — Teachers
+    Route::get('/teachers',          [\App\Http\Controllers\Admin\UserManagementController::class, 'teachers'])->name('teachers');
+    Route::get('/teachers/{id}',     [\App\Http\Controllers\Admin\UserManagementController::class, 'showTeacher'])->name('teachers.show');
+    Route::post('/teachers/{id}/toggle', [\App\Http\Controllers\Admin\UserManagementController::class, 'toggleTeacherStatus'])->name('teachers.toggle');
+
+    // Enrollments
+    Route::get('/enrollments',               [\App\Http\Controllers\Admin\EnrollmentController::class, 'index'])->name('enrollments');
+    Route::post('/enrollments',              [\App\Http\Controllers\Admin\EnrollmentController::class, 'store'])->name('enrollments.store');
+    Route::post('/enrollments/{id}/approve', [\App\Http\Controllers\Admin\EnrollmentController::class, 'approve'])->name('enrollments.approve');
+    Route::post('/enrollments/{id}/reject',  [\App\Http\Controllers\Admin\EnrollmentController::class, 'reject'])->name('enrollments.reject');
+    Route::delete('/enrollments/{id}',       [\App\Http\Controllers\Admin\EnrollmentController::class, 'destroy'])->name('enrollments.destroy');
+
+    // Payments
+    Route::get('/payments',      [\App\Http\Controllers\Admin\PaymentController::class, 'index'])->name('payments');
+    Route::get('/payments/{id}', [\App\Http\Controllers\Admin\PaymentController::class, 'show'])->name('payments.show');
+
+    // Reports
+    Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports');
+
+    // Classes
+    Route::get('/classes', [\App\Http\Controllers\Admin\ClassController::class, 'index'])->name('classes.index');
+});

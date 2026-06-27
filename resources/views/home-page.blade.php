@@ -654,8 +654,24 @@ h1,h2,h3 { font-family: 'Playfair Display', serif; line-height: 1.15; }
 .badge-video { background: #EDE9FA; color: var(--purple); }
 .badge-audio { background: var(--red-light); color: var(--red); }
 .badge-pdf { background: var(--gold-light); color: var(--gold); }
+.badge-live { background: #DCFCE7; color: #16A34A; }
+.badge-text { background: #E0F2FE; color: #0369A1; }
+.badge-mixed { background: var(--purple-light); color: var(--purple); }
 .lesson-title-text { font-size: 0.78rem; color: var(--ink); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; }
 .lesson-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+.lesson-quiz-count {
+    font-size: 0.68rem;
+    color: var(--muted);
+    white-space: nowrap;
+}
+.curriculum-empty {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--muted);
+    font-size: 0.92rem;
+}
+.curriculum-empty i { font-size: 1.8rem; color: var(--border2); margin-bottom: 12px; display: block; }
+.subject-card-empty { font-size: 0.78rem; color: var(--muted); padding: 6px 0; }
 .btn-view-lesson {
     background: var(--red);
     color: white;
@@ -1042,7 +1058,7 @@ textarea.form-control-alhilal {
         <div class="hero-left">
             <div class="hero-badge">
                 <span class="hero-badge-dot"></span>
-                Now enrolling for 2026/2027
+                Now enrolling for {{ $currentAcademicYear->name ?? 'this academic year' }}
             </div>
             <h1 class="hero-title">
                 Islamic Education<br>
@@ -1062,19 +1078,19 @@ textarea.form-control-alhilal {
             </div>
             <div class="hero-stats">
                 <div>
-                    <div class="hero-stat-num" data-count="500">500+</div>
+                    <div class="hero-stat-num" data-count="{{ $totalLessons }}">{{ $totalLessons }}{{ $totalLessons > 0 ? '+' : '' }}</div>
                     <div class="hero-stat-label">Lessons</div>
                 </div>
                 <div>
-                    <div class="hero-stat-num" data-count="60">60+</div>
+                    <div class="hero-stat-num" data-count="{{ $totalSubjects }}">{{ $totalSubjects }}{{ $totalSubjects > 0 ? '+' : '' }}</div>
                     <div class="hero-stat-label">Subjects</div>
                 </div>
                 <div>
-                    <div class="hero-stat-num" data-count="5">5</div>
+                    <div class="hero-stat-num" data-count="{{ $totalLevels }}">{{ $totalLevels }}</div>
                     <div class="hero-stat-label">Levels</div>
                 </div>
                 <div>
-                    <div class="hero-stat-num" data-count="20">20+</div>
+                    <div class="hero-stat-num" data-count="{{ $totalClasses }}">{{ $totalClasses }}{{ $totalClasses > 0 ? '+' : '' }}</div>
                     <div class="hero-stat-label">Classes</div>
                 </div>
             </div>
@@ -1086,10 +1102,10 @@ textarea.form-control-alhilal {
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
                     <img src="{{ asset('assets/images/al-hilaal_update.png') }}" style="width: 44px; height: 44px; border-radius: 12px; object-fit: cover;">
                     <div>
-                        <div style="font-size: 0.85rem; font-weight: 600; color: white;">Student Progress</div>
-                        <div style="font-size: 0.72rem; color: rgba(255,255,255,0.5);">2026/2027 Academic Year</div>
+                        <div style="font-size: 0.85rem; font-weight: 600; color: white;">Sample Student Dashboard</div>
+                        <div style="font-size: 0.72rem; color: rgba(255,255,255,0.5);">{{ $currentAcademicYear->name ?? 'Current Academic Year' }}</div>
                     </div>
-                    <div style="margin-left: auto; background: rgba(74,222,128,0.15); border: 1px solid rgba(74,222,128,0.3); color: #4ade80; padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 600;">Active</div>
+                    <div style="margin-left: auto; background: rgba(74,222,128,0.15); border: 1px solid rgba(74,222,128,0.3); color: #4ade80; padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 600;">Preview</div>
                 </div>
                 <div class="progress-row">
                     <div class="progress-item">
@@ -1237,7 +1253,7 @@ textarea.form-control-alhilal {
                     </div>
                 </div>
                 <div class="about-floating-badge">
-                    <div class="num">1,200+</div>
+                    <div class="num">{{ $totalEnrolledStudents }}{{ $totalEnrolledStudents > 0 ? '+' : '' }}</div>
                     <div class="lbl">Students Enrolled</div>
                 </div>
             </div>
@@ -1250,22 +1266,22 @@ textarea.form-control-alhilal {
     <div class="container">
         <div class="stats-grid">
             <div class="stat-item">
-                <span class="stat-num" data-count="5">5</span>
+                <span class="stat-num" data-count="{{ $totalLevels }}">{{ $totalLevels }}</span>
                 <div class="stat-lbl">School Levels</div>
                 <div class="stat-divider"></div>
             </div>
             <div class="stat-item">
-                <span class="stat-num" data-count="20">20+</span>
+                <span class="stat-num" data-count="{{ $totalClasses }}">{{ $totalClasses }}{{ $totalClasses > 0 ? '+' : '' }}</span>
                 <div class="stat-lbl">Classes</div>
                 <div class="stat-divider"></div>
             </div>
             <div class="stat-item">
-                <span class="stat-num" data-count="60">60+</span>
+                <span class="stat-num" data-count="{{ $totalSubjects }}">{{ $totalSubjects }}{{ $totalSubjects > 0 ? '+' : '' }}</span>
                 <div class="stat-lbl">Subjects</div>
                 <div class="stat-divider"></div>
             </div>
             <div class="stat-item">
-                <span class="stat-num" data-count="500">500+</span>
+                <span class="stat-num" data-count="{{ $totalLessons }}">{{ $totalLessons }}{{ $totalLessons > 0 ? '+' : '' }}</span>
                 <div class="stat-lbl">Lessons</div>
                 <div class="stat-divider"></div>
             </div>
@@ -1281,7 +1297,109 @@ textarea.form-control-alhilal {
             <h2 class="section-heading">Classes, Subjects & Lessons</h2>
             <p class="section-sub">Every lesson comes with content + a quiz. Pass the quiz to complete the lesson and track your progress toward a certificate.</p>
         </div>
-        <div class="level-accordion" id="levelsContainer"></div>
+
+        <div class="level-accordion" id="levelsContainer">
+            @forelse ($sections as $section)
+                @foreach ($section->levels as $level)
+                    @if ($level->classes->isNotEmpty())
+                        <div class="level-card">
+                            <button class="level-header-btn" type="button" data-level-toggle>
+                                <div class="level-header-left">
+                                    <div class="level-number"><i class="fa-solid fa-layer-group"></i></div>
+                                    <div>
+                                        <div class="level-title">{{ $level->name }}</div>
+                                        <div class="level-meta">{{ $section->name }} &nbsp;·&nbsp; {{ $level->classes->count() }} {{ Str::plural('Class', $level->classes->count()) }}</div>
+                                    </div>
+                                </div>
+                                <div class="level-toggle"><i class="fas fa-chevron-down"></i></div>
+                            </button>
+                            <div class="level-body">
+                                <div class="class-tabs-row">
+                                    @foreach ($level->classes as $ci => $class)
+                                        <button type="button" class="class-tab-btn{{ $ci === 0 ? ' active' : '' }}" data-class-tab="{{ $class->id }}">{{ $class->name }}</button>
+                                    @endforeach
+                                </div>
+
+                                @foreach ($level->classes as $ci => $class)
+                                    <div class="class-subjects-panel" data-class-panel="{{ $class->id }}" style="{{ $ci === 0 ? '' : 'display:none;' }}">
+                                        @if ($class->subjects->isEmpty())
+                                            <div class="curriculum-empty">
+                                                <i class="fas fa-book-open"></i>
+                                                No subjects have been assigned to {{ $class->name }} yet.
+                                            </div>
+                                        @else
+                                            <div class="subjects-grid">
+                                                @foreach ($class->subjects as $subject)
+                                                    <div class="subject-card">
+                                                        <div class="subject-card-head">
+                                                            <div class="subject-icon">
+                                                                <i class="{{ $subject->icon ?: 'fas fa-star-of-life' }}"></i>
+                                                            </div>
+                                                            <div class="subject-title">{{ $subject->name }}</div>
+                                                        </div>
+
+                                                        @php $topics = $subject->topicsForClass ?? collect(); @endphp
+
+                                                        @if ($topics->isEmpty())
+                                                            <div class="subject-card-empty">No published lessons yet — check back soon.</div>
+                                                        @else
+                                                            <div class="lesson-list">
+                                                                @foreach ($topics as $topic)
+                                                                    @foreach ($topic->lessons as $lesson)
+                                                                        @php
+                                                                            $badgeClass = match($lesson->lesson_type) {
+                                                                                'video' => 'badge-video',
+                                                                                'audio' => 'badge-audio',
+                                                                                'pdf' => 'badge-pdf',
+                                                                                'live' => 'badge-live',
+                                                                                'text' => 'badge-text',
+                                                                                default => 'badge-mixed',
+                                                                            };
+                                                                            $typeIcon = match($lesson->lesson_type) {
+                                                                                'video' => 'fas fa-video',
+                                                                                'audio' => 'fas fa-headphones',
+                                                                                'pdf' => 'fas fa-file-pdf',
+                                                                                'live' => 'fas fa-tower-broadcast',
+                                                                                'text' => 'fas fa-align-left',
+                                                                                default => 'fas fa-layer-group',
+                                                                            };
+                                                                        @endphp
+                                                                        <div class="lesson-row">
+                                                                            <div class="lesson-info">
+                                                                                <span class="lesson-type-badge {{ $badgeClass }}"><i class="{{ $typeIcon }}"></i> {{ strtoupper($lesson->lesson_type) }}</span>
+                                                                                <span class="lesson-title-text" title="{{ $lesson->title }}">{{ $lesson->title }}</span>
+                                                                            </div>
+                                                                            <div class="lesson-actions">
+                                                                                @if ($lesson->quiz_count > 0)
+                                                                                    <span class="lesson-quiz-count"><i class="fas fa-question-circle"></i> {{ $lesson->quiz_count }} {{ Str::plural('quiz', $lesson->quiz_count) }}</span>
+                                                                                @endif
+                                                                                <a href="{{ route('student.lessons.show', $lesson) }}" class="btn-view-lesson">View</a>
+                                                                            </div>
+                                                                        </div>
+                                                                    @endforeach
+                                                                @endforeach
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                @endforeach
+            @empty
+            @endforelse
+
+            @if ($sections->every(fn($s) => $s->levels->every(fn($l) => $l->classes->isEmpty())))
+                <div class="curriculum-empty">
+                    <i class="fas fa-school"></i>
+                    Curriculum content is being set up. Please check back soon.
+                </div>
+            @endif
+        </div>
     </div>
 </section>
 
@@ -1314,6 +1432,12 @@ textarea.form-control-alhilal {
 </section>
 
 <!-- ════════════════════ TESTIMONIALS ════════════════════ -->
+<!--
+    NOTE: There is no testimonials/reviews table in the database, so this
+    section is illustrative placeholder content (not real student/teacher
+    quotes). If you later add a "testimonials" table, replace this block
+    with a @@foreach over real records.
+-->
 <section class="testimonials-section section" id="testimony">
     <div class="container">
         <div class="text-center">
@@ -1552,32 +1676,6 @@ backBtn.addEventListener('click', (e) => {
     <a href="#" class="nav-item nav-whatsapp" id="whatsappChat"><i class="fab fa-whatsapp"></i><span>Chat</span></a>
 </nav>
 
-<!-- ════════════════════ MODALS ════════════════════ -->
-<div id="lessonModal" class="modal-backdrop">
-    <div class="modal-box">
-        <button class="modal-close" onclick="document.getElementById('lessonModal').classList.remove('open')"><i class="fas fa-times"></i></button>
-        <div class="modal-icon"><i class="fas fa-play-circle"></i></div>
-        <div class="modal-title" id="modalLessonTitle">Lesson Title</div>
-        <div class="modal-desc" id="modalLessonDescription">Click play to start this lesson.</div>
-        <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="document.getElementById('lessonModal').classList.remove('open')">
-            <i class="fas fa-times"></i> Close
-        </button>
-    </div>
-</div>
-
-<div id="quizModal" class="modal-backdrop">
-    <div class="modal-box">
-        <button class="modal-close" id="closeQuizBtn"><i class="fas fa-times"></i></button>
-        <div class="modal-icon" style="color: var(--red);"><i class="fas fa-question-circle"></i></div>
-        <div class="modal-title" id="quizTitle">Lesson Quiz</div>
-        <div id="quizQuestions"></div>
-        <button class="btn btn-red" id="submitQuizBtn" style="width: 100%; justify-content: center; margin-top: 16px;">
-            <i class="fas fa-check"></i> Submit Quiz
-        </button>
-        <div id="quizResult" class="quiz-result-box"></div>
-    </div>
-</div>
-
 @endsection
 
 @section('js')
@@ -1585,192 +1683,29 @@ backBtn.addEventListener('click', (e) => {
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-// ── Data ──────────────────────────────────────────────────
-const levelsData = [
-    { name: 'Lower Primary', range: 'P.1 – P.3', classes: ['P.1','P.2','P.3'], subjectsPerClass: 4, icon: '<i class="fa-solid fa-seedling"></i>' },
-    { name: 'Upper Primary', range: 'P.4 – P.7', classes: ['P.4','P.5','P.6','P.7'], subjectsPerClass: 5, icon: '<i class="fa-solid fa-book"></i>' },
-    { name: 'Lower Secondary', range: 'S.1 – S.2', classes: ['S.1','S.2'], subjectsPerClass: 8, icon: '<i class="fa-solid fa-graduation-cap"></i>' },
-    { name: 'Middle Secondary', range: 'S.3 – S.4', classes: ['S.3','S.4'], subjectsPerClass: 10, icon: '<i class="fa-solid fa-bolt"></i>' },
-    { name: 'Advanced Secondary', range: 'S.5 – S.6', classes: ['S.5','S.6'], subjectsPerClass: 12, icon: '<i class="fa-solid fa-trophy"></i>' }
-];
-const subjectNames = {
-    primary: ['Quran Recitation','Islamic Studies','Arabic Language','Du\'a & Adab','Seerah','Taharah & Salah'],
-    secondary: ['Quran & Tafsir','Hadith Studies','Fiqh (Islamic Law)','Arabic Literature','Seerah & History','Islamic Aqeedah','Du\'a & Azkar','Islamic Economics','Usul al-Fiqh','Comparative Religion','Tajweed Advanced','Islamic Ethics']
-};
+// ── Curriculum accordion / class tabs ──────────────────────
+// The curriculum tree itself is now rendered server-side in Blade from the
+// real Sections/Levels/Classes/Subjects/Topics/Lessons tables, so this script
+// only handles the open/close + tab-switch interactions on top of that markup.
+document.querySelectorAll('#levelsContainer .level-card').forEach(card => {
+    const btn = card.querySelector('[data-level-toggle]');
+    const body = card.querySelector('.level-body');
 
-let quizPassedLessons = JSON.parse(localStorage.getItem('alhilal_quizPassed') || '{}');
-function markQuizPassed(id) { quizPassedLessons[id] = true; localStorage.setItem('alhilal_quizPassed', JSON.stringify(quizPassedLessons)); }
-function isQuizPassed(id) { return !!quizPassedLessons[id]; }
-
-function generateLessons(subj, cls) {
-    const types = ['video','audio','pdf'];
-    return [
-        { id: `${cls}-${subj}-1`, title: `Introduction to ${subj}`, type: types[0] },
-        { id: `${cls}-${subj}-2`, title: `Core Concepts: ${subj}`, type: types[1] },
-        { id: `${cls}-${subj}-3`, title: `${subj} — Advanced Review`, type: types[2] }
-    ];
-}
-
-function generateQuiz(title) {
-    return [
-        { q: `What is the central topic of "${title}"?`, opts: ['Islamic Knowledge','World History','Mathematics','Natural Sciences'], correct: 0 },
-        { q: 'What is the best approach to understanding Islamic lessons?', opts: ['Memorisation only','Understanding context','Speed reading','Skipping difficult parts'], correct: 1 },
-        { q: 'How does this topic connect to the Quran and Sunnah?', opts: ['Directly','Only culturally','Not at all','Only historically'], correct: 0 },
-        { q: 'What is the best way to apply this knowledge?', opts: ['Share with others','Practice regularly','Reflect and implement','All of the above'], correct: 3 },
-        { q: 'Which scholarly tradition is most relevant here?', opts: ['Imam Bukhari','Imam Abu Hanifa','Imam Ghazali','Depends on context'], correct: 3 }
-    ];
-}
-
-// ── Render Curriculum ─────────────────────────────────────
-function renderCurriculum() {
-    const container = document.getElementById('levelsContainer');
-    container.innerHTML = '';
-    levelsData.forEach((level, li) => {
-        const card = document.createElement('div');
-        card.className = 'level-card';
-        card.innerHTML = `
-            <button class="level-header-btn" id="lvl-btn-${li}">
-                <div class="level-header-left">
-                    <div class="level-number">${level.icon}</div>
-                    <div>
-                        <div class="level-title">${level.name}</div>
-                        <div class="level-meta">${level.range} &nbsp;·&nbsp; ${level.classes.length} Classes</div>
-                    </div>
-                </div>
-                <div class="level-toggle"><i class="fas fa-chevron-down"></i></div>
-            </button>
-            <div class="level-body" id="lvl-body-${li}">
-                <div class="class-tabs-row" id="tabs-${li}">
-                    ${level.classes.map(cls => `<button class="class-tab-btn" data-cls="${cls}">${cls}</button>`).join('')}
-                </div>
-                <div id="subjects-${li}"></div>
-            </div>`;
-        container.appendChild(card);
-
-        const btn = card.querySelector(`#lvl-btn-${li}`);
-        const body = card.querySelector(`#lvl-body-${li}`);
-        btn.addEventListener('click', (e) => {
-            if (e.target.closest('.class-tab-btn')) return;
-            const open = body.classList.contains('open');
-            body.classList.toggle('open', !open);
-            btn.classList.toggle('active', !open);
-        });
-
-        const tabs = card.querySelectorAll('.class-tab-btn');
-        tabs.forEach(t => t.addEventListener('click', () => {
-            tabs.forEach(x => x.classList.remove('active'));
-            t.classList.add('active');
-            renderSubjects(li, t.dataset.cls, level, card);
-        }));
-        tabs[0]?.classList.add('active');
-        renderSubjects(li, level.classes[0], level, card);
+    btn.addEventListener('click', (e) => {
+        if (e.target.closest('.class-tab-btn')) return;
+        const open = body.classList.contains('open');
+        body.classList.toggle('open', !open);
+        btn.classList.toggle('active', !open);
     });
-}
 
-function renderSubjects(li, cls, level, card) {
-    const isSecondary = li >= 2;
-    const list = isSecondary ? subjectNames.secondary : subjectNames.primary;
-    const sel = list.slice(0, level.subjectsPerClass);
-    const container = card.querySelector(`#subjects-${li}`);
-    const typeLabels = { video: 'VIDEO', audio: 'AUDIO', pdf: 'PDF' };
-    const typeIcons = { video: 'fas fa-video', audio: 'fas fa-headphones', pdf: 'fas fa-file-pdf' };
-    const badgeClass = { video: 'badge-video', audio: 'badge-audio', pdf: 'badge-pdf' };
-    let html = '<div class="subjects-grid">';
-    sel.forEach(subj => {
-        const lessons = generateLessons(subj, cls);
-        let lhtml = '<div class="lesson-list">';
-        lessons.forEach(l => {
-            const passed = isQuizPassed(l.id);
-            lhtml += `
-                <div class="lesson-row">
-                    <div class="lesson-info">
-                        <span class="lesson-type-badge ${badgeClass[l.type]}"><i class="${typeIcons[l.type]}"></i> ${typeLabels[l.type]}</span>
-                        <span class="lesson-title-text" title="${l.title}">${l.title}</span>
-                    </div>
-                    <div class="lesson-actions">
-                        <button class="btn-view-lesson" data-lesson='${JSON.stringify(l)}'>View</button>
-                        ${passed
-                            ? '<span class="quiz-passed-badge"><i class="fas fa-check-circle"></i> Passed</span>'
-                            : `<button class="btn-quiz-lesson" data-lesson='${JSON.stringify(l)}'>Quiz</button>`
-                        }
-                    </div>
-                </div>`;
-        });
-        lhtml += '</div>';
-        html += `
-            <div class="subject-card">
-                <div class="subject-card-head">
-                    <div class="subject-icon"><i class="fas fa-star-of-life"></i></div>
-                    <div class="subject-title">${subj}</div>
-                </div>
-                ${lhtml}
-            </div>`;
-    });
-    html += '</div>';
-    container.innerHTML = html;
-
-    container.querySelectorAll('.btn-view-lesson').forEach(b => b.addEventListener('click', e => {
-        e.stopPropagation();
-        openLesson(JSON.parse(b.dataset.lesson));
+    const tabs = card.querySelectorAll('.class-tab-btn');
+    const panels = card.querySelectorAll('.class-subjects-panel');
+    tabs.forEach(tab => tab.addEventListener('click', () => {
+        const classId = tab.dataset.classTab;
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        panels.forEach(p => p.style.display = (p.dataset.classPanel === classId) ? '' : 'none');
     }));
-    container.querySelectorAll('.btn-quiz-lesson').forEach(b => b.addEventListener('click', e => {
-        e.stopPropagation();
-        openQuiz(JSON.parse(b.dataset.lesson));
-    }));
-}
-
-// ── Modals ────────────────────────────────────────────────
-function openLesson(l) {
-    document.getElementById('modalLessonTitle').textContent = l.title;
-    document.getElementById('modalLessonDescription').textContent = `This is a ${l.type} lesson. Click play in the student portal to begin.`;
-    document.getElementById('lessonModal').classList.add('open');
-}
-
-let activeQuizLesson = null;
-function openQuiz(l) {
-    activeQuizLesson = l;
-    document.getElementById('quizTitle').textContent = `Quiz: ${l.title}`;
-    const quizData = generateQuiz(l.title);
-    window._currentQuiz = quizData;
-    let html = '';
-    quizData.forEach((q, i) => {
-        html += `<div class="quiz-question-block"><p>${i+1}. ${q.q}</p>`;
-        q.opts.forEach((opt, oi) => {
-            html += `<label class="quiz-option-label"><input type="radio" name="q${i}" value="${oi}"> ${opt}</label>`;
-        });
-        html += '</div>';
-    });
-    document.getElementById('quizQuestions').innerHTML = html;
-    document.getElementById('quizResult').style.display = 'none';
-    document.getElementById('quizResult').className = 'quiz-result-box';
-    document.getElementById('quizModal').classList.add('open');
-}
-
-document.getElementById('submitQuizBtn').addEventListener('click', () => {
-    const qd = window._currentQuiz;
-    let correct = 0;
-    qd.forEach((q, i) => {
-        const sel = document.querySelector(`input[name="q${i}"]:checked`);
-        if (sel && parseInt(sel.value) === q.correct) correct++;
-    });
-    const pct = Math.round((correct / qd.length) * 100);
-    const passed = pct >= 60;
-    const rb = document.getElementById('quizResult');
-    rb.style.display = 'block';
-    rb.className = `quiz-result-box ${passed ? 'quiz-result-pass' : 'quiz-result-fail'}`;
-    rb.innerHTML = passed
-        ? `<i class="fas fa-check-circle"></i> Passed! You scored ${pct}% (${correct}/${qd.length})`
-        : `<i class="fas fa-times-circle"></i> ${pct}% — You need 60% to pass. Try again!`;
-    if (passed && activeQuizLesson) {
-        markQuizPassed(activeQuizLesson.id);
-        renderCurriculum();
-    }
-});
-document.getElementById('closeQuizBtn').addEventListener('click', () => document.getElementById('quizModal').classList.remove('open'));
-
-window.addEventListener('click', e => {
-    if (e.target === document.getElementById('lessonModal')) document.getElementById('lessonModal').classList.remove('open');
-    if (e.target === document.getElementById('quizModal')) document.getElementById('quizModal').classList.remove('open');
 });
 
 // ── Header scroll ─────────────────────────────────────────
@@ -1779,11 +1714,11 @@ window.addEventListener('scroll', () => {
 });
 
 // ── Bottom nav active ─────────────────────────────────────
-const sections = document.querySelectorAll('section[id], .hero[id]');
+const pageSections = document.querySelectorAll('section[id], .hero[id]');
 const navItems = document.querySelectorAll('.nav-item:not(.nav-whatsapp)');
 function updateNav() {
     let sp = window.scrollY + 100;
-    sections.forEach(s => {
+    pageSections.forEach(s => {
         if (sp >= s.offsetTop && sp < s.offsetTop + s.offsetHeight) {
             const id = s.id;
             navItems.forEach(n => { n.classList.remove('active'); if (n.getAttribute('href') === `#${id}`) n.classList.add('active'); });
@@ -1822,8 +1757,5 @@ new Swiper('.testimonialSwiper', {
     autoplay: { delay: 5000 },
     breakpoints: { 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }
 });
-
-// ── Init ──────────────────────────────────────────────────
-renderCurriculum();
 </script>
 @endsection

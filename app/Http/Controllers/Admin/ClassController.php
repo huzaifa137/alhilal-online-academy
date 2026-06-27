@@ -3,63 +3,36 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Academic\ClassModel;
+use App\Models\Academic\Level;
+use App\Models\Academic\AcademicYear;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ClassController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
-    }
+        $query = ClassModel::with(['level', 'academicYear', 'classTeacher'])
+            ->withCount(['enrollments as student_count' => fn($q) => $q->where('status', 'active')]);
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+        if ($request->search) {
+            $s = $request->search;
+            $query->where(function ($q) use ($s) {
+                $q->where('name', 'like', "%$s%")
+                  ->orWhere('code', 'like', "%$s%");
+            });
+        }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        if ($request->status) {
+            $query->where('status', $request->status);
+        }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        $classes       = $query->orderByDesc('created_at')->paginate(20);
+        $levels        = Level::where('status', 'active')->get();
+        $academicYears = AcademicYear::orderByDesc('year')->get();
+        $teachers      = User::where('user_role', 2)->orderBy('firstname')->get();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return view('Admin.classes.index', compact('classes', 'levels', 'academicYears', 'teachers'));
     }
 }
