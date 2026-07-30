@@ -1994,6 +1994,12 @@
                 <span>Quiz Setup</span>
             </a>
 
+            <a href="{{ route('teacher.materials.index') }}"
+                class="nav-link {{ request()->routeIs('teacher.materials.*') ? 'active' : '' }}">
+                <i class="fas fa-file-pdf nav-icon"></i>
+                <span>Study Materials</span>
+            </a>
+
             <a href="{{ route('teacher.enrollments.index') }}" class="nav-link">
                 <i class="fas fa-user-graduate"></i>
                 <span>Enrollment</span>

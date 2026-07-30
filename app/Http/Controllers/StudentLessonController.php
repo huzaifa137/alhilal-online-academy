@@ -129,6 +129,7 @@ class StudentLessonController extends Controller
                         'subject_id' => $lesson->topic->subject->id,
                         'subject_code' => $lesson->topic->subject->code ?? '',
                         'topics' => [],
+                        'materials' => [],
                     ];
                 }
 
@@ -162,6 +163,37 @@ class StudentLessonController extends Controller
                     ->count();
 
                 $groupedLessons[$className]['subjects'][$subjectName]['topics'][$topicName]['lessons'][] = $lesson;
+            }
+
+            // Subject materials (PDFs) for this class — grouped by subject.
+            // Visible to every student enrolled here; download access is
+            // gated in the view by the same $classPaid flag used for lessons.
+            $materials = \App\Models\Academic\SubjectMaterial::with(['subject', 'materialPayments'])
+                ->where('class_id', $class->id)
+                ->where('status', 'active')
+                ->orderBy('sort_order')
+                ->get();
+
+            foreach ($materials as $material) {
+                if (!$material->subject) {
+                    continue;
+                }
+
+                // Per-student payment status — same gating rule as lessons.
+                $material->is_paid_by_student = $material->isPaidByStudent($studentId);
+
+                $subjectName = $material->subject->name;
+
+                if (!isset($groupedLessons[$className]['subjects'][$subjectName])) {
+                    $groupedLessons[$className]['subjects'][$subjectName] = [
+                        'subject_id' => $material->subject->id,
+                        'subject_code' => $material->subject->code ?? '',
+                        'topics' => [],
+                        'materials' => [],
+                    ];
+                }
+
+                $groupedLessons[$className]['subjects'][$subjectName]['materials'][] = $material;
             }
         }
 

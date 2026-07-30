@@ -6,561 +6,669 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    <style>
-        :root {
-            --purple: #6B46C1;
-            --purple-light: #EDE9FA;
-            --red: #DC2626;
-            --red-light: #FEE2E2;
-            --gold: #D97706;
-            --gold-light: #FEF3C7;
-            --green: #16A34A;
-            --green-light: #DCFCE7;
-            --cream: #FDFBF7;
-            --cream2: #F7F3EE;
-            --ink: #1A0A2E;
-            --muted: #6B6584;
-            --border: rgba(107, 70, 193, 0.12);
-            --gradient: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
-            --shadow-sm: 0 2px 12px rgba(107, 70, 193, 0.08);
-            --shadow-md: 0 8px 32px rgba(107, 70, 193, 0.12);
-            --radius: 20px
-        }
+<style>
+    :root {
+        --purple: #6B46C1;
+        --purple-light: #EDE9FA;
+        --red: #DC2626;
+        --red-light: #FEE2E2;
+        --gold: #D97706;
+        --gold-light: #FEF3C7;
+        --green: #16A34A;
+        --green-light: #DCFCE7;
+        --cream: #FDFBF7;
+        --cream2: #F7F3EE;
+        --ink: #1A0A2E;
+        --muted: #6B6584;
+        --border: rgba(107, 70, 193, 0.12);
+        --gradient: linear-gradient(135deg, #6B46C1 0%, #8B5CF6 100%);
+        --shadow-sm: 0 2px 12px rgba(107, 70, 193, 0.08);
+        --shadow-md: 0 8px 32px rgba(107, 70, 193, 0.12);
+        --radius: 20px
+    }
+
+    * {
+        box-sizing: border-box
+    }
+
+    html, body {
+        overflow-x: hidden;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    /* MAIN WRAPPER — single source of truth for padding/margin */
+    .ls-wrap {
+        font-family: 'DM Sans', sans-serif;
+        color: var(--ink);
+        max-width: 1100px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 0 20px;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
 
-        * {
-            box-sizing: border-box
-        }
-
-        .ls-wrap {
-            font-family: 'DM Sans', sans-serif;
-            color: var(--ink);
-            max-width: 1100px
-        }
-
-        /* LESSON HEADER */
-        .ls-hero {
-            background: linear-gradient(135deg, #1A0A2E 0%, #2D0F5C 50%, #4A1A1A 100%);
-            border-radius: 28px;
-            padding: 32px 36px;
-            margin-bottom: 28px;
-            position: relative;
-            overflow: hidden;
-            color: white
-        }
-
-        .ls-hero::before {
-            content: '';
-            position: absolute;
-            width: 400px;
-            height: 400px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(107, 70, 193, .3) 0%, transparent 70%);
-            top: -150px;
-            right: -80px;
-            pointer-events: none
-        }
-
-        .ls-hero-top {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 16px;
-            flex-wrap: wrap
-        }
-
-        .ls-back {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255, 255, 255, .1);
-            border: 1px solid rgba(255, 255, 255, .2);
-            padding: 6px 14px;
-            border-radius: 40px;
-            font-size: .75rem;
-            font-weight: 600;
-            color: rgba(255, 255, 255, .85);
-            text-decoration: none;
-            transition: all .2s
-        }
-
-        .ls-back:hover {
-            background: rgba(255, 255, 255, .2);
-            color: white
-        }
-
-        .ls-status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 5px 12px;
-            border-radius: 40px;
-            font-size: .7rem;
-            font-weight: 600;
-            background: rgba(255, 255, 255, .1);
-            border: 1px solid rgba(255, 255, 255, .15)
-        }
-
-        .ls-status-badge.completed {
-            background: rgba(22, 163, 74, .2);
-            border-color: rgba(22, 163, 74, .4);
-            color: #4ade80
-        }
-
-        .ls-status-badge.in_progress {
-            background: rgba(217, 119, 6, .2);
-            border-color: rgba(217, 119, 6, .4);
-            color: #fcd34d
-        }
-
-        .ls-status-badge.not_started {
-            background: rgba(255, 255, 255, .08);
-            color: rgba(255, 255, 255, .7)
-        }
-
-        .ls-hero-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 8px
-        }
-
-        .ls-hero-meta {
-            display: flex;
-            gap: 18px;
-            flex-wrap: wrap;
-            font-size: .8rem;
-            color: rgba(255, 255, 255, .6)
-        }
-
-        .ls-hero-meta span {
-            display: flex;
-            align-items: center;
-            gap: 5px
-        }
-
-        .ls-progress-bar {
-            height: 6px;
-            background: rgba(255, 255, 255, .15);
-            border-radius: 10px;
-            margin-top: 16px;
-            overflow: hidden
-        }
-
-        .ls-progress-fill {
-            height: 100%;
-            background: var(--gradient);
-            border-radius: 10px;
-            transition: width .6s ease
-        }
-
-        /* CONTENT GRID */
-        .ls-grid {
-            display: grid;
-            grid-template-columns: 1fr 340px;
-            gap: 24px;
-            align-items: start
-        }
-
-        @media(max-width:900px) {
-            .ls-grid {
-                grid-template-columns: 1fr
-            }
-        }
-
-        /* RESOURCE VIEWER */
-        .ls-resource-box {
-            background: white;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            overflow: hidden;
-            margin-bottom: 24px
-        }
-
-        .ls-resource-tabs {
-            display: flex;
-            gap: 0;
-            border-bottom: 1px solid var(--border);
-            overflow-x: auto
-        }
-
-        .ls-rtab {
-            padding: 12px 18px;
-            font-size: .78rem;
-            font-weight: 600;
-            color: var(--muted);
-            border: none;
-            background: none;
-            cursor: pointer;
-            white-space: nowrap;
-            border-bottom: 2px solid transparent;
-            transition: all .2s;
-            font-family: 'DM Sans', sans-serif
-        }
-
-        .ls-rtab:hover {
-            color: var(--purple)
-        }
-
-        .ls-rtab.active {
-            color: var(--purple);
-            border-bottom-color: var(--purple)
-        }
-
-        .ls-resource-view {
-            padding: 0;
-            min-height: 400px
-        }
-
-        .ls-viewer-area {
-            display: none
-        }
-
-        .ls-viewer-area.active {
-            display: flex;
-            flex-direction: column
-        }
-
-        /* Video player */
-        .ls-video-wrap {
-            background: #000;
-            aspect-ratio: 16/9;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center
-        }
-
-        .ls-video-wrap video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain
-        }
-
-        /* PDF viewer */
-        .ls-pdf-wrap {
-            width: 100%;
-            height: 600px;
-            background: #f5f5f5
-        }
-
-        .ls-pdf-wrap embed,
-        .ls-pdf-wrap iframe {
-            width: 100%;
-            height: 100%;
-            border: none
-        }
-
-        /* Audio player */
-        .ls-audio-wrap {
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            background: linear-gradient(135deg, #f5f0ff, #ede9fa)
-        }
-
-        .ls-audio-icon {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: var(--gradient);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            color: white;
-            box-shadow: 0 8px 30px rgba(107, 70, 193, .3)
-        }
-
-        .ls-audio-wrap audio {
-            width: 100%;
-            max-width: 500px
-        }
-
-        /* Document placeholder */
-        .ls-doc-wrap {
-            padding: 40px;
-            text-align: center
-        }
-
-        .ls-doc-icon {
-            font-size: 3rem;
-            color: var(--muted);
-            margin-bottom: 12px
-        }
-
-        /* Text content */
-        .ls-text-wrap {
-            padding: 28px;
-            font-size: .9rem;
-            line-height: 1.75;
-            color: var(--ink)
-        }
-
-        /* Description / Notes */
-        .ls-desc-card {
-            background: white;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            padding: 24px;
-            margin-bottom: 24px
-        }
-
-        .ls-section-title {
-            font-size: .75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            color: var(--muted);
-            margin-bottom: 14px;
-            display: flex;
-            align-items: center;
-            gap: 7px
-        }
-
-        .ls-desc-text {
-            font-size: .88rem;
-            line-height: 1.75;
-            color: var(--ink)
-        }
-
-        /* Navigation */
-        .ls-nav-row {
-            display: flex;
-            gap: 12px;
-            margin-top: 8px
-        }
-
-        .ls-nav-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            padding: 10px 20px;
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 40px;
-            font-size: .8rem;
-            font-weight: 600;
-            color: var(--purple);
-            text-decoration: none;
-            transition: all .2s;
-            flex: 1;
-            justify-content: center
-        }
-
-        .ls-nav-btn:hover {
-            background: var(--purple);
-            color: white;
-            border-color: var(--purple)
-        }
-
-        .ls-nav-btn.disabled {
-            pointer-events: none;
-            opacity: .4
-        }
-
-        /* Sidebar cards */
-        .ls-side-card {
-            background: white;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            padding: 20px;
-            margin-bottom: 20px
-        }
-
-        /* Progress action */
-        .ls-complete-btn {
-            width: 100%;
-            padding: 13px;
-            background: var(--gradient);
-            color: white;
-            border: none;
-            border-radius: 40px;
-            font-size: .9rem;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: 'DM Sans', sans-serif;
-            transition: all .2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            text-decoration: none
-        }
-
-        .ls-complete-btn:hover {
-            opacity: .9;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(107, 70, 193, .3)
-        }
-
-        .ls-complete-btn.done {
-            background: linear-gradient(135deg, #16a34a, #22c55e)
-        }
-
-        /* Resource list in sidebar */
-        .ls-res-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all .2s;
-            border: 1px solid transparent
-        }
-
-        .ls-res-item:hover {
-            background: var(--purple-light);
-            border-color: var(--border)
-        }
-
-        .ls-res-item.active {
-            background: var(--purple-light);
-            border-color: var(--purple)
-        }
-
-        .ls-res-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: .9rem;
-            flex-shrink: 0
-        }
-
-        .ls-res-name {
-            font-size: .78rem;
-            font-weight: 600;
-            color: var(--ink)
-        }
-
-        .ls-res-type {
-            font-size: .68rem;
-            color: var(--muted)
-        }
-
-        /* Quiz card */
-        .ls-quiz-card {
-            background: linear-gradient(135deg, #f0f4ff, #f5f0ff);
-            border: 1px solid #c7d2fe;
-            border-radius: 14px;
-            padding: 16px;
-            margin-bottom: 12px
-        }
-
-        .ls-quiz-title {
-            font-size: .85rem;
-            font-weight: 600;
-            color: var(--ink);
-            margin-bottom: 5px
-        }
-
-        .ls-quiz-meta {
-            font-size: .72rem;
-            color: var(--muted);
-            margin-bottom: 10px
-        }
-
-        .ls-quiz-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 7px 16px;
-            background: var(--gradient);
-            color: white;
-            border: none;
-            border-radius: 40px;
-            font-size: .75rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all .2s;
-            font-family: 'DM Sans', sans-serif
-        }
-
-        .ls-quiz-btn:hover {
-            opacity: .9;
-            color: white
-        }
-
-        .ls-quiz-passed {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 6px 12px;
-            background: var(--green-light);
-            color: var(--green);
-            border-radius: 40px;
-            font-size: .72rem;
-            font-weight: 600
-        }
-
-        /* Info table */
-        .ls-info-row {
-            display: flex;
-            padding: 9px 0;
-            border-bottom: 1px solid var(--border);
-            font-size: .82rem
-        }
-
-        .ls-info-row:last-child {
-            border-bottom: none
-        }
-
-        .ls-info-label {
-            width: 110px;
-            font-weight: 600;
-            color: var(--ink);
-            flex-shrink: 0
-        }
-
-        .ls-info-val {
-            color: var(--muted)
-        }
-
-        /* Add to your existing styles in the ls-wrap section */
-
-.ls-wrap {
-    font-family: 'DM Sans', sans-serif;
-    color: var(--ink);
-    max-width: 1100px;
-    margin: 0 auto;  /* This centers the container */
-    padding: 0 20px; /* Adds some breathing room on smaller screens */
-    width: 100%;
-}
-
-/* Also ensure the parent container doesn't restrict centering */
-.sd-content {
-    padding: 28px;
-    flex: 1;
-    max-width: 100%;
-    display: flex;
-    justify-content: center; /* Centers the child content */
-}
-
-/* Make the ls-wrap fill its container properly */
-.sd-content .ls-wrap {
-    width: 100%;
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0 24px; /* Consistent padding */
-}
-
-/* Optional: Adjust responsive behavior */
-@media (max-width: 768px) {
     .sd-content {
-        padding: 16px;
+        padding: 28px;
+        flex: 1;
+        max-width: 100%;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        overflow-x: hidden;
+        box-sizing: border-box;
     }
-    .sd-content .ls-wrap {
-        padding: 0 12px;
-    }
-}
-    </style>
 
+    /* LESSON HEADER */
+    .ls-hero {
+        background: linear-gradient(135deg, #1A0A2E 0%, #2D0F5C 50%, #4A1A1A 100%);
+        border-radius: 28px;
+        padding: 32px 36px;
+        margin-bottom: 28px;
+        position: relative;
+        overflow: hidden;
+        color: white;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .ls-hero::before {
+        content: '';
+        position: absolute;
+        width: 400px;
+        height: 400px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(107, 70, 193, .3) 0%, transparent 70%);
+        top: -150px;
+        right: -80px;
+        pointer-events: none
+    }
+
+    .ls-hero-top {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+        flex-wrap: wrap
+    }
+
+    .ls-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 255, 255, .1);
+        border: 1px solid rgba(255, 255, 255, .2);
+        padding: 6px 14px;
+        border-radius: 40px;
+        font-size: .75rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, .85);
+        text-decoration: none;
+        transition: all .2s
+    }
+
+    .ls-back:hover {
+        background: rgba(255, 255, 255, .2);
+        color: white
+    }
+
+    .ls-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 12px;
+        border-radius: 40px;
+        font-size: .7rem;
+        font-weight: 600;
+        background: rgba(255, 255, 255, .1);
+        border: 1px solid rgba(255, 255, 255, .15)
+    }
+
+    .ls-status-badge.completed {
+        background: rgba(22, 163, 74, .2);
+        border-color: rgba(22, 163, 74, .4);
+        color: #4ade80
+    }
+
+    .ls-status-badge.in_progress {
+        background: rgba(217, 119, 6, .2);
+        border-color: rgba(217, 119, 6, .4);
+        color: #fcd34d
+    }
+
+    .ls-status-badge.not_started {
+        background: rgba(255, 255, 255, .08);
+        color: rgba(255, 255, 255, .7)
+    }
+
+    .ls-hero-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        word-break: break-word;
+    }
+
+    .ls-hero-meta {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+        font-size: .8rem;
+        color: rgba(255, 255, 255, .6)
+    }
+
+    .ls-hero-meta span {
+        display: flex;
+        align-items: center;
+        gap: 5px
+    }
+
+    .ls-progress-bar {
+        height: 6px;
+        background: rgba(255, 255, 255, .15);
+        border-radius: 10px;
+        margin-top: 16px;
+        overflow: hidden
+    }
+
+    .ls-progress-fill {
+        height: 100%;
+        background: var(--gradient);
+        border-radius: 10px;
+        transition: width .6s ease
+    }
+
+    /* CONTENT GRID */
+    .ls-grid {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 24px;
+        align-items: start;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    @media(max-width:900px) {
+        .ls-grid {
+            grid-template-columns: 1fr
+        }
+    }
+
+    /* RESOURCE VIEWER */
+    .ls-resource-box {
+        background: white;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        overflow: hidden;
+        margin-bottom: 24px;
+        max-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .ls-resource-tabs {
+        display: flex;
+        gap: 0;
+        border-bottom: 1px solid var(--border);
+        overflow-x: auto;
+        max-width: 100%;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .ls-rtab {
+        padding: 12px 18px;
+        font-size: .78rem;
+        font-weight: 600;
+        color: var(--muted);
+        border: none;
+        background: none;
+        cursor: pointer;
+        white-space: nowrap;
+        border-bottom: 2px solid transparent;
+        transition: all .2s;
+        font-family: 'DM Sans', sans-serif;
+        flex-shrink: 0;
+    }
+
+    .ls-rtab:hover {
+        color: var(--purple)
+    }
+
+    .ls-rtab.active {
+        color: var(--purple);
+        border-bottom-color: var(--purple)
+    }
+
+    .ls-resource-view {
+        padding: 0;
+        min-height: 400px;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .ls-viewer-area {
+        display: none;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .ls-viewer-area.active {
+        display: flex;
+        flex-direction: column
+    }
+
+    /* Video player — stays responsive even with no source loaded */
+    .ls-video-wrap {
+        background: #000;
+        aspect-ratio: 16/9;
+        width: 100%;
+        max-width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+
+    .ls-video-wrap video {
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+        display: block;
+    }
+
+    /* Fallback for browsers without aspect-ratio support */
+    @supports not (aspect-ratio: 16/9) {
+        .ls-video-wrap {
+            position: relative;
+            height: 0;
+            padding-top: 56.25%;
+        }
+        .ls-video-wrap video {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    }
+
+    /* PDF viewer */
+    .ls-pdf-wrap {
+        width: 100%;
+        max-width: 100%;
+        height: 600px;
+        background: #f5f5f5;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+
+    .ls-pdf-wrap embed,
+    .ls-pdf-wrap iframe {
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        border: none;
+        display: block;
+    }
+
+    @media (max-width: 600px) {
+        .ls-pdf-wrap {
+            height: 420px;
+        }
+    }
+
+    /* Audio player */
+    .ls-audio-wrap {
+        padding: 40px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        background: linear-gradient(135deg, #f5f0ff, #ede9fa);
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
+    .ls-audio-icon {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: var(--gradient);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: white;
+        box-shadow: 0 8px 30px rgba(107, 70, 193, .3)
+    }
+
+    .ls-audio-wrap audio {
+        width: 100%;
+        max-width: 500px
+    }
+
+    /* Document placeholder */
+    .ls-doc-wrap {
+        padding: 40px 20px;
+        text-align: center;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .ls-doc-icon {
+        font-size: 3rem;
+        color: var(--muted);
+        margin-bottom: 12px
+    }
+
+    /* Text content */
+    .ls-text-wrap {
+        padding: 28px;
+        font-size: .9rem;
+        line-height: 1.75;
+        color: var(--ink);
+        max-width: 100%;
+        word-wrap: break-word;
+    }
+
+    /* Description / Notes */
+    .ls-desc-card {
+        background: white;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        padding: 24px;
+        margin-bottom: 24px;
+        max-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
+        overflow-wrap: break-word;
+    }
+
+    .ls-section-title {
+        font-size: .75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: var(--muted);
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 7px
+    }
+
+    .ls-desc-text {
+        font-size: .88rem;
+        line-height: 1.75;
+        color: var(--ink);
+        word-wrap: break-word;
+    }
+
+    /* Navigation */
+    .ls-nav-row {
+        display: flex;
+        gap: 12px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+    }
+
+    .ls-nav-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 20px;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 40px;
+        font-size: .8rem;
+        font-weight: 600;
+        color: var(--purple);
+        text-decoration: none;
+        transition: all .2s;
+        flex: 1;
+        justify-content: center
+    }
+
+    .ls-nav-btn:hover {
+        background: var(--purple);
+        color: white;
+        border-color: var(--purple)
+    }
+
+    .ls-nav-btn.disabled {
+        pointer-events: none;
+        opacity: .4
+    }
+
+    /* Sidebar cards */
+    .ls-side-card {
+        background: white;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        padding: 20px;
+        margin-bottom: 20px;
+        max-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
+        overflow-wrap: break-word;
+    }
+
+    /* Progress action */
+    .ls-complete-btn {
+        width: 100%;
+        padding: 13px;
+        background: var(--gradient);
+        color: white;
+        border: none;
+        border-radius: 40px;
+        font-size: .9rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: 'DM Sans', sans-serif;
+        transition: all .2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none
+    }
+
+    .ls-complete-btn:hover {
+        opacity: .9;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(107, 70, 193, .3)
+    }
+
+    .ls-complete-btn.done {
+        background: linear-gradient(135deg, #16a34a, #22c55e)
+    }
+
+    /* Resource list in sidebar */
+    .ls-res-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all .2s;
+        border: 1px solid transparent
+    }
+
+    .ls-res-item:hover {
+        background: var(--purple-light);
+        border-color: var(--border)
+    }
+
+    .ls-res-item.active {
+        background: var(--purple-light);
+        border-color: var(--purple)
+    }
+
+    .ls-res-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .9rem;
+        flex-shrink: 0
+    }
+
+    .ls-res-name {
+        font-size: .78rem;
+        font-weight: 600;
+        color: var(--ink);
+        word-break: break-word;
+    }
+
+    .ls-res-type {
+        font-size: .68rem;
+        color: var(--muted)
+    }
+
+    /* Quiz card */
+    .ls-quiz-card {
+        background: linear-gradient(135deg, #f0f4ff, #f5f0ff);
+        border: 1px solid #c7d2fe;
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 12px;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .ls-quiz-title {
+        font-size: .85rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 5px
+    }
+
+    .ls-quiz-meta {
+        font-size: .72rem;
+        color: var(--muted);
+        margin-bottom: 10px
+    }
+
+    .ls-quiz-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 16px;
+        background: var(--gradient);
+        color: white;
+        border: none;
+        border-radius: 40px;
+        font-size: .75rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all .2s;
+        font-family: 'DM Sans', sans-serif
+    }
+
+    .ls-quiz-btn:hover {
+        opacity: .9;
+        color: white
+    }
+
+    .ls-quiz-passed {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 12px;
+        background: var(--green-light);
+        color: var(--green);
+        border-radius: 40px;
+        font-size: .72rem;
+        font-weight: 600
+    }
+
+    /* Info table */
+    .ls-info-row {
+        display: flex;
+        padding: 9px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: .82rem;
+        flex-wrap: wrap;
+    }
+
+    .ls-info-row:last-child {
+        border-bottom: none
+    }
+
+    .ls-info-label {
+        width: 110px;
+        font-weight: 600;
+        color: var(--ink);
+        flex-shrink: 0
+    }
+
+    .ls-info-val {
+        color: var(--muted);
+        word-break: break-word;
+    }
+
+    /* RESPONSIVE BREAKPOINTS */
+    @media (max-width: 768px) {
+        .sd-content {
+            padding: 16px;
+        }
+        .ls-wrap {
+            padding: 0 12px;
+        }
+        .ls-hero {
+            padding: 26px 24px;
+        }
+        .ls-hero-title {
+            font-size: 1.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .sd-content {
+            padding: 10px;
+        }
+        .ls-wrap {
+            padding: 0 8px;
+        }
+        .ls-hero {
+            padding: 22px 18px;
+            border-radius: 20px;
+        }
+        .ls-hero-title {
+            font-size: 1.3rem;
+        }
+        .ls-hero-meta {
+            gap: 10px;
+            font-size: .72rem;
+        }
+        .ls-desc-card,
+        .ls-side-card {
+            padding: 16px;
+        }
+        .ls-audio-wrap {
+            padding: 28px 14px;
+        }
+        .ls-audio-icon {
+            width: 80px;
+            height: 80px;
+            font-size: 2rem;
+        }
+        .ls-nav-row {
+            flex-direction: column;
+        }
+        .ls-info-label {
+            width: 90px;
+            font-size: .78rem;
+        }
+    }
+</style>
     <div class="ls-wrap">
 
         {{-- HERO --}}
@@ -647,9 +755,7 @@
                                         <div
                                             style="padding:12px 16px;background:#f9f9ff;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:.75rem;color:var(--muted);">
                                             <span><i class="fas fa-info-circle"></i> Video progress is saved automatically</span>
-                                            <a href="{{ $fileUrl }}" download class="ls-nav-btn"
-                                                style="flex:none;padding:6px 14px;font-size:.72rem;"><i class="fas fa-download"></i>
-                                                Download</a>
+                                            
                                         </div>
 
                                     @elseif($resource->type === 'audio')
@@ -667,9 +773,7 @@
                                                 <source src="{{ $fileUrl }}" type="audio/ogg">
                                                 Your browser does not support audio playback.
                                             </audio>
-                                            <a href="{{ $fileUrl }}" download class="ls-nav-btn" style="max-width:200px;">
-                                                <i class="fas fa-download"></i> Download Audio
-                                            </a>
+                                           
                                         </div>
 
                                     @elseif($resource->type === 'pdf')
@@ -684,9 +788,7 @@
                                                 <a href="{{ $fileUrl }}" target="_blank" class="ls-nav-btn"
                                                     style="flex:none;padding:6px 14px;font-size:.72rem;"><i
                                                         class="fas fa-external-link-alt"></i> Open Full</a>
-                                                <a href="{{ $fileUrl }}" download class="ls-nav-btn"
-                                                    style="flex:none;padding:6px 14px;font-size:.72rem;"><i class="fas fa-download"></i>
-                                                    Download</a>
+                                               
                                             </div>
                                         </div>
 
@@ -700,12 +802,8 @@
                                         <div class="ls-doc-wrap">
                                             <div class="ls-doc-icon"><i class="fas fa-file-alt"></i></div>
                                             <div style="font-weight:600;margin-bottom:8px;">{{ $resource->title }}</div>
-                                            <div style="color:var(--muted);font-size:.85rem;margin-bottom:16px;">Download to view this
-                                                document</div>
-                                            <a href="{{ $fileUrl }}" download class="ls-complete-btn"
-                                                style="max-width:220px;margin:0 auto;">
-                                                <i class="fas fa-download"></i> Download Document
-                                            </a>
+                                          
+                                           
                                         </div>
                                     @endif
                                 </div>
@@ -847,11 +945,7 @@
                                             @endif
                                         </div>
                                     </div>
-                                    <a href="{{ \Illuminate\Support\Facades\Storage::url($resource->file_path) }}" download
-                                        onclick="event.stopPropagation()" title="Download"
-                                        style="color:var(--muted);font-size:.8rem;padding:4px;">
-                                        <i class="fas fa-download"></i>
-                                    </a>
+                                   
                                 </div>
                             @endforeach
                         </div>

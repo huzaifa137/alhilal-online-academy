@@ -145,6 +145,7 @@ class CertificateController extends Controller
             'studentName'      => $studentName ?: 'Student',
             'className'        => $certificate->class->name ?? 'Class',
             'levelName'        => $certificate->class->level->name ?? null,
+            'levelCode'        => $certificate->class->level->code ?? null,
             'sectionName'      => $certificate->class->level->section->name ?? null,
             'academicYearName' => $certificate->class->academicYear->name ?? null,
             'issuedDate'       => $certificate->issued_date,

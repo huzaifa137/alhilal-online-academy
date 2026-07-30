@@ -412,6 +412,105 @@
             padding-left: 4px
         }
 
+        /* ── Study Materials (PDFs) ─────────────────────────────────────── */
+        .sl-materials-section {
+            padding: 12px;
+            margin-top: 4px;
+            background: var(--c-surface);
+            border-radius: var(--radius-lg);
+            border: 1px dashed var(--c-border)
+        }
+
+        .sl-materials-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+
+        .sl-material-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            background: var(--c-surface2);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--c-border);
+            flex-wrap: wrap
+        }
+
+        .sl-material-icon {
+            width: 36px;
+            height: 36px;
+            flex-shrink: 0;
+            border-radius: 10px;
+            background: var(--c-red-lt, #FEE2E2);
+            color: var(--c-red, #DC2626);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .9rem
+        }
+
+        .sl-material-info {
+            flex: 1;
+            min-width: 140px
+        }
+
+        .sl-material-title {
+            font-size: .8rem;
+            font-weight: 600;
+            color: var(--c-ink);
+            word-break: break-word
+        }
+
+        .sl-material-meta {
+            font-size: .68rem;
+            color: var(--c-muted);
+            margin-top: 2px
+        }
+
+        .sl-material-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            background: var(--c-accent);
+            color: #fff;
+            border-radius: var(--radius-pill);
+            font-size: .72rem;
+            font-weight: 600;
+            text-decoration: none;
+            white-space: nowrap
+        }
+
+        .sl-material-btn:hover { color: #fff; opacity: .9 }
+
+        .sl-material-locked {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            background: var(--c-surface2);
+            color: var(--c-muted);
+            border-radius: var(--radius-pill);
+            font-size: .72rem;
+            font-weight: 600;
+            white-space: nowrap
+        }
+
+        @media (max-width: 560px) {
+            .sl-material-item {
+                flex-direction: row;
+            }
+
+            .sl-material-btn,
+            .sl-material-locked {
+                width: 100%;
+                justify-content: center;
+                margin-top: 6px
+            }
+        }
+
         .sl-lesson-item {
             padding: 12px;
             margin-bottom: 8px;
@@ -1533,7 +1632,7 @@
                                                                             {{-- class must be paid first, button disabled --}}
                                                                         @elseif(!$lessonPaid && $lesson->lesson_amount)
                                                                             <button class="sl-btn-pay"
-                                                                                onclick="showLessonPaymentModal({{ $lesson->id }}, '{{ addslashes($lesson->title) }}', '{{ $lesson->lesson_amount }}')">
+                                                                                onclick="showLessonPaymentModal({{ $lesson->id }}, '{{ addslashes($lesson->title) }}', '{{ (int) $lesson->lesson_amount }}')">
                                                                                 <i class="fas fa-credit-card"></i> Pay
                                                                             </button>
                                                                         @else
@@ -1598,6 +1697,53 @@
                                                         @endforeach
                                                     </div>
                                                 @endforeach
+
+                                                {{-- ── Study Materials (PDFs) for this subject ───────────────── --}}
+                                                @if(!empty($subjectData['materials']))
+                                                    <div class="sl-materials-section">
+                                                        <div class="sl-topic-title">
+                                                            <i class="fas fa-file-pdf" style="color:var(--c-red)"></i>
+                                                            <span>Study Materials</span>
+                                                            <span class="sl-topic-badge"><i class="fas fa-paperclip"></i>
+                                                                {{ count($subjectData['materials']) }} PDF{{ count($subjectData['materials']) === 1 ? '' : 's' }}</span>
+                                                        </div>
+                                                        <div class="sl-materials-list">
+                                                            @foreach($subjectData['materials'] as $material)
+                                                                @php
+                                                                    $materialPaid = $material->is_paid_by_student ?? $material->isFree();
+                                                                    $canOpenMaterial = $classPaid && $materialPaid;
+                                                                @endphp
+                                                                <div class="sl-material-item">
+                                                                    <div class="sl-material-icon"><i class="fas fa-file-pdf"></i></div>
+                                                                    <div class="sl-material-info">
+                                                                        <div class="sl-material-title">{{ $material->title }}</div>
+                                                                        <div class="sl-material-meta">
+                                                                            PDF
+                                                                            @if($material->file_size_formatted) · {{ $material->file_size_formatted }} @endif
+                                                                            @if(!$material->isFree()) · UGX {{ number_format($material->amount) }} @endif
+                                                                            @if($material->description) · {{ Str::limit($material->description, 60) }} @endif
+                                                                        </div>
+                                                                    </div>
+                                                                    @if($canOpenMaterial)
+                                                                        <a href="{{ \Illuminate\Support\Facades\Storage::url($material->file_path) }}"
+                                                                            target="_blank" class="sl-material-btn">
+                                                                            <i class="fas fa-download"></i> Open
+                                                                        </a>
+                                                                    @elseif(!$classPaid)
+                                                                        <span class="sl-material-locked" title="Activate the class to unlock">
+                                                                            <i class="fas fa-lock"></i> Locked
+                                                                        </span>
+                                                                    @else
+                                                                        <button class="sl-material-btn" style="border:none;cursor:pointer;background:var(--c-red)"
+                                                                            onclick="showMaterialPaymentModal({{ $material->id }}, '{{ addslashes($material->title) }}', '{{ (int) $material->amount }}')">
+                                                                            <i class="fas fa-lock"></i> Pay UGX {{ number_format($material->amount) }}
+                                                                        </button>
+                                                                    @endif
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     @endforeach
@@ -1752,6 +1898,65 @@
         </div>
     </div>
 
+    {{-- Material Payment Modal --}}
+    <div id="materialPayModal" class="sl-modal">
+        <div class="sl-modal-overlay" onclick="closeMaterialPayModal()"></div>
+        <div class="sl-modal-content">
+            <div class="sl-modal-head">
+                <h3><i class="fas fa-file-pdf"></i> Pay for PDF</h3>
+                <button class="sl-modal-close" onclick="closeMaterialPayModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="sl-modal-body">
+                <div style="text-align:center;margin-bottom:20px">
+                    <div style="font-size:1rem;font-weight:600;color:var(--c-ink)" id="materialPayTitle"></div>
+                    <div class="sl-amount-display">
+                        <span class="sl-amount-label">Amount Required:</span>
+                        <span class="sl-amount-value" id="materialPayAmountDisplay"></span>
+                    </div>
+                </div>
+                <h5 style="font-size:.8rem;margin-bottom:12px;color:var(--c-ink)">Payment Method</h5>
+                <div class="sl-methods-grid">
+                    <div class="sl-method" onclick="selectMethod('material','mtn')" id="materialMtn">
+                        <div class="sl-method-icon"><i class="fas fa-mobile-alt"></i></div>
+                        <span style="font-size:.73rem">MTN MoMo</span>
+                        <div class="sl-method-tick"><i class="fas fa-check-circle"></i></div>
+                    </div>
+                    <div class="sl-method" onclick="selectMethod('material','airtel')" id="materialAirtel">
+                        <div class="sl-method-icon"><i class="fas fa-mobile-alt"></i></div>
+                        <span style="font-size:.73rem">Airtel Money</span>
+                        <div class="sl-method-tick"><i class="fas fa-check-circle"></i></div>
+                    </div>
+                    <div class="sl-method" onclick="selectMethod('material','card')" id="materialCard">
+                        <div class="sl-method-icon"><i class="fas fa-credit-card"></i></div>
+                        <span style="font-size:.73rem">Bank Card</span>
+                        <div class="sl-method-tick"><i class="fas fa-check-circle"></i></div>
+                    </div>
+                </div>
+
+                {{-- Phone number field (shown for mobile money only) --}}
+                <div id="materialPhoneField" style="display:none;margin-bottom:14px">
+                    <label style="font-size:.75rem;font-weight:600;margin-bottom:6px;display:block">
+                        <i class="fas fa-phone"></i> Phone Number (e.g. +256712345678)
+                    </label>
+                    <input type="tel" id="materialPayPhone" class="sl-input" placeholder="+256XXXXXXXXX">
+                    <small style="font-size:.65rem;color:var(--c-muted);margin-top:4px;display:block">
+                        You will receive a USSD prompt on this number to approve payment.
+                    </small>
+                </div>
+
+                <label style="font-size:.75rem;font-weight:600;margin-bottom:6px;display:block">Enter Amount (UGX)</label>
+                <input type="number" id="materialPayAmount" class="sl-input" placeholder="Enter amount" min="0" step="1000">
+                <small id="materialAmountHint"
+                    style="font-size:.65rem;color:var(--c-muted);margin-top:6px;display:block"></small>
+            </div>
+            <div class="sl-modal-footer">
+                <button class="btn-cancel" onclick="closeMaterialPayModal()"><i class="fas fa-times"></i> Cancel</button>
+                <button class="btn-confirm" onclick="confirmMaterialPayment()"><i class="fas fa-check"></i> Confirm
+                    Payment</button>
+            </div>
+        </div>
+    </div>
+
     {{-- Quiz Modal --}}
     <div class="quiz-modal-overlay" id="quizModal">
         <div class="quiz-modal-box">
@@ -1787,6 +1992,9 @@
         let currentLessonId = null;
         let currentLessonMethod = null;
         let currentLessonRequired = null;
+        let currentMaterialId = null;
+        let currentMaterialMethod = null;
+        let currentMaterialRequired = null;
         let currentExamId = null;
         let quizQuestions = [];
         let quizTimer = null;
@@ -1833,12 +2041,12 @@
 
         // ── Method Selection ──────────────────────────────
         function selectMethod(type, method) {
-            const prefix = type === 'class' ? 'class' : 'lesson';
+            const prefix = type === 'class' ? 'class' : (type === 'material' ? 'material' : 'lesson');
             ['Mtn', 'Airtel', 'Card'].forEach(m => document.getElementById(prefix + m).classList.remove('selected'));
             document.getElementById(prefix + method.charAt(0).toUpperCase() + method.slice(1)).classList.add('selected');
 
             // Show/hide phone field
-            const phoneFieldId = type === 'class' ? 'classPhoneField' : 'lessonPhoneField';
+            const phoneFieldId = type === 'class' ? 'classPhoneField' : (type === 'material' ? 'materialPhoneField' : 'lessonPhoneField');
             const phoneField = document.getElementById(phoneFieldId);
             if (method === 'card') {
                 phoneField.style.display = 'none';
@@ -1847,6 +2055,7 @@
             }
 
             if (type === 'class') currentClassMethod = method;
+            else if (type === 'material') currentMaterialMethod = method;
             else currentLessonMethod = method;
         }
 
@@ -1995,14 +2204,14 @@
                 });
 
             } catch (e) {
-                Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong. Please try again121.', confirmButtonColor: '#DC2626' });
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong. Please try again.', confirmButtonColor: '#DC2626' });
             }
         }
 
         // ── Lesson Payment ────────────────────────────────
         function showLessonPaymentModal(lessonId, title, amount) {
             currentLessonId = lessonId;
-            currentLessonRequired = parseInt(String(amount).replace(/[^0-9]/g, ''));
+            currentLessonRequired = Math.round(parseFloat(amount)) || 0;
             currentLessonMethod = null;
             document.getElementById('lessonPayTitle').textContent = title;
             document.getElementById('lessonPayAmountDisplay').textContent = 'UGX ' + currentLessonRequired.toLocaleString();
@@ -2132,7 +2341,142 @@
                 });
 
             } catch (e) {
-                Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong. Please try again.456', confirmButtonColor: '#DC2626' });
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong. Please try again.', confirmButtonColor: '#DC2626' });
+            }
+        }
+
+        // ── Material (PDF) Payment ─────────────────────────
+        function showMaterialPaymentModal(materialId, title, amount) {
+            currentMaterialId = materialId;
+            currentMaterialRequired = Math.round(parseFloat(amount)) || 0;
+            currentMaterialMethod = null;
+            document.getElementById('materialPayTitle').textContent = title;
+            document.getElementById('materialPayAmountDisplay').textContent = 'UGX ' + currentMaterialRequired.toLocaleString();
+            document.getElementById('materialPayAmount').value = currentMaterialRequired;
+            document.getElementById('materialAmountHint').textContent = `Minimum: UGX ${currentMaterialRequired.toLocaleString()}`;
+            ['materialMtn', 'materialAirtel', 'materialCard'].forEach(id => document.getElementById(id).classList.remove('selected'));
+            document.getElementById('materialPhoneField').style.display = 'none';
+            document.getElementById('materialPayPhone').value = '';
+            document.getElementById('materialPayModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMaterialPayModal() {
+            document.getElementById('materialPayModal').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        async function confirmMaterialPayment() {
+            if (!currentMaterialMethod) {
+                Swal.fire({ icon: 'warning', title: 'Select Payment Method', confirmButtonColor: '#6B46C1' });
+                return;
+            }
+
+            const amountRaw = document.getElementById('materialPayAmount').value;
+            const amount = parseInt(amountRaw);
+
+            if (!amountRaw || isNaN(amount) || amount < 500) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Invalid Amount',
+                    text: 'Minimum amount is UGX 500.',
+                    confirmButtonColor: '#6B46C1'
+                });
+                return;
+            }
+
+            if (amount < currentMaterialRequired) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Insufficient Amount',
+                    text: `This PDF requires at least UGX ${currentMaterialRequired.toLocaleString()}.`,
+                    confirmButtonColor: '#DC2626'
+                });
+                return;
+            }
+
+            const phone = document.getElementById('materialPayPhone').value.trim();
+            if (currentMaterialMethod !== 'card' && !phone) {
+                Swal.fire({ icon: 'warning', title: 'Phone Number Required', text: 'Please enter your mobile money phone number.', confirmButtonColor: '#6B46C1' });
+                return;
+            }
+
+            const methodLabel = currentMaterialMethod === 'card' ? 'Bank Card' :
+                currentMaterialMethod === 'mtn' ? 'MTN MoMo' : 'Airtel Money';
+
+            const r = await Swal.fire({
+                title: 'Confirm Payment',
+                html: `Pay <strong>UGX ${amount.toLocaleString()}</strong> via <strong>${methodLabel}</strong>${phone ? '<br>to: <strong>' + phone + '</strong>' : ''}?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#6B46C1',
+                confirmButtonText: 'Yes, Pay Now'
+            });
+            if (!r.isConfirmed) return;
+
+            Swal.fire({ title: 'Initiating Payment…', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            try {
+                const payload = {
+                    material_id: currentMaterialId,
+                    amount,
+                    payment_method: currentMaterialMethod,
+                    required_amount: currentMaterialRequired,
+                };
+                if (currentMaterialMethod !== 'card') payload.phone_number = phone;
+
+                const res = await fetch('{{ route("student.pay-material") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (!data.success) {
+                    Swal.fire({ icon: 'error', title: 'Payment Failed', text: data.message, confirmButtonColor: '#DC2626' });
+                    return;
+                }
+
+                // ── Card redirect ──────────────────────────────────────────────────
+                if (data.type === 'card_redirect' && data.redirect_url) {
+                    closeMaterialPayModal();
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Redirecting to Card Gateway',
+                        text: 'You will be redirected to complete your card payment.',
+                        confirmButtonColor: '#6B46C1',
+                        confirmButtonText: 'Open Payment Page'
+                    }).then(() => {
+                        window.open(data.redirect_url, '_blank');
+                    });
+                    return;
+                }
+
+                // ── Mobile Money polling ───────────────────────────────────────────
+                closeMaterialPayModal();
+                Swal.fire({
+                    title: '📱 Check Your Phone!',
+                    html: `<p>A payment prompt has been sent to <strong>${phone}</strong>.</p>
+                                                   <p style="margin-top:10px;color:#FFF;font-size:.85rem">Approve it on your phone to complete payment.</p>
+                                                   <p style="margin-top:8px;color:#FFF;font-size:.8rem">Waiting for confirmation…</p>`,
+                    icon: 'info',
+                    allowOutsideClick: false,
+                    showCancelButton: true,
+                    cancelButtonText: 'I\'ll check later',
+                    showConfirmButton: false,
+                });
+
+                startPolling(data.reference, () => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'PDF Unlocked! 🎉',
+                        text: 'You can now open this study material.',
+                        confirmButtonColor: '#6B46C1'
+                    }).then(() => location.reload());
+                });
+
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong. Please try again.', confirmButtonColor: '#DC2626' });
             }
         }
 
@@ -2330,7 +2674,7 @@
                     {
                         icon: 'error',
                         title: 'Error',
-                        text: 'Something went wrong. Please try again.789',
+                        text: 'Something went wrong. Please try again.',
                         confirmButtonColor: '#DC2626'
                     });
             }

@@ -7,6 +7,8 @@ use App\Models\Academic\ClassEnrollment;
 use App\Models\Academic\ClassModel;
 use App\Models\Academic\Lesson;
 use App\Models\Academic\LessonPayment;
+use App\Models\Academic\MaterialPayment;
+use App\Models\Academic\SubjectMaterial;
 use App\Models\PaymentTransaction;
 use App\Services\MarzPayService;
 use Illuminate\Http\JsonResponse;
@@ -223,6 +225,104 @@ class PaymentController extends Controller
     }
 
     // ──────────────────────────────────────────────────────────────────────────
+    // INITIATE: Subject Material (PDF) Payment
+    // ──────────────────────────────────────────────────────────────────────────
+    public function initiateMaterialPayment(Request $request): JsonResponse
+    {
+        $request->validate([
+            'material_id'     => 'required|exists:subject_materials,id',
+            'payment_method'  => 'required|in:mtn,airtel,card',
+            'phone_number'    => 'required_unless:payment_method,card|nullable|string|max:20',
+            'amount'          => 'required|integer|min:500',
+            'required_amount' => 'required|integer|min:0',
+        ]);
+
+        $studentId = session('LoggedStudent');
+
+        if (!$studentId) {
+            return response()->json(['success' => false, 'message' => 'Not authenticated.'], 401);
+        }
+
+        if ((int)$request->amount < (int)$request->required_amount) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Insufficient amount. Required: UGX ' . number_format($request->required_amount),
+            ]);
+        }
+
+        $material  = SubjectMaterial::findOrFail($request->material_id);
+        $reference = (string) Uuid::uuid4();
+
+        $transaction = PaymentTransaction::create([
+            'reference'    => $reference,
+            'student_id'   => $studentId,
+            'payment_type' => 'material',
+            'payable_id'   => $request->material_id,
+            'amount'       => $request->amount,
+            'method'       => $request->payment_method,
+            'phone_number' => $request->phone_number ?? null,
+            'status'       => 'pending',
+        ]);
+
+        $description = "Study material payment: {$material->title}";
+        $callbackUrl = route('payment.webhook');
+
+        // ── Card ──────────────────────────────────────────────────────────────
+        if ($request->payment_method === 'card') {
+            $result = $this->marzPay->collectCard(
+                amount:      $request->amount,
+                description: $description,
+                callbackUrl: $callbackUrl,
+                reference:   $reference,
+            );
+
+            if (!$result['success']) {
+                $transaction->update(['status' => 'failed']);
+                return response()->json(['success' => false, 'message' => $result['message']]);
+            }
+
+            $transaction->update([
+                'marzpay_uuid' => $result['uuid'],
+                'status'       => 'processing',
+                'redirect_url' => $result['redirect_url'],
+            ]);
+
+            return response()->json([
+                'success'      => true,
+                'type'         => 'card_redirect',
+                'redirect_url' => $result['redirect_url'],
+                'message'      => 'Redirecting to card payment gateway…',
+            ]);
+        }
+
+        // ── Mobile Money ──────────────────────────────────────────────────────
+        $result = $this->marzPay->collectMobileMoney(
+            amount:      $request->amount,
+            phoneNumber: $request->phone_number,
+            description: $description,
+            callbackUrl: $callbackUrl,
+            reference:   $reference,
+        );
+
+        if (!$result['success']) {
+            $transaction->update(['status' => 'failed']);
+            return response()->json(['success' => false, 'message' => $result['message']]);
+        }
+
+        $transaction->update([
+            'marzpay_uuid' => $result['uuid'],
+            'status'       => 'processing',
+        ]);
+
+        return response()->json([
+            'success'   => true,
+            'type'      => 'mobile_money',
+            'reference' => $reference,
+            'message'   => 'Payment request sent! Please check your phone and approve the prompt.',
+        ]);
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
     // WEBHOOK: MarzPay posts to this endpoint with final payment status
     // ──────────────────────────────────────────────────────────────────────────
     public function webhook(Request $request)
@@ -306,6 +406,20 @@ class PaymentController extends Controller
                 [
                     'lesson_id'  => $transaction->payable_id,
                     'student_id' => $transaction->student_id,
+                ],
+                [
+                    'payment_transaction_id' => $transaction->id,
+                    'amount_paid'            => $transaction->amount,
+                    'paid_at'                => now(),
+                ]
+            );
+        } elseif ($transaction->payment_type === 'material') {
+            // Same per-student scoping as lesson payments — one row per
+            // student per material, never a global "paid" flag.
+            MaterialPayment::updateOrCreate(
+                [
+                    'subject_material_id' => $transaction->payable_id,
+                    'student_id'          => $transaction->student_id,
                 ],
                 [
                     'payment_transaction_id' => $transaction->id,

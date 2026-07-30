@@ -173,6 +173,16 @@ Route::middleware(['AdminAuth'])->prefix('teacher')->name('teacher.')->group(fun
         Route::delete('/{lesson}', 'destroy')->name('destroy');
     });
 
+    // Subject Materials (class + subject PDFs)
+    Route::prefix('materials')->name('materials.')
+        ->controller(\App\Http\Controllers\Teacher\TeacherMaterialController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/store', 'store')->name('store');
+            Route::post('/{material}/toggle', 'toggle')->name('toggle');
+            Route::delete('/{material}', 'destroy')->name('destroy');
+        });
+
     // Enrollments
     Route::prefix('enrollments')->name('enrollments.')->group(function () {
         Route::get('/', [TeacherLessonController::class, 'enrollmentManagement'])->name('index');
@@ -273,6 +283,7 @@ Route::middleware(['AdminAuth'])->prefix('student')->name('student.')->group(fun
     Route::controller(PaymentController::class)->group(function () {
         Route::post('/pay-class', 'initiateClassPayment')->name('pay-class');
         Route::post('/pay-lesson', 'initiateLessonPayment')->name('pay-lesson');
+        Route::post('/pay-material', 'initiateMaterialPayment')->name('pay-material');
         Route::get('/payment/status', 'checkStatus')->name('payment.status');
     });
 
