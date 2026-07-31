@@ -936,7 +936,7 @@
                                             <div>
                                                 @foreach ($topicData['lessons'] as $lesson)
                                                     <div class="ls-lesson-item"
-                                                        onclick="{{ strtolower($lesson->lesson_payment_status) === 'paid' ? "window.location.href='" . route('teacher.lessons.show', $lesson) . "'" : "showPaymentModal({$lesson->id}, '{$lesson->title}', '{$lesson->lesson_amount}')" }}">
+                                                        onclick="window.location.href='{{ route('teacher.lessons.show', $lesson) }}'">
                                                         <div class="ls-lesson-main">
                                                             <div class="ls-lesson-icon">
                                                                 <i class="fas fa-play-circle"></i>
@@ -944,11 +944,6 @@
                                                             <div class="ls-lesson-details">
                                                                 <div class="ls-lesson-title">
                                                                     {{ $lesson->title }}
-                                                                    @if (strtolower($lesson->lesson_payment_status) !== 'paid')
-                                                                        <span class="ls-lesson-lock">
-                                                                            <i class="fas fa-lock"></i> Locked
-                                                                        </span>
-                                                                    @endif
                                                                 </div>
                                                                 <div class="ls-lesson-meta">
                                                                     <div class="ls-lesson-meta-item">
@@ -965,11 +960,7 @@
                                                         <div class="ls-lesson-footer">
                                                             <div class="ls-lesson-price">
                                                                 <i class="fas fa-money-bill-wave"></i>
-                                                                <span>{{ $lesson->lesson_amount ? 'UGX ' . number_format((int) str_replace(',', '', $lesson->lesson_amount)) : 'Free' }}</span>
-                                                            </div>
-                                                            <div class="ls-lesson-payment-status {{ strtolower($lesson->lesson_payment_status) === 'paid' ? 'paid' : 'not-paid' }}">
-                                                                <i class="fas {{ strtolower($lesson->lesson_payment_status) === 'paid' ? 'fa-check-circle' : 'fa-exclamation-triangle' }}"></i>
-                                                                <span>{{ ucfirst($lesson->lesson_payment_status ?? 'Not Paid') }}</span>
+                                                                <span>{{ $lesson->lesson_amount ? 'UGX ' . number_format((int) str_replace(',', '', $lesson->lesson_amount)) . ' (student price)' : 'Free for students' }}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -998,224 +989,7 @@
     @endif
 </div>
 
-{{-- Payment Modal --}}
-<div id="paymentModal" class="ls-payment-modal">
-    <div class="ls-payment-modal-overlay" onclick="closePaymentModal()"></div>
-    <div class="ls-payment-modal-content">
-        <div class="ls-payment-modal-header">
-            <h3><i class="fas fa-credit-card"></i> Complete Payment</h3>
-            <button class="ls-close-modal" onclick="closePaymentModal()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-
-        <div class="ls-payment-modal-body">
-            <div class="ls-lesson-info-section">
-                <h4 id="modalLessonTitle" style="font-size: 1rem;"></h4>
-                <div class="ls-amount-display">
-                    <span class="ls-amount-label">Amount Required:</span>
-                    <span class="ls-amount-value" id="modalLessonAmount"></span>
-                </div>
-            </div>
-
-            <h5 style="font-size: .8rem; margin-bottom: 12px; color: var(--c-ink);">Select Payment Method</h5>
-            <div class="ls-payment-methods-grid">
-                <div class="ls-payment-method-card" onclick="selectPaymentMethod('mtn')" id="mtnCard">
-                    <div class="ls-method-icon">
-                        <i class="fas fa-mobile-alt"></i>
-                    </div>
-                    <span style="font-size: .75rem;">MTN Mobile Money</span>
-                    <div class="ls-selected-indicator">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                </div>
-                <div class="ls-payment-method-card" onclick="selectPaymentMethod('airtel')" id="airtelCard">
-                    <div class="ls-method-icon">
-                        <i class="fas fa-mobile-alt"></i>
-                    </div>
-                    <span style="font-size: .75rem;">Airtel Money</span>
-                    <div class="ls-selected-indicator">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                </div>
-                <div class="ls-payment-method-card" onclick="selectPaymentMethod('card')" id="cardCard">
-                    <div class="ls-method-icon">
-                        <i class="fas fa-credit-card"></i>
-                    </div>
-                    <span style="font-size: .75rem;">Bank Card</span>
-                    <div class="ls-selected-indicator">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <label style="font-size: .75rem; font-weight: 600; margin-bottom: 6px; display: block;">Enter Amount (UGX)</label>
-                <input type="number" id="paymentAmount" class="ls-payment-amount-input" placeholder="Enter amount" min="0" step="1000">
-                <small id="amountHint" style="font-size: .65rem; color: var(--c-muted); margin-top: 6px; display: block;"></small>
-            </div>
-        </div>
-
-        <div class="ls-payment-modal-footer">
-            <button class="btn-cancel-custom" onclick="closePaymentModal()">
-                <i class="fas fa-times"></i> Cancel
-            </button>
-            <button class="btn-confirm-custom" onclick="confirmPayment()">
-                <i class="fas fa-check"></i> Confirm Payment
-            </button>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    let selectedPaymentMethod = null;
-    let currentLessonId = null;
-    let requiredAmount = null;
-
-    function showPaymentModal(lessonId, lessonTitle, amount) {
-        currentLessonId = lessonId;
-        requiredAmount = parseInt(amount.replace(/[^0-9]/g, ''));
-
-        document.getElementById('modalLessonTitle').textContent = lessonTitle;
-        document.getElementById('modalLessonAmount').textContent = 'UGX ' + requiredAmount.toLocaleString();
-        document.getElementById('paymentAmount').value = requiredAmount;
-        document.getElementById('amountHint').textContent = `Minimum amount: UGX ${requiredAmount.toLocaleString()}`;
-
-        selectedPaymentMethod = null;
-        document.querySelectorAll('.ls-payment-method-card').forEach(card => {
-            card.classList.remove('selected');
-        });
-
-        document.getElementById('paymentModal').style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closePaymentModal() {
-        document.getElementById('paymentModal').style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
-
-    function selectPaymentMethod(method) {
-        selectedPaymentMethod = method;
-        document.querySelectorAll('.ls-payment-method-card').forEach(card => {
-            card.classList.remove('selected');
-        });
-        document.getElementById(method + 'Card').classList.add('selected');
-    }
-
-    async function confirmPayment() {
-        if (!selectedPaymentMethod) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Payment Method Required',
-                text: 'Please select a payment method to continue.',
-                confirmButtonColor: '#5B3FD9'
-            });
-            return;
-        }
-
-        const enteredAmount = parseInt(document.getElementById('paymentAmount').value);
-
-        if (!enteredAmount || enteredAmount <= 0) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Invalid Amount',
-                text: 'Please enter a valid amount.',
-                confirmButtonColor: '#5B3FD9'
-            });
-            return;
-        }
-
-        if (enteredAmount < requiredAmount) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Insufficient Amount',
-                text: `The amount entered (UGX ${enteredAmount.toLocaleString()}) is less than the required amount (UGX ${requiredAmount.toLocaleString()}).`,
-                confirmButtonColor: '#DC2626'
-            });
-            return;
-        }
-
-        const result = await Swal.fire({
-            title: 'Confirm Payment',
-            html: `
-                <div style="text-align: left;">
-                    <p><strong>Lesson:</strong> ${document.getElementById('modalLessonTitle').textContent}</p>
-                    <p><strong>Payment Method:</strong> ${getPaymentMethodName(selectedPaymentMethod)}</p>
-                    <p><strong>Amount:</strong> UGX ${enteredAmount.toLocaleString()}</p>
-                    ${enteredAmount > requiredAmount ? `<p style="color: #D97706;"><i class="fas fa-info-circle"></i> Change: UGX ${(enteredAmount - requiredAmount).toLocaleString()}</p>` : ''}
-                </div>
-            `,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#5B3FD9',
-            cancelButtonColor: '#6B7280',
-            confirmButtonText: 'Yes, Pay Now',
-            cancelButtonText: 'Cancel'
-        });
-
-        if (result.isConfirmed) {
-            Swal.fire({
-                title: 'Processing Payment...',
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading()
-            });
-
-            try {
-                const response = await fetch('{{ route("teacher.lessons.process-payment") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        lesson_id: currentLessonId,
-                        amount: enteredAmount,
-                        payment_method: selectedPaymentMethod,
-                        required_amount: requiredAmount
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Payment Successful!',
-                        text: data.message || 'Your payment has been processed successfully.',
-                        confirmButtonColor: '#5B3FD9'
-                    }).then(() => {
-                        location.reload();
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Payment Failed',
-                        text: data.message || 'Something went wrong. Please try again.',
-                        confirmButtonColor: '#DC2626'
-                    });
-                }
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'An error occurred while processing your payment.',
-                    confirmButtonColor: '#DC2626'
-                });
-            }
-        }
-    }
-
-    function getPaymentMethodName(method) {
-        const methods = {
-            'mtn': 'MTN Mobile Money',
-            'airtel': 'Airtel Money',
-            'card': 'Bank Card'
-        };
-        return methods[method] || method;
-    }
-
     // Toggle functions
     function toggleClass(element) {
         const parentCard = element.closest('.ls-class-card');

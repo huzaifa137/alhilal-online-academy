@@ -16,6 +16,7 @@ use App\Http\Controllers\StudentLessonController;
 use App\Http\Controllers\Student\PaymentController;
 use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\Student\CertificateController as StudentCertificateController;
+use App\Http\Controllers\Student\ReportCardController as StudentReportCardController;
 use App\Http\Controllers\Admin\CertificateController as AdminCertificateController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\EnrollmentController as AdminEnrollmentController;
@@ -114,7 +115,6 @@ Route::controller(StudentController::class)->group(function () {
 
         Route::group(['prefix' => '/student'], function () {
             Route::get('/dashboard', 'studentDashboard')->name('student.dashboard');
-            Route::get('/lessons-lists', 'studentLessonList')->name('student.lessons.lists');
         });
     });
 });
@@ -148,7 +148,6 @@ Route::middleware(['AdminAuth'])->prefix('teacher')->name('teacher.')->group(fun
         Route::get('/lists', 'lessonList')->name('lists');
         Route::get('/create', 'createLesson')->name('create');
         Route::post('/store', 'store')->name('store');
-        Route::post('/process-payment', 'processPayment')->name('process-payment');
 
         // ↓ ALL specific routes BEFORE the /{lesson} wildcard
         Route::get('/classes/list', 'getAvailableClasses')->name('classes.list');
@@ -294,6 +293,14 @@ Route::middleware(['AdminAuth'])->prefix('student')->name('student.')->group(fun
             Route::get('/class/{class}/preview', 'preview')->name('preview');
             Route::get('/class/{class}/download', 'download')->name('download');
         });
+
+    Route::controller(StudentReportCardController::class)
+        ->prefix('report-card')->name('report-card.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/class/{class}/summary', 'summary')->name('summary');
+            Route::get('/class/{class}/preview', 'preview')->name('preview');
+            Route::get('/class/{class}/download', 'download')->name('download');
+        });
 });
 
 
@@ -331,8 +338,11 @@ Route::prefix('admin')->name('admin.')->middleware(['AdminAuth'])->group(functio
 
     // User Management — Teachers
     Route::get('/teachers',          [\App\Http\Controllers\Admin\UserManagementController::class, 'teachers'])->name('teachers');
+    Route::post('/teachers',         [\App\Http\Controllers\Admin\UserManagementController::class, 'storeTeacher'])->name('teachers.store');
     Route::get('/teachers/{id}',     [\App\Http\Controllers\Admin\UserManagementController::class, 'showTeacher'])->name('teachers.show');
+    Route::put('/teachers/{id}',     [\App\Http\Controllers\Admin\UserManagementController::class, 'updateTeacher'])->name('teachers.update');
     Route::post('/teachers/{id}/toggle', [\App\Http\Controllers\Admin\UserManagementController::class, 'toggleTeacherStatus'])->name('teachers.toggle');
+    Route::delete('/teachers/{id}',  [\App\Http\Controllers\Admin\UserManagementController::class, 'destroyTeacher'])->name('teachers.destroy');
 
     // Enrollments
     Route::get('/enrollments',               [\App\Http\Controllers\Admin\EnrollmentController::class, 'index'])->name('enrollments');

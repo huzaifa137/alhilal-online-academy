@@ -497,6 +497,11 @@
                                 <div class="en-btn-enrolled">
                                     <i class="fas fa-check-circle"></i> Already Enrolled
                                 </div>
+                            @elseif(!$class->has_content)
+                                <button class="en-btn-enroll" style="background:var(--c-surface2);color:var(--c-muted);cursor:not-allowed;"
+                                    onclick="noContentAlert('{{ addslashes($class->name) }}')">
+                                    <i class="fas fa-exclamation-circle"></i> Not Available Yet
+                                </button>
                             @else
                                 <button class="en-btn-enroll"
                                     onclick="enrollInClass({{ $class->id }}, '{{ addslashes($class->name) }}', this)">
@@ -522,10 +527,20 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        function noContentAlert(className) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Not Available Yet',
+                html: `<div style="text-align:left;"><p><strong>${className}</strong> does not have any subjects or lessons available yet.</p><p style="margin-top:8px;">Please contact the Admin to add lessons to this class.</p></div>`,
+                confirmButtonColor: '#6B46C1',
+                confirmButtonText: 'OK'
+            });
+        }
+
         async function enrollInClass(classId, className, btn) {
             const result = await Swal.fire({
                 title: 'Enroll in Class?',
-                html: `<div style="text-align:left;"><p>You are about to enroll in:</p><p style="font-weight:700;font-size:1.05rem;margin-top:8px;color:#FFF">${className}</p><p style="margin-top:8px;font-size:.85rem;color:#FFF">You can pay for the class once enrolled.</p></div>`,
+                html: `<div style="text-align:left;"><p>You are about to enroll in:</p><p style="font-weight:700;font-size:1.05rem;margin-top:8px;color:#FFF">${className}</p><p style="margin-top:8px;font-size:.85rem;color:#FFF">The class will be activated immediately and its lessons unlocked.</p></div>`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#FFF',
@@ -553,13 +568,22 @@
                 if (data.success) {
                     await Swal.fire({
                         icon: 'success',
-                        title: 'Enrolled Successfully!',
+                        title: 'Enrolled & Activated! 🎉',
                         text: data.message,
                         confirmButtonColor: '#6B46C1',
                         timer: 2500,
                         showConfirmButton: false
                     });
                     location.reload();
+                } else if (data.no_content) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Not Available Yet',
+                        text: data.message,
+                        confirmButtonColor: '#6B46C1'
+                    });
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-plus-circle"></i> Enroll Now';
                 } else {
                     Swal.fire({ icon: 'error', title: 'Enrollment Failed', text: data.message, confirmButtonColor: '#DC2626' });
                     btn.disabled = false;

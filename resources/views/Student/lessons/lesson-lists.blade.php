@@ -163,7 +163,7 @@
 
         .sl-class-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 28px;
             margin-top: 16px
         }
@@ -175,6 +175,7 @@
             overflow: hidden;
             transition: all .25s;
             height: fit-content;
+            min-width: 0;
             box-shadow: var(--shadow-sm)
         }
 
@@ -224,7 +225,8 @@
             font-size: 1.1rem;
             font-weight: 700;
             margin: 0;
-            color: white
+            color: white;
+            overflow-wrap: anywhere
         }
 
         .sl-class-level {
@@ -1126,7 +1128,7 @@
 
         @media(max-width:1100px) {
             .sl-class-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(2, minmax(0, 1fr));
                 gap: 24px
             }
         }
@@ -1425,6 +1427,93 @@
             background: linear-gradient(90deg, #6B46C1, #D97706);
             transition: width .6s ease;
         }
+
+        /* ── Report Card Banner (blue accent) ─────────────────────────── */
+        .sl-rc-card {
+            background: linear-gradient(135deg, #EEF3FF 0%, #F5F3FD 100%);
+            border: 1.5px solid #2563EB;
+            border-radius: 14px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .sl-rc-icon-wrap {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563EB, #1E3A8A);
+            border: 2px solid #93C5FD;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .sl-rc-info { flex: 1; min-width: 0; }
+
+        .sl-rc-title { font-weight: 700; font-size: .95rem; color: #1A0A2E; margin-bottom: 4px; }
+
+        .sl-rc-stats {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 2px;
+        }
+
+        .sl-rc-stat-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: .72rem;
+            font-weight: 600;
+            background: #fff;
+            border: 1px solid #DDE3F5;
+            color: #374151;
+        }
+
+        .sl-rc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .sl-rc-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: .77rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all .2s;
+        }
+
+        .sl-rc-btn-blue {
+            background: linear-gradient(135deg, #2563EB, #1E3A8A);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, .3);
+        }
+
+        .sl-rc-btn-blue:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(37, 99, 235, .4);
+            color: #fff;
+        }
+
+        .sl-rc-btn-outline {
+            background: #fff;
+            color: #2563EB;
+            border: 1.5px solid #2563EB;
+        }
+
+        .sl-rc-btn-outline:hover {
+            background: #EEF3FF;
+        }
+
     </style>
 
     <div class="sl-wrap">
@@ -1513,12 +1602,12 @@
                                             @endif
                                             <span class="sl-subjects-badge"><i class="fas fa-book"></i> {{ count($classData['subjects']) }}
                                                 Subjects</span>
-                                            <i class="fas fa-chevron-down sl-chevron"></i>
+                                            <i class="fas fa-chevron-down sl-chevron" style="transform:rotate(0deg)"></i>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="sl-class-content" style="display:none">
+                                <div class="sl-class-content" style="display:block">
                                     {{-- Class Payment Gate --}}
                                     @if(!$classPaid)
                                         <div class="sl-class-gate" style="background:#f0fdf4; border-color:#16a34a;">
@@ -1698,55 +1787,77 @@
                                                     </div>
                                                 @endforeach
 
-                                                {{-- ── Study Materials (PDFs) for this subject ───────────────── --}}
-                                                @if(!empty($subjectData['materials']))
-                                                    <div class="sl-materials-section">
-                                                        <div class="sl-topic-title">
-                                                            <i class="fas fa-file-pdf" style="color:var(--c-red)"></i>
-                                                            <span>Study Materials</span>
-                                                            <span class="sl-topic-badge"><i class="fas fa-paperclip"></i>
-                                                                {{ count($subjectData['materials']) }} PDF{{ count($subjectData['materials']) === 1 ? '' : 's' }}</span>
-                                                        </div>
-                                                        <div class="sl-materials-list">
-                                                            @foreach($subjectData['materials'] as $material)
-                                                                @php
-                                                                    $materialPaid = $material->is_paid_by_student ?? $material->isFree();
-                                                                    $canOpenMaterial = $classPaid && $materialPaid;
-                                                                @endphp
-                                                                <div class="sl-material-item">
-                                                                    <div class="sl-material-icon"><i class="fas fa-file-pdf"></i></div>
-                                                                    <div class="sl-material-info">
-                                                                        <div class="sl-material-title">{{ $material->title }}</div>
-                                                                        <div class="sl-material-meta">
-                                                                            PDF
-                                                                            @if($material->file_size_formatted) · {{ $material->file_size_formatted }} @endif
-                                                                            @if(!$material->isFree()) · UGX {{ number_format($material->amount) }} @endif
-                                                                            @if($material->description) · {{ Str::limit($material->description, 60) }} @endif
-                                                                        </div>
-                                                                    </div>
-                                                                    @if($canOpenMaterial)
-                                                                        <a href="{{ \Illuminate\Support\Facades\Storage::url($material->file_path) }}"
-                                                                            target="_blank" class="sl-material-btn">
-                                                                            <i class="fas fa-download"></i> Open
-                                                                        </a>
-                                                                    @elseif(!$classPaid)
-                                                                        <span class="sl-material-locked" title="Activate the class to unlock">
-                                                                            <i class="fas fa-lock"></i> Locked
-                                                                        </span>
-                                                                    @else
-                                                                        <button class="sl-material-btn" style="border:none;cursor:pointer;background:var(--c-red)"
-                                                                            onclick="showMaterialPaymentModal({{ $material->id }}, '{{ addslashes($material->title) }}', '{{ (int) $material->amount }}')">
-                                                                            <i class="fas fa-lock"></i> Pay UGX {{ number_format($material->amount) }}
-                                                                        </button>
-                                                                    @endif
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                    </div>
-                                                @endif
                                             </div>
                                         </div>
                                     @endforeach
+                                </div>
+
+                                {{-- ── Study Materials (PDFs) for this class, across all subjects ───────────────── --}}
+                                @php
+                                    $classMaterials = collect($classData['subjects'])
+                                        ->flatMap(function ($subjectData) {
+                                            return $subjectData['materials'] ?? [];
+                                        })
+                                        ->values();
+                                @endphp
+                                @if($classMaterials->isNotEmpty())
+                                    <div class="sl-materials-section">
+                                        <div class="sl-topic-title">
+                                            <i class="fas fa-file-pdf" style="color:var(--c-red)"></i>
+                                            <span>Study Materials</span>
+                                            <span class="sl-topic-badge"><i class="fas fa-paperclip"></i>
+                                                {{ $classMaterials->count() }} PDF{{ $classMaterials->count() === 1 ? '' : 's' }}</span>
+                                        </div>
+                                        <div class="sl-materials-list">
+                                            @foreach($classMaterials as $material)
+                                                @php
+                                                    $materialPaid = $material->is_paid_by_student ?? $material->isFree();
+                                                    $canOpenMaterial = $classPaid && $materialPaid;
+                                                @endphp
+                                                <div class="sl-material-item">
+                                                    <div class="sl-material-icon"><i class="fas fa-file-pdf"></i></div>
+                                                    <div class="sl-material-info">
+                                                        <div class="sl-material-title">{{ $material->title }}</div>
+                                                        <div class="sl-material-meta">
+                                                            PDF
+                                                            @if($material->file_size_formatted) · {{ $material->file_size_formatted }} @endif
+                                                            @if(!$material->isFree()) · UGX {{ number_format($material->amount) }} @endif
+                                                            @if($material->description) · {{ Str::limit($material->description, 60) }} @endif
+                                                        </div>
+                                                    </div>
+                                                    @if($canOpenMaterial)
+                                                        <a href="{{ \Illuminate\Support\Facades\Storage::url($material->file_path) }}"
+                                                            target="_blank" class="sl-material-btn">
+                                                            <i class="fas fa-download"></i> Open
+                                                        </a>
+                                                    @elseif(!$classPaid)
+                                                        <span class="sl-material-locked" title="Activate the class to unlock">
+                                                            <i class="fas fa-lock"></i> Locked
+                                                        </span>
+                                                    @else
+                                                        <button class="sl-material-btn" style="border:none;cursor:pointer;background:var(--c-red)"
+                                                            onclick="showMaterialPaymentModal({{ $material->id }}, '{{ addslashes($material->title) }}', '{{ (int) $material->amount }}')">
+                                                            <i class="fas fa-lock"></i> Pay UGX {{ number_format($material->amount) }}
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+
+                                {{-- ── Report Card Section ─────────────────────────────────────────── --}}
+                                <div class="sl-cert-section" id="rc-section-{{ $classData['class_id'] }}"
+                                    data-class-id="{{ $classData['class_id'] }}">
+                                    <div class="sl-cert-divider">
+                                        <span class="sl-cert-divider-label"><i class="fas fa-chart-bar"></i> Report Card</span>
+                                    </div>
+                                    <div class="sl-cert-banner" id="rc-banner-{{ $classData['class_id'] }}">
+                                        {{-- Placeholder shown before JS check --}}
+                                        <div class="sl-cert-loading">
+                                            <i class="fas fa-spinner fa-spin"></i> Loading your performance…
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {{-- ── Certificate Section ─────────────────────────────────────────── --}}
@@ -1764,7 +1875,6 @@
                                 </div>
 
                             </div>
-                        </div>
                     @endforeach
             </div>
         @else
@@ -1819,8 +1929,9 @@
                 {{-- Phone number field (shown for mobile money only) --}}
                 <div id="classPhoneField" style="display:none;margin-bottom:14px">
                     <label style="font-size:.75rem;font-weight:600;margin-bottom:6px;display:block">
-                        <i class="fas fa-phone"></i> Phone Number (e.g. +256712345678)
+                        <i class="fas fa-phone"></i> Phone Number (e.g. +256712345678) 
                     </label>
+                    <p><span style="color:red">Please note the phonenumber to start with +256 ... (country code)</span></p>
                     <input type="tel" id="classPayPhone" class="sl-input" placeholder="+256XXXXXXXXX">
                     <small style="font-size:.65rem;color:var(--c-muted);margin-top:4px;display:block">
                         You will receive a USSD prompt on this number to approve payment.
@@ -1851,7 +1962,7 @@
                 <div style="text-align:center;margin-bottom:20px">
                     <div style="font-size:1rem;font-weight:600;color:var(--c-ink)" id="lessonPayTitle"></div>
                     <div class="sl-amount-display">
-                        <span class="sl-amount-label">Amount Required:</span>
+                        <span class="sl-amount-label">Amount Required:</span> 
                         <span class="sl-amount-value" id="lessonPayAmountDisplay"></span>
                     </div>
                 </div>
@@ -1877,8 +1988,9 @@
                 {{-- Phone number field (shown for mobile money only) --}}
                 <div id="lessonPhoneField" style="display:none;margin-bottom:14px">
                     <label style="font-size:.75rem;font-weight:600;margin-bottom:6px;display:block">
-                        <i class="fas fa-phone"></i> Phone Number (e.g. +256712345678)
+                        <i class="fas fa-phone"></i> Phone Number (e.g. +256712345678) 
                     </label>
+                    <p><span style="color:red">Please note the phonenumber to start with +256 ... (country code)</span></p>
                     <input type="tel" id="lessonPayPhone" class="sl-input" placeholder="+256XXXXXXXXX">
                     <small style="font-size:.65rem;color:var(--c-muted);margin-top:4px;display:block">
                         You will receive a USSD prompt on this number to approve payment.
@@ -1936,8 +2048,9 @@
                 {{-- Phone number field (shown for mobile money only) --}}
                 <div id="materialPhoneField" style="display:none;margin-bottom:14px">
                     <label style="font-size:.75rem;font-weight:600;margin-bottom:6px;display:block">
-                        <i class="fas fa-phone"></i> Phone Number (e.g. +256712345678)
+                        <i class="fas fa-phone"></i> Phone Number (e.g. +256712345678) 
                     </label>
+                    <p><span style="color:red">Please note the phonenumber to start with +256 ... (country code)</span></p>
                     <input type="tel" id="materialPayPhone" class="sl-input" placeholder="+256XXXXXXXXX">
                     <small style="font-size:.65rem;color:var(--c-muted);margin-top:4px;display:block">
                         You will receive a USSD prompt on this number to approve payment.
@@ -2702,9 +2815,9 @@
                                     <a href="/student/certificates/class/${classId}/download" class="sl-cert-btn sl-cert-btn-gold">
                                         <i class="fas fa-download"></i> Download Certificate
                                     </a>
-                                    <a href="javascript:void();" class="sl-cert-btn sl-cert-btn-outline">
-                                        <i class="fas fa-eye"></i> Preview
-                                    </a>
+                                    <a href="javascript:void();" class="sl-cert-btn sl-cert-btn-outline" style="visibility: hidden;">
+    <i class="fas fa-eye"></i> Preview
+</a>
                                 </div>
                             </div>`;
                 } else {
@@ -2736,10 +2849,60 @@
             }
         }
 
+        // ── Report card live summary ────────────────────────────────────────
+        async function loadReportCardSummary(classId) {
+            const banner = document.getElementById('rc-banner-' + classId);
+            if (!banner) return;
+            try {
+                const res = await fetch(`/student/report-card/class/${classId}/summary`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                });
+                const data = await res.json();
+
+                if (!data.success) {
+                    banner.innerHTML = '';
+                    return;
+                }
+
+                const pct = data.overall_percentage !== null ? `${Number(data.overall_percentage).toFixed(1)}%` : '—';
+                const grade = data.overall_grade || '—';
+                const lessons = `${data.total_lessons_completed}/${data.total_lessons} lessons`;
+                const quizzes = `${data.total_quizzes_taken}/${data.total_quizzes} quizzes`;
+                const rank = data.rank_position ? `Rank ${data.rank_position}/${data.rank_out_of}` : null;
+
+                banner.innerHTML = `
+                        <div class="sl-rc-card">
+                            <div class="sl-rc-icon-wrap"><i class="fas fa-chart-line"></i></div>
+                            <div class="sl-rc-info">
+                                <div class="sl-rc-title">Current Standing: ${grade} &nbsp;·&nbsp; ${pct}</div>
+                                <div class="sl-rc-stats">
+                                    <span class="sl-rc-stat-pill"><i class="fas fa-book"></i> ${lessons}</span>
+                                    <span class="sl-rc-stat-pill"><i class="fas fa-question-circle"></i> ${quizzes}</span>
+                                    ${rank ? `<span class="sl-rc-stat-pill"><i class="fas fa-trophy"></i> ${rank}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="sl-rc-actions">
+                                <a href="/student/report-card/class/${classId}/download" class="sl-rc-btn sl-rc-btn-blue">
+                                    <i class="fas fa-download"></i> Download Report Card
+                                </a>
+                                <a href="/student/report-card/class/${classId}/preview" target="_blank" class="sl-rc-btn sl-rc-btn-outline">
+                                    <i class="fas fa-eye"></i> Preview
+                                </a>
+                            </div>
+                        </div>`;
+            } catch (e) {
+                if (banner) banner.innerHTML = '';
+            }
+        }
+
         // Run checks for every visible class card
         document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('.sl-cert-section[data-class-id]').forEach(function (el) {
-                checkCertEligibility(el.dataset.classId);
+                if (el.id.startsWith('cert-section-')) {
+                    checkCertEligibility(el.dataset.classId);
+                } else if (el.id.startsWith('rc-section-')) {
+                    loadReportCardSummary(el.dataset.classId);
+                }
             });
         });
     </script>

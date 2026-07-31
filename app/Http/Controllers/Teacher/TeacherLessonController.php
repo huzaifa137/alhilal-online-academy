@@ -393,43 +393,6 @@ class TeacherLessonController extends Controller
         return view('Teacher.lessons.lesson-lists', compact('groupedLessons', 'totalLessons', 'publishedLessons', 'draftLessons', 'recentLessons'));
     }
 
-    public function processPayment(Request $request)
-    {
-
-        $validated = $request->validate([
-            'lesson_id' => 'required|exists:lessons,id',
-            'amount' => 'required|numeric|min:0',
-            'payment_method' => 'required|in:mtn,airtel,card',
-            'required_amount' => 'required|numeric|min:0'
-        ]);
-
-        $lesson = Lesson::findOrFail($validated['lesson_id']);
-
-        // Check if amount is sufficient
-        if ($validated['amount'] < $validated['required_amount']) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Insufficient amount. Required: UGX ' . number_format($validated['required_amount'])
-            ]);
-        }
-
-        // Process payment logic here (integrate with your payment gateway)
-        // For now, we'll just update the status
-
-        $lesson->update([
-            'lesson_payment_status' => 'Paid',
-            'lesson_amount' => $validated['required_amount']
-        ]);
-
-        // You might want to store payment details in a payments table
-        // Payment::create([...]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Payment processed successfully!'
-        ]);
-    }
-
     // Creating Lessons
 
     public function getAvailableClasses()

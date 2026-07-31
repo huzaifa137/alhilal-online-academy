@@ -9,6 +9,7 @@ use App\Models\Academic\Exam;
 use App\Models\Academic\ClassStudent;
 use App\Models\Academic\Lesson;
 use App\Models\Academic\StudentProgress;
+use App\Models\Academic\Topic;
 use Illuminate\Http\Request;
 
 class StudentLessonController extends Controller
@@ -23,6 +24,29 @@ class StudentLessonController extends Controller
             ->where('status', 'active')
             // ->orderBy('name')
             ->get();
+
+        // Classes that have no subject-linked topics, or no published lessons
+        // yet, cannot be enrolled into — flag them so the view can disable
+        // "Enroll Now" and prompt the student to contact the Admin instead.
+        // NOTE: subjects here are derived from `topics.subject_id`, not the
+        // `class_subjects` pivot table — the pivot is a separate admin
+        // assignment table and is not what actually drives lesson content.
+        $classIdsWithSubjects = Topic::whereIn('class_id', $classes->pluck('id'))
+            ->whereNotNull('subject_id')
+            ->pluck('class_id')
+            ->unique()
+            ->toArray();
+
+        $classIdsWithLessons = Lesson::whereHas('topic', fn($q) => $q->whereIn('class_id', $classes->pluck('id')))
+            ->where('status', 'published')
+            ->get()
+            ->pluck('topic.class_id')
+            ->unique()
+            ->toArray();
+
+        $classes->each(function ($class) use ($classIdsWithSubjects, $classIdsWithLessons) {
+            $class->has_content = in_array($class->id, $classIdsWithSubjects) && in_array($class->id, $classIdsWithLessons);
+        });
 
         $enrolledClassIds = ClassEnrollment::where('student_id', $studentId)
             ->where('status', 'active')
@@ -53,18 +77,39 @@ class StudentLessonController extends Controller
 
         $class = ClassModel::findOrFail($request->class_id);
 
+        // A class must have at least one subject-linked topic and one
+        // published lesson before a student is allowed to enroll in it.
+        // (Subjects are derived from `topics.subject_id`, not the unused
+        // `class_subjects` pivot table.)
+        $hasSubjects = Topic::where('class_id', $class->id)
+            ->whereNotNull('subject_id')
+            ->exists();
+        $hasLessons = Lesson::whereHas('topic', fn($q) => $q->where('class_id', $class->id))
+            ->where('status', 'published')
+            ->exists();
+
+        if (!$hasSubjects || !$hasLessons) {
+            return response()->json([
+                'success' => false,
+                'no_content' => true,
+                'message' => "\"{$class->name}\" does not have any subjects or lessons available yet. Please contact the Admin to add lessons to this class.",
+            ], 422);
+        }
+
+        // Enroll and activate the class immediately — no separate
+        // "Activate Class" step required from the student.
         ClassEnrollment::create([
             'class_id' => $request->class_id,
             'student_id' => $studentId,
             'enrollment_date' => now(),
             'status' => 'active',
-            'payment_status' => 'pending',
+            'payment_status' => 'paid',
             'amount_paid' => 0,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => "You have successfully enrolled in {$class->name}! Pay for the class to unlock lessons.",
+            'message' => "You have successfully enrolled in {$class->name}! The class is now active and its lessons are unlocked.",
         ]);
     }
 

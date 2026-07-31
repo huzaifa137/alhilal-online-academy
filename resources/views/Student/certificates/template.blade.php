@@ -176,7 +176,7 @@
             <p>AL-HILAL</p>
         </div>
         
-        <div class="sidebar-text">AL-HILAL ONLINE ACADEMY</div>
+        <div class="sidebar-text">Al-Hilaal Online Academy</div>
         
         <div class="watermark">
             <img src="{{ public_path('assets/images/al-hilaal_update.png') }}" alt="Watermark">
@@ -192,7 +192,7 @@
                         <table style="width:100%;" cellpadding="0" cellspacing="0">
                             <tr>
                                 <td style="vertical-align:baseline;">
-                                    <span class="school">Al-Hilal Online Academy</span>
+                                    <span class="school">Al-Hilaal Online Academy</span>
                                     <span class="school ar" style="font-size:15pt; margin-left: 2mm;">{{ ar(trans('certificate.academy_name', [], 'ar')) }}</span>
                                 </td>
                             </tr>
@@ -324,12 +324,12 @@
                             <td width="33%">
                                 <div class="sig-line"></div>
                                 <div class="sig-title-en">Academy Director</div>
-                                <div class="sig-sub">Al-Hilal Online Academy</div>
+                                <div class="sig-sub">Al-Hilaal Online Academy</div>
                             </td>
                             <td width="34%">
                                 <div class="sig-line"></div>
                                 <div class="sig-title-ar ar-center">{{ ar(trans('certificate.director', [], 'ar')) }}</div>
-                                <div class="sig-sub">Al-Hilal Online Academy</div>
+                                <div class="sig-sub">Al-Hilaal Online Academy</div>
                             </td>
                             <td width="33%">
                                 <div class="sig-line"></div>

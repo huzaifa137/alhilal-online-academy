@@ -11,12 +11,17 @@ use App\Models\Academic\Level;
 use App\Models\Academic\ClassModel;
 use App\Models\Academic\Subject;
 use App\Models\Academic\AcademicYear;
+use App\Services\ClassSubjectService;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class SettingsController extends Controller
 {
+    public function __construct(private ClassSubjectService $classSubjectService)
+    {
+    }
+
     public function index()
     {
         $stats = [
@@ -322,6 +327,9 @@ public function getTopics()
 
         $topic = Topic::create($request->all());
         $topic->load(['subject', 'class', 'class.level', 'class.level.section']);
+
+        $this->classSubjectService->ensureAssigned((int) $topic->class_id, (int) $topic->subject_id);
+
         return response()->json(['success' => true, 'topic' => $topic, 'message' => 'Topic created successfully']);
     }
 
@@ -340,6 +348,9 @@ public function getTopics()
 
         $topic->update($request->all());
         $topic->load(['subject', 'class', 'class.level', 'class.level.section']);
+
+        $this->classSubjectService->ensureAssigned((int) $topic->class_id, (int) $topic->subject_id);
+
         return response()->json(['success' => true, 'topic' => $topic, 'message' => 'Topic updated successfully']);
     }
 
