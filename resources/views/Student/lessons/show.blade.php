@@ -744,6 +744,9 @@
                                     @if($resource->type === 'video')
                                         <div class="ls-video-wrap">
                                             <video controls preload="metadata" id="videoPlayer_{{ $i }}"
+                                                controlsList="nodownload noplaybackrate noremoteplayback"
+                                                disablePictureInPicture disableRemotePlayback
+                                                oncontextmenu="return false;"
                                                 onplay="trackProgress({{ $lesson->id }})"
                                                 ontimeupdate="savePosition(this, {{ $lesson->id }})"
                                                 onended="lessonEnded({{ $lesson->id }})">
