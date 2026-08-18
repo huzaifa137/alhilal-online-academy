@@ -1682,7 +1682,7 @@
             <a href="#" class="sd-nav-item" data-section="settings">
                 <i class="fas fa-gear"></i> Settings
             </a>
-            <a href="https://wa.me/256702082209?text={{ urlencode('Assalamu Alaikum! I need help with my lessons.') }}"
+            <a href="https://wa.me/256760808570?text={{ urlencode('Assalamu Alaikum! I need help with my lessons.') }}"
                 target="_blank" class="sd-nav-item">
                 <i class="fab fa-whatsapp" style="color:#4ade80;"></i> Ask Teacher
             </a> --}}

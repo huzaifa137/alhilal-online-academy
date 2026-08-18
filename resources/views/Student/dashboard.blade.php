@@ -148,7 +148,7 @@
                     <button class="sd-quick-action-btn">
                         <i class="fas fa-chart-line"></i> My Reports
                     </button>
-                    <a href="https://wa.me/256702082209" target="_blank" class="sd-quick-action-btn" style="color:var(--green);">
+                    <a href="https://wa.me/256760808570" target="_blank" class="sd-quick-action-btn" style="color:var(--green);">
                         <i class="fab fa-whatsapp"></i> Chat Teacher
                     </a>
                     <button class="sd-quick-action-btn">

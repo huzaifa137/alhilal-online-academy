@@ -1572,7 +1572,7 @@ backBtn.addEventListener('click', (e) => {
                         <div class="contact-detail-icon"><i class="fas fa-phone"></i></div>
                         <div>
                             <div class="contact-detail-label">Phone / WhatsApp</div>
-                            <div class="contact-detail-value">+256 702 082 209</div>
+                            <div class="contact-detail-value">+256 760 808 570</div>
                         </div>
                     </div>
                     <div class="contact-detail-row">
@@ -1590,7 +1590,7 @@ backBtn.addEventListener('click', (e) => {
                         </div>
                     </div>
                 </div>
-                <a href="https://wa.me/256702082209?text=Assalamu+Alaikum!+I'd+like+to+enroll+at+AlHilaal+Academy." target="_blank" class="btn btn-primary" style="margin-top: 12px;">
+                <a href="https://wa.me/256760808570?text=Assalamu+Alaikum!+I'd+like+to+enroll+at+AlHilaal+Academy." target="_blank" class="btn btn-primary" style="margin-top: 12px;">
                     <i class="fab fa-whatsapp"></i> Chat on WhatsApp
                 </a>
             </div>
@@ -1654,7 +1654,7 @@ backBtn.addEventListener('click', (e) => {
                 <h5>Support</h5>
                 <ul>
                     <li><a href="#contact">Contact Us</a></li>
-                    <li><a href="https://wa.me/256702082209" target="_blank">WhatsApp Chat</a></li>
+                    <li><a href="https://wa.me/256760808570" target="_blank">WhatsApp Chat</a></li>
                     <li><a href="mailto:info@alhilaalacademy.org">Email Us</a></li>
                     <li><a href="#">Privacy Policy</a></li>
                 </ul>
@@ -1738,7 +1738,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 // ── WhatsApp ──────────────────────────────────────────────
 document.getElementById('whatsappChat').addEventListener('click', e => {
     e.preventDefault();
-    window.open('https://wa.me/256702082209?text=' + encodeURIComponent('Assalamu Alaikum! I need assistance with my lessons on Al-Hilaal Online Academy.'), '_blank');
+    window.open('https://wa.me/256760808570?text=' + encodeURIComponent('Assalamu Alaikum! I need assistance with my lessons on Al-Hilaal Online Academy.'), '_blank');
 });
 
 // ── Contact form ──────────────────────────────────────────

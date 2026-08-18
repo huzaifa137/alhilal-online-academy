@@ -719,7 +719,7 @@ h1, h2, h3, h4 { font-family: 'Playfair Display', serif; line-height: 1.2; }
                         <div class="info-card">
                             <i class="fas fa-phone-alt" style="color: var(--purple);"></i>
                             <h4>Phone / WhatsApp</h4>
-                            <p>+256 702 082 209</p>
+                            <p>+256 760 808 570</p>
                         </div>
                         <div class="info-card">
                             <i class="fas fa-envelope" style="color: var(--red);"></i>
@@ -751,7 +751,7 @@ h1, h2, h3, h4 { font-family: 'Playfair Display', serif; line-height: 1.2; }
             <a href="{{ url('/') }}" class="btn btn-outline">
                 <i class="fas fa-home"></i> Return to Homepage
             </a>
-            <a href="https://wa.me/256702082209" class="btn btn-outline">
+            <a href="https://wa.me/256760808570" class="btn btn-outline">
                 <i class="fab fa-whatsapp"></i> Questions? Chat with Us
             </a>
         </div>
