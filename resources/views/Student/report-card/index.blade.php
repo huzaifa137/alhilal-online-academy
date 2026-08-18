@@ -317,6 +317,22 @@
                 font-size: 1.5rem;
             }
         }
+
+        .rc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+    gap: 24px;
+}
+
+.rc-wrap {
+    overflow-x: hidden;
+}
+
+@media (max-width: 480px) {
+    .rc-wrap {
+        padding: 0 16px 40px;
+    }
+}
     </style>
 
     <div class="rc-wrap">
