@@ -260,6 +260,7 @@
 
     /* Video player — stays responsive even with no source loaded */
     .ls-video-wrap {
+        position: relative;
         background: #000;
         aspect-ratio: 16/9;
         width: 100%;
@@ -269,6 +270,38 @@
         justify-content: center;
         overflow: hidden;
         box-sizing: border-box;
+    }
+
+    /* ── Content protection: watermark + blackout ─────────────────── */
+    .ls-watermark {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, .35);
+        font-size: .78rem;
+        font-weight: 700;
+        text-align: center;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, .5);
+        transition: top .4s ease, left .4s ease;
+        white-space: nowrap;
+    }
+
+    .ls-blackout {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        z-index: 99999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-family: 'DM Sans', sans-serif;
+        text-align: center;
+        padding: 24px;
     }
 
     .ls-video-wrap video {
@@ -754,6 +787,9 @@
                                                 <source src="{{ $fileUrl }}" type="video/webm">
                                                 Your browser does not support the video tag.
                                             </video>
+                                            <div class="ls-watermark" id="lsWatermark_{{ $i }}">
+                                                {{ session('LoggedStudent') }} &middot; {{ now()->format('d M Y') }}
+                                            </div>
                                         </div>
                                         <div
                                             style="padding:12px 16px;background:#f9f9ff;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:.75rem;color:var(--muted);">
@@ -831,6 +867,9 @@
                             <iframe src="{{ $vUrl }}" frameborder="0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 allowfullscreen style="width:100%;height:100%;"></iframe>
+                            <div class="ls-watermark" id="lsWatermarkExternal">
+                                {{ session('LoggedStudent') }} &middot; {{ now()->format('d M Y') }}
+                            </div>
                         </div>
                     </div>
                 @else
@@ -1029,6 +1068,69 @@
     <script>
         const LESSON_ID = {{ $lesson->id }};
         const STUDENT_ID = {{ session('LoggedStudent') ?? 0 }};
+
+        // ── Content protection layer ─────────────────────────────────
+        // Deters casual screen recording/screenshots and traces any leak
+        // back to the specific student. This is a JS-level deterrent —
+        // it cannot block OS-level screenshots or a second camera, but it
+        // stops most external screen recorders (which require switching
+        // away from the app) and watermarks every frame with the student's ID.
+        (function () {
+            // 1. Moving watermark — makes any leaked clip traceable
+            document.querySelectorAll('.ls-watermark').forEach(function (wm) {
+                var positions = [
+                    { top: '10%', left: '12%' },
+                    { top: '10%', left: '65%' },
+                    { top: '80%', left: '15%' },
+                    { top: '80%', left: '60%' },
+                    { top: '45%', left: '38%' }
+                ];
+                var i = 0;
+                setInterval(function () {
+                    i = (i + 1) % positions.length;
+                    wm.style.top = positions[i].top;
+                    wm.style.left = positions[i].left;
+                }, 4000);
+            });
+
+            // 2. Blackout on tab/app blur — catches most external recorders,
+            //    screen-share/mirroring, and app-switching
+            var blackout = document.createElement('div');
+            blackout.className = 'ls-blackout';
+            blackout.innerHTML = '<div><i class="fas fa-lock" style="font-size:2rem;display:block;margin-bottom:12px"></i>Content paused for security</div>';
+            document.body.appendChild(blackout);
+
+            function pauseAllMedia() {
+                document.querySelectorAll('video, audio').forEach(function (m) { m.pause(); });
+            }
+
+            document.addEventListener('visibilitychange', function () {
+                if (document.hidden) {
+                    pauseAllMedia();
+                    blackout.style.display = 'flex';
+                } else {
+                    blackout.style.display = 'none';
+                }
+            });
+            window.addEventListener('blur', function () {
+                pauseAllMedia();
+                blackout.style.display = 'flex';
+            });
+            window.addEventListener('focus', function () {
+                blackout.style.display = 'none';
+            });
+
+            // 3. Basic deterrents — right-click, text/image selection & drag,
+            //    save/print/devtools shortcuts, PrintScreen key
+            document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+            document.addEventListener('selectstart', function (e) { e.preventDefault(); });
+            document.addEventListener('dragstart', function (e) { e.preventDefault(); });
+            window.addEventListener('keydown', function (e) {
+                if (e.key === 'PrintScreen') { pauseAllMedia(); }
+                if ((e.ctrlKey || e.metaKey) && ['p', 's', 'u'].includes(e.key.toLowerCase())) e.preventDefault();
+                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key))) e.preventDefault();
+            });
+        })();
         const IS_COMPLETED = {{ ($progress && in_array($progress->status, ['completed', 'passed'])) ? 'true' : 'false' }};
         let progressTracked = false;
         let timeSpent = {{ $progress?->time_spent_seconds ?? 0 }};
@@ -1093,6 +1195,7 @@
 
             fetch(`/student/lessons/${LESSON_ID}/complete`, {
                 method: 'POST',
+                keepalive: true,
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || '' },
                 body: JSON.stringify({ time_spent: timeSpent })
             })

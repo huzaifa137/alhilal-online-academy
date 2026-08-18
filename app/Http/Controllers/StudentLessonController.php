@@ -419,6 +419,16 @@ class StudentLessonController extends Controller
     {
         $studentId = session('LoggedStudent');
 
+        $existing = StudentProgress::where('student_id', $studentId)
+            ->where('lesson_id', $lesson->id)
+            ->first();
+
+        // Never downgrade a lesson that's already completed/passed just
+        // because the student re-opened it to review it.
+        if ($existing && in_array($existing->status, ['completed', 'passed'])) {
+            return response()->json(['success' => true, 'progress' => $existing]);
+        }
+
         $progress = StudentProgress::updateOrCreate(
             ['student_id' => $studentId, 'lesson_id' => $lesson->id],
             ['status' => 'in_progress', 'started_at' => now()]
@@ -450,7 +460,18 @@ class StudentLessonController extends Controller
     {
         $studentId = session('LoggedStudent');
 
-        $data = ['status' => 'in_progress'];
+        $existing = StudentProgress::where('student_id', $studentId)
+            ->where('lesson_id', $lesson->id)
+            ->first();
+
+        $data = [];
+
+        // Only touch status if the lesson isn't already completed/passed —
+        // a rewatch/scrub ping should never undo a completion.
+        if (!$existing || !in_array($existing->status, ['completed', 'passed'])) {
+            $data['status'] = 'in_progress';
+        }
+
         if ($request->has('last_position'))
             $data['last_position_seconds'] = $request->last_position;
         if ($request->has('time_spent'))
