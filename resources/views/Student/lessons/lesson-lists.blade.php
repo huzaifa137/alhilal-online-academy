@@ -1514,6 +1514,37 @@
             background: #EEF3FF;
         }
 
+        /* ── FIX: Keep modal footer buttons visible on small screens ── */
+.sl-modal-content {
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.sl-modal-body {
+    overflow-y: auto;
+    flex: 1 1 auto;
+}
+
+.sl-modal-footer {
+    flex-shrink: 0;
+}
+
+@media (max-width: 560px) {
+    .sl-modal {
+        align-items: flex-end; /* anchor modal to bottom, avoids overflow above viewport */
+    }
+
+    .sl-modal-content {
+        max-height: 85vh;
+        width: 100%;
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    }
+
+    .sl-modal-footer {
+        padding: 14px 20px;
+    }
+}
     </style>
 
     <div class="sl-wrap">
