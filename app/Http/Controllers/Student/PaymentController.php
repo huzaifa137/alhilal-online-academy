@@ -53,7 +53,20 @@ class PaymentController extends Controller
             return response()->json(['success' => false, 'message' => 'This class has already been paid for.'], 400);
         }
 
-        $class     = ClassModel::findOrFail($request->class_id);
+        $class = ClassModel::findOrFail($request->class_id);
+
+        // ── Server-side price check ─────────────────────────────────────────
+        // Never trust a client-supplied amount alone — validate against the
+        // actual configured class fee, not just the UGX 500 floor.
+        $requiredAmount = (int) config('marzpay.default_class_fee', 50000);
+
+        if ((int) $request->amount < $requiredAmount) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Insufficient amount. This class requires at least UGX ' . number_format($requiredAmount) . '.',
+            ]);
+        }
+
         $reference = (string) Uuid::uuid4();
 
         // Store the pending transaction
@@ -136,7 +149,6 @@ class PaymentController extends Controller
             'payment_method'  => 'required|in:mtn,airtel,card',
             'phone_number'    => 'required_unless:payment_method,card|nullable|string|max:20',
             'amount'          => 'required|integer|min:500',
-            'required_amount' => 'required|integer|min:0',
         ]);
 
         $studentId = session('LoggedStudent');
@@ -145,14 +157,20 @@ class PaymentController extends Controller
             return response()->json(['success' => false, 'message' => 'Not authenticated.'], 401);
         }
 
-        if ((int)$request->amount < (int)$request->required_amount) {
+        $lesson = Lesson::findOrFail($request->lesson_id);
+
+        // ── Server-side price check ─────────────────────────────────────────
+        // Look up the lesson's real price from the database — never trust a
+        // "required_amount" value submitted by the client alongside "amount".
+        $requiredAmount = (int) str_replace(',', '', (string) $lesson->lesson_amount);
+
+        if ((int) $request->amount < $requiredAmount) {
             return response()->json([
                 'success' => false,
-                'message' => 'Insufficient amount. Required: UGX ' . number_format($request->required_amount),
+                'message' => 'Insufficient amount. Required: UGX ' . number_format($requiredAmount),
             ]);
         }
 
-        $lesson    = Lesson::findOrFail($request->lesson_id);
         $reference = (string) Uuid::uuid4();
 
         $transaction = PaymentTransaction::create([
@@ -234,7 +252,6 @@ class PaymentController extends Controller
             'payment_method'  => 'required|in:mtn,airtel,card',
             'phone_number'    => 'required_unless:payment_method,card|nullable|string|max:20',
             'amount'          => 'required|integer|min:500',
-            'required_amount' => 'required|integer|min:0',
         ]);
 
         $studentId = session('LoggedStudent');
@@ -243,14 +260,20 @@ class PaymentController extends Controller
             return response()->json(['success' => false, 'message' => 'Not authenticated.'], 401);
         }
 
-        if ((int)$request->amount < (int)$request->required_amount) {
+        $material = SubjectMaterial::findOrFail($request->material_id);
+
+        // ── Server-side price check ─────────────────────────────────────────
+        // Look up the material's real price from the database — never trust a
+        // "required_amount" value submitted by the client alongside "amount".
+        $requiredAmount = (int) str_replace(',', '', (string) $material->amount);
+
+        if ((int) $request->amount < $requiredAmount) {
             return response()->json([
                 'success' => false,
-                'message' => 'Insufficient amount. Required: UGX ' . number_format($request->required_amount),
+                'message' => 'Insufficient amount. Required: UGX ' . number_format($requiredAmount),
             ]);
         }
 
-        $material  = SubjectMaterial::findOrFail($request->material_id);
         $reference = (string) Uuid::uuid4();
 
         $transaction = PaymentTransaction::create([
