@@ -1038,6 +1038,7 @@ textarea.form-control-alhilal {
             </div>
         </a>
         <div class="header-actions">
+            @include('partials.language-switcher')
             <a href="{{ url('/users/register') }}" class="btn btn-outline btn-sm">Register</a>
             <a href="{{ url('/users/login') }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-arrow-right-to-bracket"></i> Sign In

@@ -1,0 +1,74 @@
+/* ==========================================================================
+   Right-to-left support (Arabic). Loaded automatically by HtmlTranslator
+   when the active language has dir="rtl".
+   ========================================================================== */
+
+/* ---- Arabic typography (icon fonts are deliberately excluded) ---------- */
+html[lang="ar"] body,
+html[lang="ar"] :is(h1, h2, h3, h4, h5, h6, p, a, li, td, th, label, button, input, select, textarea, small, div, span):not(i):not([class*="fa"]):not([class*="icon"]):not([class*="mdi"]):not([class^="fe"]):not([class*=" fe"]):not([class*="typcn"]) {
+    font-family: 'Cairo', 'Segoe UI', Tahoma, Arial, sans-serif;
+}
+html[lang="ar"] h1, html[lang="ar"] h2, html[lang="ar"] h3 { line-height: 1.5; letter-spacing: 0; }
+
+/* ---- Base direction ----------------------------------------------------- */
+html[dir="rtl"] body { direction: rtl; text-align: right; }
+html[dir="rtl"] input, html[dir="rtl"] textarea, html[dir="rtl"] select { text-align: right; }
+html[dir="rtl"] input[type="email"], html[dir="rtl"] input[type="url"], html[dir="rtl"] input[type="tel"],
+html[dir="rtl"] input[type="number"], html[dir="rtl"] input[type="password"] { direction: ltr; text-align: right; }
+html[dir="rtl"] table { direction: rtl; }
+html[dir="rtl"] th, html[dir="rtl"] td { text-align: right; }
+html[dir="rtl"] th.text-center, html[dir="rtl"] td.text-center { text-align: center; }
+
+/* ---- Bootstrap 4 helpers ------------------------------------------------ */
+html[dir="rtl"] .text-left  { text-align: right !important; }
+html[dir="rtl"] .text-right { text-align: left !important; }
+html[dir="rtl"] .float-left  { float: right !important; }
+html[dir="rtl"] .float-right { float: left !important; }
+html[dir="rtl"] .ml-auto { margin-left: 0 !important; margin-right: auto !important; }
+html[dir="rtl"] .mr-auto { margin-right: 0 !important; margin-left: auto !important; }
+html[dir="rtl"] .dropdown-menu { text-align: right; }
+html[dir="rtl"] .dropdown-menu-right { right: auto !important; left: 0 !important; }
+html[dir="rtl"] .list-unstyled, html[dir="rtl"] ul, html[dir="rtl"] ol { padding-right: 0; }
+html[dir="rtl"] .modal-header .close { margin: -1rem auto -1rem -1rem; }
+
+/* ---- Admin dashboard layout (Admin/layouts/admin-master) --------------- */
+html[dir="rtl"] .sidebar { left: auto; right: 0; border-right: 0; border-left: 1px solid rgba(107, 70, 193, .15); }
+html[dir="rtl"] .main-wrap,
+html[dir="rtl"] .main-content { margin-left: 0; margin-right: var(--sidebar-w); }
+
+/* ---- Teacher layout shares .sidebar / .main-content (above) ------------ */
+
+/* ---- Student layout (Student/layouts/sidebar) --------------------------- */
+html[dir="rtl"] .sd-sidebar { left: auto; right: 0; }
+html[dir="rtl"] .sd-main { margin-left: 0; margin-right: var(--sidebar-w); }
+
+/* ---- Mobile: sidebars slide in from the right --------------------------- */
+@media (max-width: 900px) {
+    html[dir="rtl"] .sidebar { transform: translateX(100%); }
+    html[dir="rtl"] .sidebar.on,
+    html[dir="rtl"] .sidebar.mobile-open,
+    html[dir="rtl"] .sidebar.open { transform: translateX(0); }
+    html[dir="rtl"] .main-wrap,
+    html[dir="rtl"] .main-content { margin-right: 0; }
+}
+@media (max-width: 768px) {
+    html[dir="rtl"] .sd-sidebar { transform: translateX(100%); }
+    html[dir="rtl"] .sd-sidebar.open { transform: translateX(0); }
+    html[dir="rtl"] .sd-main { margin-right: 0; }
+}
+
+/* ---- Home page ---------------------------------------------------------- */
+html[dir="rtl"] .site-header { direction: rtl; }
+html[dir="rtl"] .hero-inner, html[dir="rtl"] .header-inner { direction: rtl; }
+
+/* ---- Icons that point sideways should mirror ---------------------------- */
+html[dir="rtl"] .fa-arrow-right, html[dir="rtl"] .fa-arrow-left,
+html[dir="rtl"] .fa-chevron-right, html[dir="rtl"] .fa-chevron-left,
+html[dir="rtl"] .fa-angle-right, html[dir="rtl"] .fa-angle-left,
+html[dir="rtl"] .fa-arrow-right-to-bracket, html[dir="rtl"] .fa-arrow-right-from-bracket,
+html[dir="rtl"] .fa-sign-out-alt { display: inline-block; transform: scaleX(-1); }
+
+/* ---- SweetAlert / DataTables -------------------------------------------- */
+html[dir="rtl"] .swal2-popup { direction: rtl; }
+html[dir="rtl"] .dataTables_wrapper .dataTables_filter { text-align: left; }
+html[dir="rtl"] .dataTables_wrapper .dataTables_length { text-align: right; }

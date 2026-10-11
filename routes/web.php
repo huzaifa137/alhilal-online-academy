@@ -25,6 +25,11 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ClassController as AdminClassController;
 
+// Language switcher (English / Arabic / Swahili)
+Route::get('/language/{locale}', [\App\Http\Controllers\LanguageController::class, 'switch'])
+    ->where('locale', '[a-z]{2}')
+    ->name('language.switch');
+
 Route::get('/all-sessions', function () {
     dd(Session::all());
 });

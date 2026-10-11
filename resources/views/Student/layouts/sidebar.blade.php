@@ -1725,6 +1725,9 @@
 
                 {{-- With this: --}}
                 {{-- Replace your current dropdown div with this --}}
+                {{-- Language switcher --}}
+                @include('partials.language-switcher')
+
                 <div class="sd-header-avatar dropdown" id="profileDropdown" title="Profile"
                     onclick="toggleProfileMenu(event)">
                     <span class="avatar-letter">{{ strtoupper(substr(auth()->user()->name ?? 'S', 0, 2)) }}</span>

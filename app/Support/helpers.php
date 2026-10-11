@@ -36,3 +36,30 @@ if (!function_exists('ar_section_label')) {
         return $label ? ArabicTextService::shape($label) : null;
     }
 }
+
+if (!function_exists('supported_locales')) {
+    /**
+     * All site languages configured in config/languages.php
+     */
+    function supported_locales(): array
+    {
+        return config('languages.supported', []);
+    }
+}
+
+if (!function_exists('locale_dir')) {
+    /**
+     * Text direction ("ltr" or "rtl") of the active language.
+     */
+    function locale_dir(): string
+    {
+        return config('languages.supported.' . app()->getLocale() . '.dir', 'ltr');
+    }
+}
+
+if (!function_exists('is_rtl')) {
+    function is_rtl(): bool
+    {
+        return locale_dir() === 'rtl';
+    }
+}

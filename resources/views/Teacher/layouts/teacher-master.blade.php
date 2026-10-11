@@ -2114,6 +2114,9 @@
                         <span class="dot" style="background:var(--gold);"></span>
                     </a> -->
 
+                    {{-- Language switcher --}}
+                    @include('partials.language-switcher')
+
                     {{-- Avatar --}}
                     <div class="topbar-avatar" id="profileBtn" onclick="toggleDropdown('profileDropdown','profileBtn')">
                         {{ strtoupper(substr(auth()->user()->name ?? 'T', 0, 1)) }}

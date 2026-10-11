@@ -2900,6 +2900,9 @@
 
                 <div class="topbar-right">
                    
+                    {{-- Language switcher --}}
+                    @include('partials.language-switcher')
+
                     <div class="tb-date-chip">
                         <i class="fas fa-calendar-alt"></i>
                         {{ now()->format('D, d M Y') }}

@@ -64,6 +64,9 @@ use App\Http\Controllers\Helper;
                 </style>
 
 
+                <div class="d-flex align-items-center mx-2">
+                    @include('partials.language-switcher')
+                </div>
                 <div class="dropdown profile-dropdown">
 
 
