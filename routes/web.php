@@ -271,6 +271,15 @@ Route::middleware(['AdminAuth'])->prefix('exams')->name('exams.')->controller(Ex
 
 
 // ─── Student Routes ───────────────────────────────────────────────────────────
+// Lesson files and study-material PDFs. They live on a private disk, so this is
+// the only way to fetch them; access (role, enrolment, payment, language) is
+// checked on every request. Add ?download=1 to force a download.
+Route::middleware(['AdminAuth'])->prefix('content')->name('content.')
+    ->controller(\App\Http\Controllers\ContentFileController::class)->group(function () {
+        Route::get('lesson-resources/{resource}', 'lessonResource')->name('resource');
+        Route::get('materials/{material}', 'material')->name('material');
+    });
+
 Route::middleware(['AdminAuth'])->prefix('student')->name('student.')->group(function () {
 
     Route::controller(StudentLessonController::class)->group(function () {

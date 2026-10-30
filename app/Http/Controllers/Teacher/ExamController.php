@@ -11,6 +11,7 @@ use App\Models\Academic\Lesson;
 use App\Models\Academic\ClassModel;
 use App\Models\Academic\Subject;
 use App\Models\User;
+use App\Support\ContentLanguage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Session;
@@ -40,6 +41,9 @@ class ExamController extends Controller
             'title' => 'required|string|max:255',
             'exam_type' => 'required|in:quiz,assignment,midterm,final',
             'lesson_id' => 'nullable|exists:lessons,id',
+            // Quizzes attached to a lesson always inherit the lesson's language;
+            // standalone class quizzes must say which language they are taught in.
+            'language' => 'required_without:lesson_id|nullable|' . ContentLanguage::rule(),
             'class_id' => 'required|exists:classes,id',
             'subject_id' => 'required|exists:subjects,id',
             'total_marks' => 'required|integer|min:1',
@@ -60,6 +64,7 @@ class ExamController extends Controller
         }
 
         $exam = Exam::create([
+            'language' => $request->language ?: ContentLanguage::default(),
             'class_id' => $request->class_id,
             'subject_id' => $request->subject_id,
             'lesson_id' => $request->lesson_id,
@@ -163,6 +168,15 @@ class ExamController extends Controller
             // $studentId = $request->student_id ?? Session('LoggedStudent');
             $studentId = Session('LoggedStudent') ?? Session('LoggedTeacher');
             $exam = Exam::with('questions')->findOrFail($examId);
+
+            // A student may only submit quizzes taught in their selected language.
+            if (!ContentLanguage::allows($exam->language)) {
+                return response()->json([
+                    'success' => false,
+                    'language_mismatch' => true,
+                    'message' => ContentLanguage::mismatchMessage($exam->language),
+                ], 403);
+            }
 
             \Log::info('Submitting quiz', ['exam_id' => $examId, 'student_id' => $studentId]);
 
@@ -408,6 +422,7 @@ $studentId = Session('LoggedStudent') ?? Session('LoggedTeacher');
         $quizzes = Exam::where('class_id', $classId)
             ->where('exam_type', 'quiz')
             ->whereNull('lesson_id')
+            ->inLanguage(ContentLanguage::filterForCurrentUser())
             ->whereIn('status', ['published', 'closed'])
             ->with([
                 'results' => function ($q) {
@@ -437,6 +452,15 @@ $studentId = Session('LoggedStudent') ?? Session('LoggedTeacher');
                     $q->orderBy('sort_order');
                 }
             ])->findOrFail($examId);
+
+            // A student may only open quizzes taught in their selected language.
+            if (!ContentLanguage::allows($exam->language)) {
+                return response()->json([
+                    'success' => false,
+                    'language_mismatch' => true,
+                    'message' => ContentLanguage::mismatchMessage($exam->language),
+                ], 403);
+            }
 
             // Check if student has reached max attempts using ExamResult
             $attemptCount = ExamResult::where('exam_id', $examId)

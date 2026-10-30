@@ -523,6 +523,11 @@
                     </div>
 
                     <div class="fg">
+                    <label>Teaching Language <span class="required">*</span></label>
+                    @include('partials.content-language-select', ['name' => 'language', 'id' => 'language'])
+                </div>
+
+                <div class="fg">
                         <label>Lesson Description</label>
                         <textarea id="lessonDesc" name="description" rows="3"
                             placeholder="Describe what students will learn in this lesson..."></textarea>
@@ -839,6 +844,11 @@
                 return;
             }
 
+            if (!document.getElementById('language').value) {
+                Swal.fire('Error', 'Please choose the language this lesson is taught in.', 'error');
+                return;
+            }
+
             const submitBtn = document.getElementById('submitBtn');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
@@ -869,6 +879,7 @@
             }
 
             // Lesson data
+            formData.append('language', document.getElementById('language').value);
             formData.append('title', lessonTitle);
             formData.append('title_arabic', document.getElementById('lessonTitleArabic').value);
             formData.append('lesson_type', document.getElementById('lessonType').value);

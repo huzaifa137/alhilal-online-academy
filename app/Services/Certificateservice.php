@@ -9,6 +9,7 @@ use App\Models\Academic\Exam;
 use App\Models\Academic\ExamResult;
 use App\Models\Academic\Lesson;
 use App\Models\Academic\StudentProgress;
+use App\Support\ContentLanguage;
 
 class CertificateService
 {
@@ -21,9 +22,15 @@ class CertificateService
      *   - Every published lesson in the class must be marked completed/passed.
      *   - Every published quiz attached to those lessons must be passed
      *     (by the student's best attempt).
+     *
+     * Each language is its own learning track, so "every published lesson"
+     * means every lesson taught in $language (default: the language the
+     * student currently has selected).
      */
-    public function evaluateClassEligibility(int $studentId, int $classId): array
+    public function evaluateClassEligibility(int $studentId, int $classId, ?string $language = null): array
     {
+        $language = $language ?? ContentLanguage::viewerLanguage();
+
         $class = ClassModel::with('level.section')->find($classId);
 
         if (!$class) {
@@ -44,12 +51,17 @@ class CertificateService
 
         $lessons = Lesson::whereHas('topic', fn($q) => $q->where('class_id', $classId))
             ->where('status', 'published')
+            ->inLanguage($language)
             ->get();
 
         $totalLessons = $lessons->count();
 
         if ($totalLessons === 0) {
-            return $this->notEligible($class, 'This class has no published lessons yet.', $enrollment);
+            $reason = $language
+                ? __('This class has no published lessons in :language yet.', ['language' => ContentLanguage::native($language)])
+                : 'This class has no published lessons yet.';
+
+            return $this->notEligible($class, $reason, $enrollment);
         }
 
         $lessonIds = $lessons->pluck('id');

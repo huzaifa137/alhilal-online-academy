@@ -554,7 +554,7 @@
                         <span style="font-size: 13px;">${escapeHtml(resource.title)}</span>
                         <span class="badge" style="background: #E2E8F0; font-size: 10px;">${resource.type}</span>
                         ${resource.file_size ? `<span style="font-size: 11px; color: var(--muted);">${formatFileSize(resource.file_size)}</span>` : ''}
-                        <a href="/storage/${resource.file_path}" target="_blank" class="btn-view" style="margin-left: auto; padding: 2px 8px;">
+                        <a href="/content/lesson-resources/${resource.id}?download=1" target="_blank" class="btn-view" style="margin-left: auto; padding: 2px 8px;">
                             <i class="fas fa-download"></i> Download
                         </a>
                     </div>

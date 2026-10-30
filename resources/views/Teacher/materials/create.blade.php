@@ -90,6 +90,11 @@
                 </div>
 
                 <div class="fg">
+                    <label>Teaching Language <span>*</span></label>
+                    @include('partials.content-language-select', ['name' => 'language', 'id' => 'languageSelect'])
+                </div>
+
+                <div class="fg">
                     <label>Title <span>*</span></label>
                     <input type="text" id="titleInput" placeholder="e.g. Tajweed Revision Pack" required>
                 </div>
@@ -185,10 +190,11 @@
             const classId = $('#classSelect').val();
             const subjectId = $('#subjectSelect').val();
             const title = $('#titleInput').val().trim();
+            const language = $('#languageSelect').val();
             const file = $('#fileInput')[0].files[0];
 
-            if (!classId || !subjectId || !title || !file) {
-                Swal.fire('Missing info', 'Please fill in the class, subject, title, and choose a PDF file.', 'warning');
+            if (!classId || !subjectId || !language || !title || !file) {
+                Swal.fire('Missing info', 'Please fill in the class, subject, teaching language, title, and choose a PDF file.', 'warning');
                 return;
             }
 
@@ -199,6 +205,7 @@
             formData.append('class_id', classId);
             formData.append('subject_id', subjectId);
             formData.append('title', title);
+            formData.append('language', language);
             formData.append('description', $('#descInput').val());
             formData.append('amount', $('#amountInput').val().replace(/[^0-9.]/g, ''));
             formData.append('file', file);

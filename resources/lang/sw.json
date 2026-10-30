@@ -1288,5 +1288,16 @@
  "· {#1} min": "· dak {1}",
  "· UGX {1}": "· UGX {1}",
  "· {#1} KB": "· KB {1}",
- "{#1} MB": "MB {1}"
+ "{#1} MB": "MB {1}",
+ "This content is taught in :language. Switch the site language to :language to open it.": "Maudhui haya yanafundishwa kwa :language. Badilisha lugha ya tovuti kuwa :language ili kuyafungua.",
+ "No lessons in :language yet.": "Hakuna vipindi kwa :language bado.",
+ "Available in:": "Inapatikana kwa:",
+ "This class has no published lessons in :language yet.": "Darasa hili halina vipindi vilivyochapishwa kwa :language bado.",
+ "Teaching Language": "Lugha ya Kufundishia",
+ "-- Select teaching language --": "-- Chagua lugha ya kufundishia --",
+ "Please choose the language this lesson is taught in.": "Tafadhali chagua lugha ambayo kipindi hiki kinafundishwa.",
+ "Please fill in the class, subject, teaching language, title, and choose a PDF file.": "Tafadhali jaza darasa, somo, lugha ya kufundishia, kichwa, na uchague faili ya PDF.",
+ "Students have already started this lesson, so its language can no longer be changed. Create a new lesson in the other language instead.": "Wanafunzi tayari wameanza kipindi hiki, kwa hivyo lugha yake haiwezi kubadilishwa tena. Tengeneza kipindi kipya kwa lugha nyingine.",
+ "The language of a lesson that students have started cannot be changed.": "Lugha ya kipindi ambacho wanafunzi wameanza haiwezi kubadilishwa.",
+ "Students have already taken this quiz, so its language can no longer be changed. Create a new quiz in the other language instead.": "Wanafunzi tayari wamefanya jaribio hili, kwa hivyo lugha yake haiwezi kubadilishwa tena. Tengeneza jaribio jipya kwa lugha nyingine."
 }

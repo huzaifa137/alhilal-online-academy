@@ -10,6 +10,7 @@ use App\Models\Academic\Lesson;
 use App\Models\Academic\StudentProgress;
 use App\Models\Academic\Topic;
 use App\Models\User;
+use App\Support\ContentLanguage;
 use Illuminate\Support\Facades\Cache;
 
 class ReportCardService
@@ -46,7 +47,11 @@ class ReportCardService
 
         $subjectsPivot = $class->subjects()->get();
 
-        $performance = $this->computeSubjectPerformance($studentId, $classId, $subjectsPivot);
+        // Each language is its own learning track: the report card only covers
+        // the lessons and quizzes taught in the student's selected language.
+        $language = ContentLanguage::viewerLanguage();
+
+        $performance = $this->computeSubjectPerformance($studentId, $classId, $subjectsPivot, $language);
 
         $subjectRows        = $performance['subjects'];
         $totalObtained       = $performance['total_obtained'];
@@ -61,7 +66,7 @@ class ReportCardService
         $overallRemark     = $overallPercentage !== null ? $this->remarkFor($overallPercentage) : 'No assessments completed yet.';
         $lessonProgressPct = $totalLessons > 0 ? round(($totalLessonsComplete / $totalLessons) * 100, 1) : 0;
 
-        $rank = $this->computeRank($class, $studentId, $subjectsPivot, $overallPercentage);
+        $rank = $this->computeRank($class, $studentId, $subjectsPivot, $overallPercentage, $language);
 
         $studentName = $student?->fullname
             ?? trim(($student?->firstname ?? '') . ' ' . ($student?->lastname ?? ''))
@@ -106,7 +111,7 @@ class ReportCardService
      * against the subject's official "full marks" (set by the school per
      * class/subject in class_subjects.full_marks, default 100).
      */
-    private function computeSubjectPerformance(int $studentId, int $classId, $subjectsPivot): array
+    private function computeSubjectPerformance(int $studentId, int $classId, $subjectsPivot, ?string $language = null): array
     {
         $subjectRows = [];
 
@@ -127,6 +132,7 @@ class ReportCardService
 
             $lessons = Lesson::whereIn('topic_id', $topicIds)
                 ->where('status', 'published')
+                ->inLanguage($language)
                 ->get(['id']);
 
             $lessonIds     = $lessons->pluck('id');
@@ -215,15 +221,16 @@ class ReportCardService
      * percentage. Cached briefly since it requires scanning every student
      * in the class.
      */
-    private function computeRank(ClassModel $class, int $studentId, $subjectsPivot, ?float $studentPercentage): array
+    private function computeRank(ClassModel $class, int $studentId, $subjectsPivot, ?float $studentPercentage, ?string $language = null): array
     {
         if ($studentPercentage === null) {
             return ['position' => null, 'out_of' => null];
         }
 
-        $cacheKey = "report_card_rank_{$class->id}";
+        // Rankings are per language track, so each language has its own cache entry.
+        $cacheKey = "report_card_rank_{$class->id}_" . ($language ?? 'all');
 
-        $standings = Cache::remember($cacheKey, 300, function () use ($class, $subjectsPivot) {
+        $standings = Cache::remember($cacheKey, 300, function () use ($class, $subjectsPivot, $language) {
             $studentIds = ClassEnrollment::where('class_id', $class->id)
                 ->where('status', 'active')
                 ->pluck('student_id');
@@ -231,7 +238,7 @@ class ReportCardService
             $rows = [];
 
             foreach ($studentIds as $sid) {
-                $perf = $this->computeSubjectPerformance($sid, $class->id, $subjectsPivot);
+                $perf = $this->computeSubjectPerformance($sid, $class->id, $subjectsPivot, $language);
 
                 if ($perf['total_full'] > 0) {
                     $rows[$sid] = round(($perf['total_obtained'] / $perf['total_full']) * 100, 2);

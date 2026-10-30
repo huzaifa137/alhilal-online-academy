@@ -760,7 +760,7 @@
                         <div class="ls-resource-tabs" id="resourceTabs">
                             @foreach($lesson->resources as $i => $resource)
                                 <button class="ls-rtab {{ $i === 0 ? 'active' : '' }}"
-                                    onclick="showResource({{ $i }}, '{{ $resource->type }}', '{{ \Illuminate\Support\Facades\Storage::url($resource->file_path) }}', '{{ addslashes($resource->title) }}')"
+                                    onclick="showResource({{ $i }}, '{{ $resource->type }}', '{{ $resource->secure_url }}', '{{ addslashes($resource->title) }}')"
                                     data-index="{{ $i }}">
                                     <i
                                         class="fas fa-{{ $resource->type === 'video' ? 'video' : ($resource->type === 'audio' ? 'headphones' : ($resource->type === 'pdf' ? 'file-pdf' : ($resource->type === 'image' ? 'image' : 'file'))) }}"></i>
@@ -772,7 +772,7 @@
                         <div class="ls-resource-view" id="resourceView">
                             {{-- Will be populated by JS --}}
                             @foreach($lesson->resources as $i => $resource)
-                                @php $fileUrl = \Illuminate\Support\Facades\Storage::url($resource->file_path); @endphp
+                                @php $fileUrl = $resource->secure_url; @endphp
                                 <div class="ls-viewer-area {{ $i === 0 ? 'active' : '' }}" id="viewer_{{ $i }}">
                                     @if($resource->type === 'video')
                                         <div class="ls-video-wrap">

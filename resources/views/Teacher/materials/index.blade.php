@@ -62,7 +62,7 @@
                 <tbody>
                     @foreach($materials as $material)
                         <tr id="row-{{ $material->id }}">
-                            <td><i class="fas fa-file-pdf" style="color:#DC2626;margin-right:6px"></i>{{ $material->title }}</td>
+                            <td><i class="fas fa-file-pdf" style="color:#DC2626;margin-right:6px"></i>{{ $material->title }}@include('partials.content-language-badge', ['code' => $material->language])</td>
                             <td>{{ $material->class->name ?? '—' }}</td>
                             <td>{{ $material->subject->name ?? '—' }}</td>
                             <td>{{ $material->amount ? 'UGX ' . number_format($material->amount) : 'Free' }}</td>

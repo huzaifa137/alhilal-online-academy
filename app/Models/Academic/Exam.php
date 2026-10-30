@@ -6,6 +6,7 @@ use App\Models\Academic\ClassModel;
 use App\Models\Academic\Lesson;
 use App\Models\Academic\Subject;
 use App\Models\Academic\Topic;
+use App\Models\Concerns\HasContentLanguage;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,7 +14,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Exam extends Model
 {
+    use HasContentLanguage;
+
     protected $fillable = [
+        'language',
         'class_id',
         'subject_id',
         'lesson_id',
@@ -40,6 +44,23 @@ class Exam extends Model
         'allow_late_submission' => 'boolean',
         'shuffle_questions' => 'boolean',
     ];
+
+    /**
+     * A quiz attached to a lesson is always taught in that lesson's language,
+     * whatever was submitted. Standalone (class) quizzes keep their own value.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (Exam $exam) {
+            if ($exam->lesson_id) {
+                $lessonLanguage = Lesson::whereKey($exam->lesson_id)->value('language');
+
+                if ($lessonLanguage) {
+                    $exam->language = $lessonLanguage;
+                }
+            }
+        });
+    }
 
     // Relationships
     public function class(): BelongsTo

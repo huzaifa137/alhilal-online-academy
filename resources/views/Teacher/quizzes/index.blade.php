@@ -588,7 +588,7 @@
                                 @foreach($lessonQuizzes as $quiz)
                                     <tr>
                                         <td data-label="Title">
-                                            <strong>{{ $quiz->title }}</strong>
+                                            <strong>{{ $quiz->title }}</strong>@include('partials.content-language-badge', ['code' => $quiz->language])
                                         </td>
                                         <td data-label="Lesson">{{ $quiz->lesson->title ?? 'N/A' }}</td>
                                         <td data-label="Class">{{ $quiz->class->name ?? 'N/A' }}</td>

@@ -52,13 +52,13 @@ class Topic extends Model
     // Helper methods
     public function getProgressForStudent($studentId): array
     {
-        $totalLessons = $this->lessons()->count();
+        $totalLessons = $this->lessons()->forViewerLanguage()->count();
         if ($totalLessons === 0) {
             return ['completed' => 0, 'total' => 0, 'percentage' => 0];
         }
         
         $completedLessons = StudentProgress::where('student_id', $studentId)
-            ->whereIn('lesson_id', $this->lessons()->pluck('id'))
+            ->whereIn('lesson_id', $this->lessons()->forViewerLanguage()->pluck('id'))
             ->where('status', 'completed')
             ->count();
             

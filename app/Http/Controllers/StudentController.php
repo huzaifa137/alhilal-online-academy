@@ -29,6 +29,10 @@ class StudentController extends Controller
         $studentId = session('LoggedStudent');
         $student = \App\Models\User::find($studentId);
 
+        // Every number on this dashboard belongs to the language the student
+        // currently has selected (each language is a separate learning track).
+        $lang = \App\Support\ContentLanguage::viewerLanguage();
+
         // Count enrolled classes
         $enrolledClasses = \App\Models\Academic\ClassEnrollment::where('student_id', $studentId)
             ->where('status', 'active')
@@ -37,15 +41,18 @@ class StudentController extends Controller
         // Count completed lessons
         $completedLessons = \App\Models\Academic\StudentProgress::where('student_id', $studentId)
             ->where('status', 'completed')
+            ->inLanguage($lang)
             ->count();
 
         // Count quizzes passed
         $quizzesPassed = \App\Models\Academic\ExamResult::where('student_id', $studentId)
             ->where('is_passed', true)
+            ->inLanguage($lang)
             ->count();
 
         // Avg quiz score
         $avgScore = \App\Models\Academic\ExamResult::where('student_id', $studentId)
+            ->inLanguage($lang)
             ->avg('percentage');
         $avgScore = $avgScore ? round($avgScore) : 0;
 
@@ -59,9 +66,9 @@ class StudentController extends Controller
         if ($enrolledClassIds->isNotEmpty()) {
             $subjectsData = \App\Models\Academic\Subject::whereHas('topics', function ($q) use ($enrolledClassIds) {
                 $q->whereIn('class_id', $enrolledClassIds);
-            })->with(['topics' => function ($q) use ($enrolledClassIds) {
-                $q->whereIn('class_id', $enrolledClassIds)->with(['lessons' => function ($lq) {
-                    $lq->where('status', 'published');
+            })->with(['topics' => function ($q) use ($enrolledClassIds, $lang) {
+                $q->whereIn('class_id', $enrolledClassIds)->with(['lessons' => function ($lq) use ($lang) {
+                    $lq->where('status', 'published')->inLanguage($lang);
                 }]);
             }])->get();
 
@@ -94,6 +101,7 @@ class StudentController extends Controller
         // In-progress lessons (started but not completed)
         $inProgressLessons = \App\Models\Academic\StudentProgress::where('student_id', $studentId)
             ->where('status', 'in_progress')
+            ->inLanguage($lang)
             ->with(['lesson' => function ($q) {
                 $q->with(['topic.subject', 'resources']);
             }])
@@ -105,6 +113,7 @@ class StudentController extends Controller
         // Completed lessons (for the "completed" tab)
         $completedLessonsList = \App\Models\Academic\StudentProgress::where('student_id', $studentId)
             ->whereIn('status', ['completed', 'passed'])
+            ->inLanguage($lang)
             ->with(['lesson' => function ($q) {
                 $q->with(['topic.subject', 'resources']);
             }])
@@ -119,6 +128,7 @@ class StudentController extends Controller
         $todoLessons = \App\Models\Academic\Lesson::with(['topic.subject', 'resources'])
             ->whereHas('topic', fn($q) => $q->whereIn('class_id', $enrolledClassIds))
             ->where('status', 'published')
+            ->inLanguage($lang)
             ->whereNotIn('id', $progressLessonIds)
             ->orderBy('lesson_order')
             ->limit(6)
@@ -127,6 +137,7 @@ class StudentController extends Controller
         // Last/current lesson being studied
         $lastProgress = \App\Models\Academic\StudentProgress::where('student_id', $studentId)
             ->whereIn('status', ['in_progress', 'completed'])
+            ->inLanguage($lang)
             ->with('lesson.topic.subject')
             ->orderByDesc('updated_at')
             ->first();
@@ -134,6 +145,7 @@ class StudentController extends Controller
         // Upcoming exams for enrolled classes
         $upcomingExams = \App\Models\Academic\Exam::whereIn('class_id', $enrolledClassIds)
             ->where('status', 'published')
+            ->inLanguage($lang)
             ->where('available_from', '>=', now())
             ->orderBy('available_from')
             ->limit(4)
@@ -148,7 +160,7 @@ class StudentController extends Controller
 
         // Total lessons available to student
         $totalAvailableLessons = \App\Models\Academic\Lesson::whereHas('topic', fn($q) => $q->whereIn('class_id', $enrolledClassIds))
-            ->where('status', 'published')->count();
+            ->where('status', 'published')->inLanguage($lang)->count();
 
         // Overall completion percentage
         $overallProgress = $totalAvailableLessons > 0
@@ -158,6 +170,7 @@ class StudentController extends Controller
         $lessonsThisWeek = \App\Models\Academic\StudentProgress::where('student_id', $studentId)
             ->whereIn('status', ['completed', 'passed'])
             ->where('completed_at', '>=', now()->startOfWeek())
+            ->inLanguage($lang)
             ->count();
 
         // ── Build lesson data for the front-end tabs (in_progress / completed / todo) ──

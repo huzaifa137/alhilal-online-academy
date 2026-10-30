@@ -9,6 +9,7 @@ use App\Models\Academic\Exam;
 use App\Models\Academic\ExamResult;
 use App\Models\Academic\Lesson;
 use App\Models\Academic\StudentProgress;
+use App\Support\ContentLanguage;
 use Illuminate\Http\Request;
 
 class StudentEnrollmentController extends Controller
@@ -110,6 +111,7 @@ class StudentEnrollmentController extends Controller
             ])
             ->whereHas('topic', fn($q) => $q->where('class_id', $class->id))
             ->where('status', 'published')
+            ->forViewerLanguage()
             ->orderBy('lesson_order')
             ->get();
 
@@ -152,6 +154,7 @@ class StudentEnrollmentController extends Controller
                 $lesson->quiz_count = Exam::where('lesson_id', $lesson->id)
                     ->where('exam_type', 'quiz')
                     ->where('status', 'published')
+                    ->forViewerLanguage()
                     ->count();
 
                 $groupedLessons[$className]['subjects'][$subjectName]['topics'][$topicName]['lessons'][] = $lesson;
@@ -216,6 +219,14 @@ class StudentEnrollmentController extends Controller
         $studentId = session('LoggedStudent');
 
         $lesson = Lesson::findOrFail($request->lesson_id);
+
+        if (!ContentLanguage::allows($lesson->language)) {
+            return response()->json([
+                'success' => false,
+                'language_mismatch' => true,
+                'message' => ContentLanguage::mismatchMessage($lesson->language),
+            ], 403);
+        }
 
         if ((float)$request->amount < (float)$request->required_amount) {
             return response()->json([

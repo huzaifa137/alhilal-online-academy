@@ -100,6 +100,8 @@ class QuizController extends Controller
             'class_id' => 'required|exists:classes,id',
             'subject_id' => 'required|exists:subjects,id',
             'lesson_id' => 'nullable|exists:lessons,id',
+            // Lesson quizzes inherit the lesson's language; class quizzes must pick one.
+            'language' => 'required_without:lesson_id|nullable|' . \App\Support\ContentLanguage::rule(),
             'topic_id' => 'nullable|exists:topics,id',  // ADD THIS
             'total_marks' => 'required|integer|min:1',
             'pass_mark' => 'required|integer|min:0|max:100',
@@ -118,6 +120,7 @@ class QuizController extends Controller
         }
 
         $exam = Exam::create([
+            'language' => $request->language ?: \App\Support\ContentLanguage::default(),
             'class_id' => $request->class_id,
             'subject_id' => $request->subject_id,
             'lesson_id' => $request->lesson_id,  // THIS WILL NOW SAVE
@@ -247,6 +250,7 @@ class QuizController extends Controller
             'instructions' => 'nullable|string',
             'status' => 'required|in:draft,published,closed',
             'max_attempts' => 'nullable|integer|min:1',
+            'language' => 'nullable|' . \App\Support\ContentLanguage::rule(),
         ]);
 
         if ($validator->fails()) {
@@ -256,7 +260,22 @@ class QuizController extends Controller
             ], 422);
         }
 
+        // Only a standalone class quiz can change language (lesson quizzes follow
+        // their lesson), and only while nobody has taken it yet — otherwise
+        // students' results would silently jump to another language track.
+        $newLanguage = $exam->language;
+        if (!$exam->lesson_id && $request->filled('language') && $request->language !== $exam->language) {
+            if ($exam->results()->exists()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Students have already taken this quiz, so its language can no longer be changed. Create a new quiz in the other language instead.',
+                ], 422);
+            }
+            $newLanguage = $request->language;
+        }
+
         $exam->update([
+            'language' => $newLanguage,
             'title' => $request->title,
             'total_marks' => $request->total_marks,
             'pass_mark' => $request->pass_mark,

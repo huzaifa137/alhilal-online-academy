@@ -55,6 +55,17 @@ return [
             'visibility' => 'public',
         ],
 
+        // Private disk for lesson files and study materials. It is NOT linked
+        // into public/, so nothing here can be opened by URL: every download
+        // goes through App\Http\Controllers\ContentFileController, which
+        // checks enrolment, class/lesson/material payment and language.
+        'protected' => [
+            'driver' => 'local',
+            'root' => storage_path('app/protected'),
+            'visibility' => 'private',
+            'throw' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

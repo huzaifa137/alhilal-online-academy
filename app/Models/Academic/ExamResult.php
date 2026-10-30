@@ -32,6 +32,22 @@ class ExamResult extends Model
     {
         return $this->belongsTo(Exam::class);
     }
+
+    /** Only results of quizzes taught in $language (null = no filter). */
+    public function scopeInLanguage($query, ?string $language)
+    {
+        if ($language === null || $language === '') {
+            return $query;
+        }
+
+        return $query->whereHas('exam', fn ($q) => $q->where('exams.language', $language));
+    }
+
+    /** Results that belong to the language the visitor currently has selected. */
+    public function scopeForViewerLanguage($query)
+    {
+        return $query->inLanguage(\App\Support\ContentLanguage::viewerLanguage());
+    }
     
     public function student()
     {

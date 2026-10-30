@@ -431,6 +431,10 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="fg">
+                            <label>Teaching Language <span class="required">*</span></label>
+                            @include('partials.content-language-select', ['name' => 'language', 'id' => 'quizLanguage'])
+                        </div>
                     @endif
 
                     <div class="fg">

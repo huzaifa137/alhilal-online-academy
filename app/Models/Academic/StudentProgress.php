@@ -32,6 +32,27 @@ class StudentProgress extends Model
     }
     
     // Scopes
+
+    /**
+     * Only progress made on lessons taught in $language (null = no filter).
+     * Each language is its own learning track, so this is what makes a
+     * student "start afresh" when they switch language.
+     */
+    public function scopeInLanguage($query, ?string $language)
+    {
+        if ($language === null || $language === '') {
+            return $query;
+        }
+
+        return $query->whereHas('lesson', fn ($q) => $q->where('lessons.language', $language));
+    }
+
+    /** Progress that belongs to the language the visitor currently has selected. */
+    public function scopeForViewerLanguage($query)
+    {
+        return $query->inLanguage(\App\Support\ContentLanguage::viewerLanguage());
+    }
+
     public function scopeCompleted($query)
     {
         return $query->whereIn('status', ['completed', 'passed']);

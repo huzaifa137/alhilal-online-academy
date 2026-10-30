@@ -123,6 +123,7 @@ return [
         'phonenumber'      => 'nambari ya simu',
         'country'          => 'nchi',
         'title'            => 'kichwa',
+        'language'            => 'lugha ya kufundishia',
         'description'      => 'maelezo',
     ],
 ];

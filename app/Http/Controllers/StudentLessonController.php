@@ -10,6 +10,7 @@ use App\Models\Academic\ClassStudent;
 use App\Models\Academic\Lesson;
 use App\Models\Academic\StudentProgress;
 use App\Models\Academic\Topic;
+use App\Support\ContentLanguage;
 use Illuminate\Http\Request;
 
 class StudentLessonController extends Controller
@@ -44,8 +45,24 @@ class StudentLessonController extends Controller
             ->unique()
             ->toArray();
 
-        $classes->each(function ($class) use ($classIdsWithSubjects, $classIdsWithLessons) {
+        // Which teaching languages each class has published lessons in, so the
+        // view can show e.g. "English · Kiswahili" and hint when the language
+        // the student has selected has nothing yet.
+        $languagesByClass = Lesson::join('topics', 'topics.id', '=', 'lessons.topic_id')
+            ->whereIn('topics.class_id', $classes->pluck('id'))
+            ->where('lessons.status', 'published')
+            ->select('topics.class_id', 'lessons.language')
+            ->distinct()
+            ->get()
+            ->groupBy('class_id')
+            ->map(fn ($rows) => $rows->pluck('language')->filter()->unique()->values()->all());
+
+        $viewerLanguage = ContentLanguage::current();
+
+        $classes->each(function ($class) use ($classIdsWithSubjects, $classIdsWithLessons, $languagesByClass, $viewerLanguage) {
             $class->has_content = in_array($class->id, $classIdsWithSubjects) && in_array($class->id, $classIdsWithLessons);
+            $class->content_languages = $languagesByClass->get($class->id, []);
+            $class->has_content_in_viewer_language = in_array($viewerLanguage, $class->content_languages, true);
         });
 
         $enrolledClassIds = ClassEnrollment::where('student_id', $studentId)
@@ -128,6 +145,10 @@ class StudentLessonController extends Controller
         $totalLessons = 0;
         $completedLessons = 0;
 
+        // Each language is its own learning track: only lessons and study
+        // materials taught in the language the student has selected are listed.
+        $viewerLanguage = ContentLanguage::viewerLanguage();
+
         foreach ($enrollments as $enrollment) {
             $class = $enrollment->class;
             if (!$class)
@@ -137,12 +158,23 @@ class StudentLessonController extends Controller
             $className = $class->name;
 
             if (!isset($groupedLessons[$className])) {
+                // Languages this class has published lessons in (for the
+                // "nothing in your language yet" hint in the view).
+                $availableLanguages = Lesson::whereHas('topic', fn($q) => $q->where('class_id', $class->id))
+                    ->where('status', 'published')
+                    ->distinct()
+                    ->pluck('language')
+                    ->filter()
+                    ->values()
+                    ->all();
+
                 $groupedLessons[$className] = [
                     'class_id' => $class->id,
                     'level' => $class->level->name ?? '',
                     'class_paid' => $classPaid,
                     'class_pending' => !$classPaid,
                     'enrollment' => $enrollment,
+                    'available_languages' => $availableLanguages,
                     'subjects' => [],
                 ];
             }
@@ -157,6 +189,7 @@ class StudentLessonController extends Controller
             ])
                 ->whereHas('topic', fn($q) => $q->where('class_id', $class->id))
                 ->where('status', 'published')
+                ->inLanguage($viewerLanguage)
                 ->orderBy('lesson_order')
                 ->get();
 
@@ -205,6 +238,7 @@ class StudentLessonController extends Controller
                 $lesson->quiz_count = Exam::where('lesson_id', $lesson->id)
                     ->where('exam_type', 'quiz')
                     ->where('status', 'published')
+                    ->inLanguage($viewerLanguage)
                     ->count();
 
                 $groupedLessons[$className]['subjects'][$subjectName]['topics'][$topicName]['lessons'][] = $lesson;
@@ -216,6 +250,7 @@ class StudentLessonController extends Controller
             $materials = \App\Models\Academic\SubjectMaterial::with(['subject', 'materialPayments'])
                 ->where('class_id', $class->id)
                 ->where('status', 'active')
+                ->inLanguage($viewerLanguage)
                 ->orderBy('sort_order')
                 ->get();
 
@@ -301,6 +336,10 @@ class StudentLessonController extends Controller
 
         $lesson = Lesson::findOrFail($request->lesson_id);
 
+        if (!ContentLanguage::allows($lesson->language)) {
+            return $this->languageMismatchJson($lesson->language);
+        }
+
         if ((float) $request->amount < (float) $request->required_amount) {
             return response()->json([
                 'success' => false,
@@ -324,6 +363,19 @@ class StudentLessonController extends Controller
     {
 
         $studentId = session('LoggedStudent');
+
+        // A lesson taught in another language is not part of this student's
+        // current learning track.
+        if (!ContentLanguage::allows($lesson->language)) {
+            return redirect()->route('student.lessons.lists')
+                ->with('error', ContentLanguage::mismatchMessage($lesson->language));
+        }
+
+        // Drafts / archived lessons are never visible to students.
+        if ($lesson->status !== 'published') {
+            return redirect()->route('student.lessons.lists')
+                ->with('error', 'This lesson is not available.');
+        }
 
         $lesson->loadMissing('topic.class');
         $classId = $lesson->topic->class_id ?? null;
@@ -388,12 +440,14 @@ class StudentLessonController extends Controller
 
         // Prev / next lessons in the same topic
         $prevLesson = Lesson::where('topic_id', $lesson->topic_id)
+            ->where('language', $lesson->language)
             ->where('lesson_order', '<', $lesson->lesson_order)
             ->where('status', 'published')
             ->orderBy('lesson_order', 'desc')
             ->first();
 
         $nextLesson = Lesson::where('topic_id', $lesson->topic_id)
+            ->where('language', $lesson->language)
             ->where('lesson_order', '>', $lesson->lesson_order)
             ->where('status', 'published')
             ->orderBy('lesson_order')
@@ -417,6 +471,10 @@ class StudentLessonController extends Controller
     // ── Start a lesson (mark in_progress) ────────────────────────────
     public function startLesson(Request $request, Lesson $lesson)
     {
+        if (!ContentLanguage::allows($lesson->language)) {
+            return $this->languageMismatchJson($lesson->language);
+        }
+
         $studentId = session('LoggedStudent');
 
         $existing = StudentProgress::where('student_id', $studentId)
@@ -440,6 +498,10 @@ class StudentLessonController extends Controller
     // ── Mark lesson complete ──────────────────────────────────────────
     public function completeLesson(Request $request, Lesson $lesson)
     {
+        if (!ContentLanguage::allows($lesson->language)) {
+            return $this->languageMismatchJson($lesson->language);
+        }
+
         $studentId = session('LoggedStudent');
 
         $progress = StudentProgress::updateOrCreate(
@@ -458,6 +520,10 @@ class StudentLessonController extends Controller
     // ── Update progress (position, time spent) ───────────────────────
     public function updateProgress(Request $request, Lesson $lesson)
     {
+        if (!ContentLanguage::allows($lesson->language)) {
+            return $this->languageMismatchJson($lesson->language);
+        }
+
         $studentId = session('LoggedStudent');
 
         $existing = StudentProgress::where('student_id', $studentId)
@@ -503,5 +569,19 @@ class StudentLessonController extends Controller
         $enrollment->save();
 
         return response()->json(['success' => true, 'message' => 'Class activated successfully.']);
+    }
+
+    /**
+     * JSON 403 for AJAX endpoints when a student asks for something taught in
+     * a different language than the one they currently have selected.
+     */
+    protected function languageMismatchJson(?string $contentLanguage)
+    {
+        return response()->json([
+            'success' => false,
+            'language_mismatch' => true,
+            'content_language' => $contentLanguage,
+            'message' => ContentLanguage::mismatchMessage($contentLanguage),
+        ], 403);
     }
 }

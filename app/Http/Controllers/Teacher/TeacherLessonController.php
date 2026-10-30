@@ -13,9 +13,12 @@ use App\Models\Academic\Subject;
 use Illuminate\Http\Request;
 use App\Models\Academic\ClassStudent;
 use App\Models\Academic\StudentProgress;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Academic\Exam;
+use App\Support\ContentLanguage;
+use App\Support\ContentStorage;
 
 
 class TeacherLessonController extends Controller
@@ -62,8 +65,22 @@ class TeacherLessonController extends Controller
 
     public function store(Request $request)
     {
+        $creatingTopic = $request->boolean('create_new_topic');
+
         $validator = Validator::make($request->all(), [
-            'topic_id' => 'required|exists:topics,id',
+            // Either pick an existing topic, or ask for a new one to be created
+            // together with the lesson (the "Create New Topic" box on the form).
+            'topic_id' => 'required_without:create_new_topic|nullable|exists:topics,id',
+            'create_new_topic' => 'nullable|boolean',
+            'class_id' => 'required_with:create_new_topic|nullable|exists:classes,id',
+            'subject_id' => 'required_with:create_new_topic|nullable|exists:subjects,id',
+            'new_topic_title' => 'required_with:create_new_topic|nullable|string|max:255',
+            'new_topic_title_arabic' => 'nullable|string|max:255',
+            'new_topic_learning_objectives' => 'nullable|string',
+            'new_topic_description' => 'nullable|string',
+            // The language this lesson is taught in. Students only see it when
+            // they have this language selected.
+            'language' => 'required|' . ContentLanguage::rule(),
             'title' => 'required|string|max:255',
             'title_arabic' => 'nullable|string|max:255',
             'description' => 'nullable|string',
@@ -85,30 +102,51 @@ class TeacherLessonController extends Controller
             ], 422);
         }
 
-        // Create lesson
-        $lesson = Lesson::create([
-            'topic_id' => $request->topic_id,
-            'teacher_id' => Session('LoggedTeacher'),
-            'title' => $request->title,
-            'title_arabic' => $request->title_arabic,
-            'description' => $request->description,
-            'notes' => $request->notes,
-            'lesson_type' => $request->lesson_type,
-            'video_url' => $request->video_url,
-            'audio_url' => $request->audio_url,
-            'duration' => $request->duration,
-            'lesson_order' => $request->lesson_order ?? (Lesson::where('topic_id', $request->topic_id)->max('lesson_order') + 1),
-            'status' => $request->status,
-            'lesson_amount' => $request->lesson_amount,
-            'published_at' => $request->status === 'published' ? now() : null,
-        ]);
+        // New topic requested: the teacher must teach this class + subject.
+        $topicId = $request->topic_id;
+
+        if ($creatingTopic) {
+            $teaches = DB::table('class_subjects')
+                ->where('class_id', $request->class_id)
+                ->where('subject_id', $request->subject_id)
+                ->where('teacher_id', Session('LoggedTeacher'))
+                ->exists();
+
+            if (!$teaches) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You are not assigned to teach this subject in this class.',
+                ], 403);
+            }
+        }
+
+        // Create lesson (and its new topic, if any) as one unit so a failure
+        // never leaves an empty topic behind.
+        $lesson = DB::transaction(function () use ($request, $creatingTopic, &$topicId) {
+            if ($creatingTopic) {
+                $topicId = Topic::create([
+                    'class_id' => $request->class_id,
+                    'subject_id' => $request->subject_id,
+                    'title' => $request->new_topic_title,
+                    'title_arabic' => $request->new_topic_title_arabic,
+                    'learning_objectives' => $request->new_topic_learning_objectives,
+                    'description' => $request->new_topic_description,
+                    'order_no' => (Topic::where('class_id', $request->class_id)
+                        ->where('subject_id', $request->subject_id)
+                        ->max('order_no') ?? 0) + 1,
+                    'status' => 'published',
+                ])->id;
+            }
+
+            return $this->createLessonRecord($request, $topicId);
+        });
 
         // Handle file uploads as resources
         if ($request->hasFile('resources')) {
             foreach ($request->file('resources') as $index => $fileData) {
                 if (isset($fileData['file']) && $fileData['file']->isValid()) {
                     $file = $fileData['file'];
-                    $path = $file->store('lessons/' . $lesson->id, 'public');
+                    $path = ContentStorage::store($file, 'lessons/' . $lesson->id);
 
                     LessonResource::create([
                         'lesson_id' => $lesson->id,
@@ -126,7 +164,7 @@ class TeacherLessonController extends Controller
         // Handle single file upload (from the old modal)
         if ($request->hasFile('lesson_file')) {
             $file = $request->file('lesson_file');
-            $path = $file->store('lessons/' . $lesson->id, 'public');
+            $path = ContentStorage::store($file, 'lessons/' . $lesson->id);
 
             $type = match ($file->getMimeType()) {
                 'video/mp4', 'video/webm', 'video/ogg' => 'video',
@@ -237,11 +275,13 @@ class TeacherLessonController extends Controller
         ]);
 
         $prevLesson = Lesson::where('topic_id', $lesson->topic_id)
+            ->where('language', $lesson->language)
             ->where('lesson_order', '<', $lesson->lesson_order)
             ->orderBy('lesson_order', 'desc')
             ->first();
 
         $nextLesson = Lesson::where('topic_id', $lesson->topic_id)
+            ->where('language', $lesson->language)
             ->where('lesson_order', '>', $lesson->lesson_order)
             ->orderBy('lesson_order', 'asc')
             ->first();
@@ -271,6 +311,29 @@ class TeacherLessonController extends Controller
     }
 
 
+    /** Insert the lesson row (called inside the store() transaction). */
+    private function createLessonRecord(Request $request, $topicId): Lesson
+    {
+        return Lesson::create([
+            'topic_id' => $topicId,
+            'teacher_id' => Session('LoggedTeacher'),
+            'language' => $request->language,
+            'title' => $request->title,
+            'title_arabic' => $request->title_arabic,
+            'description' => $request->description,
+            'notes' => $request->notes,
+            'lesson_type' => $request->lesson_type,
+            'video_url' => $request->video_url,
+            'audio_url' => $request->audio_url,
+            'duration' => $request->duration,
+            // Numbering restarts for every language: Lesson 1 in Luganda is not Lesson 11 because English has ten.
+            'lesson_order' => $request->lesson_order ?? (Lesson::where('topic_id', $topicId)->where('language', $request->language)->max('lesson_order') + 1),
+            'status' => $request->status,
+            'lesson_amount' => $request->lesson_amount,
+            'published_at' => $request->status === 'published' ? now() : null,
+        ]);
+    }
+
     public function storeTopic(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -292,7 +355,7 @@ class TeacherLessonController extends Controller
         $isAssigned = ClassModel::find($request->class_id)
             ->subjects()
             ->where('subjects.id', $request->subject_id)
-            ->where('class_subjects.teacher_id', auth()->id())
+            ->where('class_subjects.teacher_id', Session('LoggedTeacher'))
             ->exists();
 
         if (!$isAssigned) {
@@ -513,6 +576,7 @@ class TeacherLessonController extends Controller
 
         $validator = Validator::make($request->all(), [
             'topic_id' => 'required|exists:topics,id',
+            'language' => 'required|' . ContentLanguage::rule(),
             'title' => 'required|string|max:255',
             'title_arabic' => 'nullable|string|max:255',
             'description' => 'nullable|string',
@@ -531,9 +595,23 @@ class TeacherLessonController extends Controller
             ], 422);
         }
 
+        // Moving a lesson to another language would silently move every
+        // student's progress with it, so it is only allowed while nobody has
+        // started it. (Admins can still force it: php artisan content:set-language)
+        $languageChanged = $request->language !== $lesson->language;
+
+        if ($languageChanged && StudentProgress::where('lesson_id', $lesson->id)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Students have already started this lesson, so its language can no longer be changed. Create a new lesson in the other language instead.',
+                'errors' => ['language' => ['The language of a lesson that students have started cannot be changed.']],
+            ], 422);
+        }
+
         // Update lesson
         $lesson->update([
             'topic_id' => $request->topic_id,
+            'language' => $request->language,
             'title' => $request->title,
             'title_arabic' => $request->title_arabic,
             'description' => $request->description,
@@ -546,10 +624,15 @@ class TeacherLessonController extends Controller
             'published_at' => $request->status === 'published' && $lesson->status !== 'published' ? now() : $lesson->published_at,
         ]);
 
+        // Quizzes attached to this lesson always follow the lesson's language.
+        if ($languageChanged) {
+            Exam::where('lesson_id', $lesson->id)->update(['language' => $request->language]);
+        }
+
         // Handle new file upload if present
         if ($request->hasFile('lesson_file')) {
             $file = $request->file('lesson_file');
-            $path = $file->store('lessons/' . $lesson->id, 'public');
+            $path = ContentStorage::store($file, 'lessons/' . $lesson->id);
 
             $type = match ($file->getMimeType()) {
                 'video/mp4', 'video/webm', 'video/ogg' => 'video',
@@ -560,7 +643,7 @@ class TeacherLessonController extends Controller
 
             $oldResource = $lesson->resources()->where('is_required', true)->first();
             if ($oldResource) {
-                Storage::disk('public')->delete($oldResource->file_path);
+                ContentStorage::delete($oldResource->file_path);
                 $oldResource->delete();
             }
 
@@ -651,7 +734,7 @@ class TeacherLessonController extends Controller
 
         // Delete all resources files
         foreach ($lesson->resources as $resource) {
-            Storage::disk('public')->delete($resource->file_path);
+            ContentStorage::delete($resource->file_path);
             $resource->delete();
         }
 

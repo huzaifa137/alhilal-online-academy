@@ -649,7 +649,7 @@
 
                         <h1
                             style="font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 700; margin-bottom: 12px;">
-                            {{ $lesson->title }}
+                            {{ $lesson->title }}@include('partials.content-language-badge', ['code' => $lesson->language])
                         </h1>
 
                         @if($lesson->title_arabic)
@@ -1130,7 +1130,7 @@
                                 @if($lesson->resources && $lesson->resources->count() > 0)
                                     @foreach($lesson->resources as $resource)
                                         <div class="resource-card"
-                                            onclick="previewResource({{ $resource->id }}, '{{ addslashes($resource->title) }}', '{{ $resource->type }}', '{{ Storage::url($resource->file_path) }}')">
+                                            onclick="previewResource({{ $resource->id }}, '{{ addslashes($resource->title) }}', '{{ $resource->type }}', '{{ $resource->secure_url }}')">
                                             <div style="display: flex; align-items: center; gap: 18px;">
                                                 <div
                                                     style="width: 52px; height: 52px; background: linear-gradient(135deg, var(--purple-light) 0%, var(--purple) 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 10px rgba(107,70,193,0.2);">
@@ -1166,10 +1166,10 @@
                                                 <div style="display: flex; gap: 8px;">
                                                     <button class="nav-button preview-btn"
                                                         style="padding: 8px 18px; font-size: 0.75rem;"
-                                                        onclick="event.stopPropagation(); previewResource({{ $resource->id }}, '{{ addslashes($resource->title) }}', '{{ $resource->type }}', '{{ Storage::url($resource->file_path) }}')">
+                                                        onclick="event.stopPropagation(); previewResource({{ $resource->id }}, '{{ addslashes($resource->title) }}', '{{ $resource->type }}', '{{ $resource->secure_url }}')">
                                                         <i class="fas fa-eye"></i> Preview
                                                     </button>
-                                                    <a href="{{ Storage::url($resource->file_path) }}" download class="nav-button"
+                                                    <a href="{{ $resource->secure_url }}?download=1" download class="nav-button"
                                                         style="padding: 8px 18px; font-size: 0.75rem;"
                                                         onclick="event.stopPropagation()">
                                                         <i class="fas fa-download"></i> Download

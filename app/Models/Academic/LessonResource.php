@@ -24,6 +24,20 @@ class LessonResource extends Model
     }
     
     // Accessors
+
+    /**
+     * Where a browser may fetch this file. Files live on a private disk, so
+     * the link goes through the access-checked ContentFileController.
+     */
+    public function getSecureUrlAttribute(): ?string
+    {
+        if (!$this->file_path) {
+            return $this->external_url;
+        }
+
+        return route('content.resource', $this->id);
+    }
+    
     public function getIconClassAttribute(): string
     {
         return match($this->type) {

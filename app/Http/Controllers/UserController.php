@@ -304,6 +304,7 @@ class UserController extends Controller
                         $query->where('lessons.status', 'published')
                             ->whereNotNull('lessons.published_at')
                             ->where('lessons.published_at', '<=', now())
+                            ->forViewerLanguage()
                             ->orderBy('lessons.lesson_order')
                             ->withCount(['exams as quiz_count' => function ($q) {
                                 $q->where('exams.exam_type', 'quiz');

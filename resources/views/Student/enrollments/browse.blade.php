@@ -461,6 +461,15 @@
                             @endif
                             <div class="en-card-icon"><i class="fas fa-chalkboard"></i></div>
                             <div class="en-card-name">{{ $class->name }}</div>
+                            @if(!empty($class->content_languages))
+                                <div class="en-card-langs" style="font-size:11px;opacity:.8;margin:2px 0 4px;">
+                                    <i class="fas fa-language"></i>
+                                    {{ collect($class->content_languages)->map(fn ($c) => \App\Support\ContentLanguage::native($c))->implode(' · ') }}
+                                    @if(\App\Support\ContentLanguage::isLocked() && !$class->has_content_in_viewer_language)
+                                        <br><em>{{ __('No lessons in :language yet.', ['language' => \App\Support\ContentLanguage::native(\App\Support\ContentLanguage::current())]) }}</em>
+                                    @endif
+                                </div>
+                            @endif
                             <div class="en-card-level">
                                 <i class="fas fa-graduation-cap"></i>
                                 {{ $class->level->name ?? 'General' }}

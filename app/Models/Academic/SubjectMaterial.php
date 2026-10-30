@@ -2,6 +2,7 @@
 
 namespace App\Models\Academic;
 
+use App\Models\Concerns\HasContentLanguage;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,8 +10,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SubjectMaterial extends Model
 {
+    use HasContentLanguage;
+
     protected $fillable = [
-        'class_id', 'subject_id', 'teacher_id',
+        'class_id', 'subject_id', 'teacher_id', 'language',
         'title', 'description', 'type', 'file_path',
         'file_size', 'amount', 'sort_order', 'status',
     ];
@@ -82,6 +85,13 @@ class SubjectMaterial extends Model
     }
 
     // ── Accessors ───────────────────────────────────────────────────
+
+    /** Access-checked link to the PDF (the file itself lives on a private disk). */
+    public function getSecureUrlAttribute(): string
+    {
+        return route('content.material', $this->id);
+    }
+
     public function getIconClassAttribute(): string
     {
         return match ($this->type) {

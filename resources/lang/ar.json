@@ -1291,5 +1291,16 @@
  "· {#1} min": "· {1} دقيقة",
  "· UGX {1}": "· {1} UGX",
  "· {#1} KB": "· {1} كيلوبايت",
- "{#1} MB": "{1} ميغابايت"
+ "{#1} MB": "{1} ميغابايت",
+ "This content is taught in :language. Switch the site language to :language to open it.": "يُدرَّس هذا المحتوى باللغة :language. غيّر لغة الموقع إلى :language لفتحه.",
+ "No lessons in :language yet.": "لا توجد دروس باللغة :language بعد.",
+ "Available in:": "متاح باللغة:",
+ "This class has no published lessons in :language yet.": "لا توجد دروس منشورة لهذا الصف باللغة :language بعد.",
+ "Teaching Language": "لغة التدريس",
+ "-- Select teaching language --": "-- اختر لغة التدريس --",
+ "Please choose the language this lesson is taught in.": "يرجى اختيار اللغة التي يُدرَّس بها هذا الدرس.",
+ "Please fill in the class, subject, teaching language, title, and choose a PDF file.": "يرجى ملء الصف والمادة ولغة التدريس والعنوان واختيار ملف PDF.",
+ "Students have already started this lesson, so its language can no longer be changed. Create a new lesson in the other language instead.": "بدأ الطلاب هذا الدرس بالفعل، لذا لا يمكن تغيير لغته. أنشئ درسًا جديدًا باللغة الأخرى.",
+ "The language of a lesson that students have started cannot be changed.": "لا يمكن تغيير لغة درس بدأه الطلاب.",
+ "Students have already taken this quiz, so its language can no longer be changed. Create a new quiz in the other language instead.": "أجرى الطلاب هذا الاختبار بالفعل، لذا لا يمكن تغيير لغته. أنشئ اختبارًا جديدًا باللغة الأخرى."
 }

@@ -451,6 +451,18 @@
                     @csrf
                     @method('PUT')
 
+                    @if($exam->lesson_id)
+                        <p style="margin-bottom:14px;color:#64748b;font-size:13px;">
+                            Teaching language: <strong>{{ \App\Support\ContentLanguage::native($exam->language) }}</strong>
+                            (follows the lesson)
+                        </p>
+                    @else
+                        <div class="fg">
+                            <label>Teaching Language <span class="required">*</span></label>
+                            @include('partials.content-language-select', ['name' => 'language', 'id' => 'quizLanguage', 'selected' => $exam->language])
+                        </div>
+                    @endif
+
                     <div class="fg">
                         <label>Quiz Title <span class="required">*</span></label>
                         <input type="text" name="title" value="{{ $exam->title }}" required>

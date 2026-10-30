@@ -1621,6 +1621,16 @@
                                                     <span class="sl-class-level"><i class="fas fa-graduation-cap"></i>
                                                         {{ $classData['level'] }}</span>
                                                 @endif
+                                                @if(empty($classData['subjects']) && \App\Support\ContentLanguage::isLocked())
+                                                    <span class="sl-class-level" style="display:block;margin-top:4px;">
+                                                        <i class="fas fa-language"></i>
+                                                        {{ __('No lessons in :language yet.', ['language' => \App\Support\ContentLanguage::native(\App\Support\ContentLanguage::current())]) }}
+                                                        @if(!empty($classData['available_languages']))
+                                                            {{ __('Available in:') }}
+                                                            {{ collect($classData['available_languages'])->map(fn ($c) => \App\Support\ContentLanguage::native($c))->implode(', ') }}
+                                                        @endif
+                                                    </span>
+                                                @endif
                                             </div>
                                         </div>
                                         <div class="sl-class-header-right">
@@ -1857,7 +1867,7 @@
                                                         </div>
                                                     </div>
                                                     @if($canOpenMaterial)
-                                                        <a href="{{ \Illuminate\Support\Facades\Storage::url($material->file_path) }}"
+                                                        <a href="{{ $material->secure_url }}"
                                                             target="_blank" class="sl-material-btn">
                                                             <i class="fas fa-download"></i> Open
                                                         </a>

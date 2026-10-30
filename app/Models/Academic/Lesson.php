@@ -2,6 +2,7 @@
 
 namespace App\Models\Academic;
 
+use App\Models\Concerns\HasContentLanguage;
 use App\Models\User;
 use App\Models\Academic\StudentProgress;
 use Illuminate\Database\Eloquent\Model;
@@ -10,11 +11,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Lesson extends Model
 {
+    use HasContentLanguage;
+
 protected $fillable = [
     'topic_id', 'teacher_id', 'title', 'title_arabic', 'description',
     'notes', 'lesson_type', 'video_url', 'audio_url', 'pdf_file',
     'duration', 'lesson_order', 'status', 'published_at',
-    'lesson_amount', 'lesson_payment_status'
+    'lesson_amount', 'lesson_payment_status', 'language'
 ];
     
 protected $casts = [
@@ -98,6 +101,7 @@ protected $casts = [
     public function getNextLesson(): ?self
     {
         return self::where('topic_id', $this->topic_id)
+                   ->where('language', $this->language)
                    ->where('lesson_order', '>', $this->lesson_order)
                    ->orderBy('lesson_order')
                    ->first();
@@ -106,6 +110,7 @@ protected $casts = [
     public function getPreviousLesson(): ?self
     {
         return self::where('topic_id', $this->topic_id)
+                   ->where('language', $this->language)
                    ->where('lesson_order', '<', $this->lesson_order)
                    ->orderBy('lesson_order', 'desc')
                    ->first();

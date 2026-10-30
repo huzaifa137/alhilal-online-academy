@@ -11,6 +11,7 @@ use App\Models\Academic\MaterialPayment;
 use App\Models\Academic\SubjectMaterial;
 use App\Models\PaymentTransaction;
 use App\Services\MarzPayService;
+use App\Support\ContentLanguage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -159,6 +160,14 @@ class PaymentController extends Controller
 
         $lesson = Lesson::findOrFail($request->lesson_id);
 
+        if (!ContentLanguage::allows($lesson->language)) {
+            return response()->json([
+                'success' => false,
+                'language_mismatch' => true,
+                'message' => ContentLanguage::mismatchMessage($lesson->language),
+            ], 403);
+        }
+
         // ── Server-side price check ─────────────────────────────────────────
         // Look up the lesson's real price from the database — never trust a
         // "required_amount" value submitted by the client alongside "amount".
@@ -261,6 +270,14 @@ class PaymentController extends Controller
         }
 
         $material = SubjectMaterial::findOrFail($request->material_id);
+
+        if (!ContentLanguage::allows($material->language)) {
+            return response()->json([
+                'success' => false,
+                'language_mismatch' => true,
+                'message' => ContentLanguage::mismatchMessage($material->language),
+            ], 403);
+        }
 
         // ── Server-side price check ─────────────────────────────────────────
         // Look up the material's real price from the database — never trust a

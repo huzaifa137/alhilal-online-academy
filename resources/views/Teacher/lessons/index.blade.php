@@ -863,7 +863,7 @@
                                                         class="fas fa-{{ $lesson->lesson_type === 'video' ? 'video' : ($lesson->lesson_type === 'audio' ? 'headphones' : 'file-alt') }}"></i>
                                                 </div>
                                                 <div class="lesson-info">
-                                                    <h4>{{ Str::limit($lesson->title, 45) }}</h4>
+                                                    <h4>{{ Str::limit($lesson->title, 45) }}@include('partials.content-language-badge', ['code' => $lesson->language])</h4>
                                                     <p>{{ Str::limit($lesson->description, 55) }}</p>
                                                 </div>
                                             </div>
@@ -1069,6 +1069,11 @@
                                     <label>Duration (minutes)</label>
                                     <input type="number" id="edit_duration" name="duration" class="form-control" min="1">
                                 </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Teaching Language <span class="required">*</span></label>
+                                @include('partials.content-language-select', ['name' => 'language', 'id' => 'edit_language'])
                             </div>
 
                             <div class="form-group">
@@ -1502,6 +1507,7 @@
             document.getElementById('edit_lesson_order').value = lesson.lesson_order || '';
             document.getElementById('edit_lesson_amount').value = lesson.lesson_amount || '';
             document.getElementById('edit_status').value = lesson.status;
+            document.getElementById('edit_language').value = lesson.language || '';
 
             // Show current file
             if (lesson.resources && lesson.resources.length > 0) {
@@ -1650,7 +1656,8 @@
                 });
 
                 // 🔥 THIS is the key part
-                if (!response.ok) {
+                // 422 = validation / "language is locked" message: show it instead of replacing the page.
+                if (!response.ok && response.status !== 422) {
                     const errorText = await response.text();
                     document.body.innerHTML = errorText;
                     return;

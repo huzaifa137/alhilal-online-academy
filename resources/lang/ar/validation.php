@@ -123,6 +123,7 @@ return [
         'phonenumber'      => 'رقم الهاتف',
         'country'          => 'الدولة',
         'title'            => 'العنوان',
+        'language'            => 'لغة التدريس',
         'description'      => 'الوصف',
     ],
 ];
