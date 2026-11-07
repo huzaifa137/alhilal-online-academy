@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Academic\ClassEnrollment;
 use App\Models\Academic\ClassModel;
 use App\Services\ReportCardService;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\ArabicPdf;
 
 class ReportCardController extends Controller
 {
@@ -115,8 +115,13 @@ class ReportCardController extends Controller
                 ->with('fail', 'Report card is not available for this class yet.');
         }
 
-        $pdf = Pdf::loadView('Student.report-card.template', $data)
-            ->setPaper('a4', 'portrait');
+        $pdf = ArabicPdf::make([
+            'margin_left'   => 16,
+            'margin_right'  => 16,
+            'margin_top'    => 12,
+            'margin_bottom' => 12,
+            'background'    => public_path('assets/images/report-card-frame.png'),
+        ])->view('Student.report-card.template', $data);
 
         $fileName = 'ReportCard-' . str_replace(['/', '\\', ' '], '-', $data['reportNo']) . '.pdf';
 

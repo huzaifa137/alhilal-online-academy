@@ -7,7 +7,7 @@ use App\Models\Certificate;
 use App\Models\Academic\ClassModel;
 use App\Services\CertificateService;
 use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\ArabicPdf;
 
 class CertificateController extends Controller
 {
@@ -101,8 +101,16 @@ class CertificateController extends Controller
 
         $data = $this->buildCertificateData($certificate);
 
-        $pdf = Pdf::loadView('Student.certificates.template', $data)
-            ->setPaper('a4', 'landscape');
+        $pdf = ArabicPdf::make([
+            'orientation'   => 'L',
+            'single_page'   => true,
+            'margin_left'   => 40,
+            'margin_right'  => 16,
+            'margin_top'    => 11,
+            'margin_bottom' => 8,
+            'background'    => public_path('assets/images/certificate-frame.png'),
+        ])
+            ->view('Student.certificates.template', $data);
 
         $fileName = 'Certificate-' . str_replace(['/', '\\', ' '], '-', $certificate->certificate_no) . '.pdf';
 

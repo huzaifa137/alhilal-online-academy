@@ -39,21 +39,33 @@ class ArabicPdf
         $fontDirs = (new ConfigVariables())->getDefaults()['fontDir'];
         $fontData = (new FontVariables())->getDefaults()['fontdata'];
 
-        // Optional nicer Arabic fonts: drop Amiri-Regular.ttf / Amiri-Bold.ttf
-        // (or Cairo / Tajawal) into resources/fonts and they are picked up.
-        $customDir = resource_path('fonts');
-        if (is_dir($customDir)) {
+        // Arabic fonts: Amiri already ships in public/assets/fonts (used by the old
+        // dompdf templates). resources/fonts is also checked for overrides.
+        foreach ([public_path('assets/fonts'), resource_path('fonts')] as $customDir) {
+            if (! is_dir($customDir)) {
+                continue;
+            }
+
             $fontDirs[] = $customDir;
 
-            if (is_file($customDir . '/Amiri-Regular.ttf')) {
+            if (! isset($fontData['amiri']) && is_file($customDir . '/Amiri-Regular.ttf')) {
                 $fontData['amiri'] = [
                     'R'          => 'Amiri-Regular.ttf',
                     'B'          => is_file($customDir . '/Amiri-Bold.ttf') ? 'Amiri-Bold.ttf' : 'Amiri-Regular.ttf',
-                    'useOTL'     => 0xFF,
-                    'useKashida' => 75,
+                    'useOTL'     => 0,
                 ];
             }
         }
+
+        // 'single_page' => true stops mPDF adding a blank 2nd page when the page is
+        // built from absolutely-positioned layers (certificates).
+        $singlePage = (bool) ($options['single_page'] ?? false);
+        unset($options['single_page']);
+
+        // 'background' => '/abs/path/image.png' paints one image over the whole page
+        // behind the content (used for the certificate frame).
+        $background = $options['background'] ?? null;
+        unset($options['background']);
 
         $config = array_merge([
             'mode'              => 'utf-8',
@@ -76,6 +88,15 @@ class ArabicPdf
 
         $this->mpdf = new Mpdf($config);
         $this->mpdf->autoArabic = true;
+
+        if ($background && is_file($background)) {
+            $this->mpdf->SetDefaultBodyCSS('background', "url('" . $background . "')");
+            $this->mpdf->SetDefaultBodyCSS('background-image-resize', 6);
+        }
+
+        if ($singlePage) {
+            $this->mpdf->SetAutoPageBreak(false);
+        }
         $this->mpdf->SetDisplayMode('fullpage');
     }
 

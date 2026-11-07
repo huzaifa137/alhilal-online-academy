@@ -2,45 +2,21 @@
 
 namespace App\Services;
 
-use ArPHP\I18N\Arabic;
-
 /**
- * DomPDF does not perform Arabic contextual letter-shaping (initial /
- * medial / final / isolated forms) or bidi reordering on its own — Arabic
- * text passed to it verbatim renders as disconnected, reversed letters.
- *
- * We fix that by pre-processing every Arabic string through Ar-PHP's
- * Glyphs engine (khaled.alshamaa/ar-php) before it reaches the Blade
- * view, which reshapes + reorders the text into the visual form dompdf
- * is able to draw correctly with a regular (non-shaping) Arabic font
- * such as Amiri or Tajawal.
+ * PDFs are now built with mPDF (see App\Services\ArabicPdf), which shapes and
+ * reorders Arabic itself. Text must therefore reach the view UNTOUCHED:
+ * pre-shaping it with ar-php (utf8Glyphs) makes mPDF shape it a second time and
+ * the letters come out broken again.
  */
 class ArabicTextService
 {
-    private static ?Arabic $engine = null;
-
     /**
-     * Shape an Arabic (or mixed Arabic/Latin) string for correct rendering
-     * inside a dompdf-generated PDF. Safe to call on empty/null strings.
+     * Kept for backwards compatibility with the ar() helper; intentionally a
+     * no-op now (mPDF does the shaping).
      */
     public static function shape(?string $text): string
     {
-        if ($text === null || trim($text) === '') {
-            return (string) $text;
-        }
-
-        // If Ar-PHP hasn't been installed yet (composer update not run),
-        // fail gracefully and just return the original text rather than
-        // fatal-erroring the whole certificate.
-        if (!class_exists(Arabic::class)) {
-            return $text;
-        }
-
-        if (self::$engine === null) {
-            self::$engine = new Arabic('Glyphs');
-        }
-
-        return self::$engine->utf8Glyphs($text);
+        return (string) $text;
     }
 
     /**
