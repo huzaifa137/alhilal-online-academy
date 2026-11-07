@@ -1725,6 +1725,9 @@
 
                 {{-- With this: --}}
                 {{-- Replace your current dropdown div with this --}}
+                {{-- Play Store link (quick copy) --}}
+                <x-app-download-card variant="compact" />
+
                 {{-- Language switcher --}}
                 @include('partials.language-switcher')
 

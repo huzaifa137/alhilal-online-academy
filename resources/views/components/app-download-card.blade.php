@@ -21,7 +21,8 @@
     .aha-app__btn--wa { background: #25d366; color: #073b1d; }
     .aha-app__btn--play { background: #fff; color: #3a1f8f; border: 1px solid #c9c0ea; }
     .aha-app--compact { display: inline-flex; gap: 6px; align-items: center; }
-    .aha-app--compact .aha-app__btn { padding: 6px 10px; font-size: 12px; }
+    .aha-app--compact .aha-app__btn { padding: 7px 12px; font-size: 12px; white-space: nowrap; }
+    @@media (max-width: 700px) { .aha-app__label--hide-sm { display: none; } }
 </style>
 <script>
     (function () {
@@ -65,10 +66,10 @@
 
 @if ($variant === 'compact')
     <span class="aha-app aha-app--compact">
-        <button type="button" class="aha-app__btn aha-app__btn--copy" data-aha-copy="{{ $link }}" title="Copy the Play Store link">
-            <span class="aha-app__label">Copy app link</span>
+        <button type="button" class="aha-app__btn aha-app__btn--copy" data-aha-copy="{{ $link }}" title="Copy the Google Play link of our app">
+            <i class="fab fa-google-play"></i>
+            <span class="aha-app__label aha-app__label--hide-sm">Copy app link</span>
         </button>
-        <a class="aha-app__btn aha-app__btn--play" href="{{ $link }}" target="_blank" rel="noopener">Play Store</a>
     </span>
 @else
     <div class="aha-app aha-app--card">
@@ -77,10 +78,10 @@
         <div class="aha-app__row">
             <input id="{{ $inputId }}" class="aha-app__input" type="text" readonly value="{{ $link }}" onfocus="this.select()">
             <button type="button" class="aha-app__btn aha-app__btn--copy" data-aha-copy="{{ $link }}">
-                <span class="aha-app__label">Copy link</span>
+                <i class="fas fa-copy"></i> <span class="aha-app__label">Copy link</span>
             </button>
-            <a class="aha-app__btn aha-app__btn--wa" href="{{ $waShare }}" target="_blank" rel="noopener">Share on WhatsApp</a>
-            <a class="aha-app__btn aha-app__btn--play" href="{{ $link }}" target="_blank" rel="noopener">Open Play Store</a>
+            <a class="aha-app__btn aha-app__btn--wa" href="{{ $waShare }}" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> Share on WhatsApp</a>
+            <a class="aha-app__btn aha-app__btn--play" href="{{ $link }}" target="_blank" rel="noopener"><i class="fab fa-google-play"></i> Open Play Store</a>
         </div>
     </div>
 @endif

@@ -1237,6 +1237,9 @@
 
 @section('content')
 
+    {{-- ── GET THE APP (Play Store link) ── --}}
+    <x-app-download-card />
+
     {{-- ── COMMAND BANNER ── --}}
     <div class="command-banner">
         <div class="banner-bg-grid"></div>

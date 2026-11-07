@@ -1739,7 +1739,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 // ── WhatsApp ──────────────────────────────────────────────
 document.getElementById('whatsappChat').addEventListener('click', e => {
     e.preventDefault();
-    window.open('https://wa.me/256760808570?text=' + encodeURIComponent('Assalamu Alaikum! I need assistance with my lessons on Al-Hilaal Online Academy.'), '_blank');
+    window.open('https://wa.me/256760808570?text=' + encodeURIComponent('Assalamu Alaikum! I need assistance with my lessons on Al-Hilaal Online Academy.\n\nGet our app on Google Play: ' + @json(config('academy.play_store_url'))), '_blank');
 });
 
 // ── Contact form ──────────────────────────────────────────

@@ -569,6 +569,9 @@
 
 @section('content')
 
+    {{-- ── GET THE APP (Play Store link) ── --}}
+    <x-app-download-card />
+
     @php
         $gradients = [
             'var(--gradient)',

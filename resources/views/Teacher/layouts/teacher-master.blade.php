@@ -2114,6 +2114,9 @@
                         <span class="dot" style="background:var(--gold);"></span>
                     </a> -->
 
+                    {{-- Play Store link (quick copy) --}}
+                    <x-app-download-card variant="compact" />
+
                     {{-- Language switcher --}}
                     @include('partials.language-switcher')
 

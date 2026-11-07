@@ -38,6 +38,9 @@
         </div>
     </div>
 
+    {{-- ── GET THE APP (Play Store link) ── --}}
+    <x-app-download-card />
+
     {{-- ── STAT CARDS ── --}}
     <div class="sd-stats-grid">
         <div class="sd-stat-card">

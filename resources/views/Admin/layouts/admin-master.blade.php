@@ -2900,6 +2900,9 @@
 
                 <div class="topbar-right">
                    
+                    {{-- Play Store link (quick copy) --}}
+                    <x-app-download-card variant="compact" />
+
                     {{-- Language switcher --}}
                     @include('partials.language-switcher')
 
