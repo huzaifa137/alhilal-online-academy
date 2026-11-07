@@ -8,22 +8,23 @@
 
 cd ~/domains/sozofurniture.com/public_html/alhilalonlineacademy
 
-# keep the live .env
 cp .env ~/alhilal.env.live
 
-# discard all server-side changes to tracked files
+OLD=$(git rev-parse HEAD)          # remember where the server was
+
 git fetch origin
 git reset --hard origin/main
 
-# put the live .env back
 cp ~/alhilal.env.live .env
+
+# show what changed (add -c color.ui=always if your terminal shows no colours)
+git -c color.ui=always diff --stat "$OLD" HEAD
 
 git status
 
-git pull origin main
-php artisan optimize:clear
-php artisan migrate --force
 composer install --no-dev --optimize-autoloader
+php artisan migrate --force
+php artisan optimize:clear
 
 
 <script type="text/javascript"></script>
