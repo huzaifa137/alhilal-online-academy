@@ -6,6 +6,25 @@
     <i class="fe fe-check"></i> Send
 </button>
 
+cd ~/domains/sozofurniture.com/public_html/alhilalonlineacademy
+
+# keep the live .env
+cp .env ~/alhilal.env.live
+
+# discard all server-side changes to tracked files
+git fetch origin
+git reset --hard origin/main
+
+# put the live .env back
+cp ~/alhilal.env.live .env
+
+git status
+
+git pull origin main
+php artisan optimize:clear
+php artisan migrate --force
+composer install --no-dev --optimize-autoloader
+
 
 <script type="text/javascript"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
