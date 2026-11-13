@@ -1076,6 +1076,10 @@ textarea.form-control-alhilal {
                 <a href="{{ url('/users/register') }}" class="btn btn-ghost">
                     <i class="fas fa-user-plus"></i> Get Started Free
                 </a>
+                <a href="#guide" class="hero-watch">
+                    <span class="hero-watch-icon"><i class="fas fa-play"></i></span>
+                    <span>Watch how it works</span>
+                </a>
             </div>
             <div class="hero-stats">
                 <div>
@@ -1192,6 +1196,9 @@ textarea.form-control-alhilal {
         </div>
     </div>
 </div>
+
+<!-- ════════════════════ WATCH THE GUIDE (video walkthrough) ════════════════════ -->
+@include('partials.guide-video')
 
 <!-- ════════════════════ ABOUT ════════════════════ -->
 <section class="about-section section" id="about">
