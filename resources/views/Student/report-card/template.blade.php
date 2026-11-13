@@ -85,6 +85,7 @@
         table.subjects tbody tr:nth-child(even) { background: #FBFAFF; }
 
         .subj-name { font-weight: bold; color: #16103A; }
+        .subj-ar { font-family: amiri, xbriyaz, dejavusans; font-size: 9.5pt; font-weight: normal; color: #2D1765; }
         .subj-teacher { color: #8A84A0; font-size: 7.5pt; }
 
         .pct-cell { }
@@ -241,7 +242,7 @@
                     @forelse($subjects as $subject)
                         <tr>
                             <td>
-                                <div class="subj-name">{{ $subject['name'] }}</div>
+                                <div class="subj-name">{{ $subject['name'] }}@if(!empty($subject['name_arabic'])) <span class="subj-ar">({{ $subject['name_arabic'] }})</span>@endif</div>
                                 @if($subject['teacher'])
                                     <div class="subj-teacher">{{ $subject['teacher'] }}</div>
                                 @endif

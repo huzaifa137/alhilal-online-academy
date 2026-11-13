@@ -188,6 +188,7 @@ class ReportCardService
             $subjectRows[] = [
                 'subject_id'        => $subject->id,
                 'name'              => $this->displayName($subject->name),
+                'name_arabic'       => $this->arabicName($subject->name_arabic, $subject->name),
                 'code'              => $subject->code,
                 'teacher'           => $teacherName,
                 'full_marks'        => $fullMarks,
@@ -285,6 +286,22 @@ class ReportCardService
         return trim(preg_replace('/\s{2,}/', ' ', $clean ?? $name));
     }
 
+
+    /**
+     * Arabic name shown in brackets beside the English subject name.
+     * Uses the subject's `name_arabic` column; if that is empty, falls back to
+     * Arabic written in brackets inside the English name, e.g. "Fiqh (فقه)".
+     */
+    private function arabicName(?string $arabic, ?string $name): ?string
+    {
+        $arabic = trim((string) $arabic);
+
+        if ($arabic === '' && $name && preg_match('/\(([^)]*\p{Arabic}[^)]*)\)/u', $name, $m)) {
+            $arabic = trim($m[1]);
+        }
+
+        return $arabic !== '' ? $arabic : null;
+    }
 
     public function gradeFor(?float $percentage): ?string
     {
