@@ -27,7 +27,7 @@
         ['start' => 228, 'icon' => 'fa-right-from-bracket', 'title' => 'Sign Out',           'desc' => 'Finish up and sign out safely.'],
     ];
     $guideDuration = 233; // seconds
-    $guideVideo    = asset('assets/videos/hilal-online-academy-guide.mp4');
+    $guideVideo    = asset('assets/videos/hilal-online-academy-guide.mp4') . '?v=2'; // ?v bumps the browser cache when the file is re-encoded
     $guidePoster   = asset('assets/videos/hilal-online-academy-guide-poster.jpg');
 @endphp
 
@@ -337,16 +337,19 @@
     var chapBtns = [].slice.call(document.querySelectorAll('#gdChaps .gd-chap'));
     var starts   = chapBtns.map(function (b) { return Number(b.getAttribute('data-start')); });
     var total    = {{ $guideDuration }};
-    var current  = -1;
-    var target   = null;      // second we still need to land on (chapter click / seek bar)
     var seekBar  = document.getElementById('gdSeek');
     var curLabel = document.getElementById('gdCur');
-    var dragging = false;
+    var current  = -1;
+    var pending  = null;     // a jump requested before the video had loaded its metadata
+    var scrubbing = false;   // seek bar is being dragged
+    var scrubTo  = 0;        // latest second the thumb points at
 
     function fmt(t) {
         t = Math.max(0, Math.floor(t));
         return Math.floor(t / 60) + ':' + ('0' + (t % 60)).slice(-2);
     }
+
+    function duration() { return video.duration || total; }
 
     function start() {
         stage.classList.add('is-started');
@@ -356,39 +359,9 @@
     function updateSeek(t) {
         if (!seekBar) return;
         seekBar.value = t;
-        seekBar.style.setProperty('--gd-fill', Math.min(100, (t / (video.duration || total)) * 100) + '%');
+        seekBar.style.setProperty('--gd-fill', Math.min(100, (t / duration()) * 100) + '%');
         if (curLabel) curLabel.textContent = fmt(t);
     }
-
-    // Move the playhead. If the video has not loaded far enough to seek yet,
-    // `target` is applied as soon as it can (loadedmetadata / canplay below).
-    function seekTo(seconds) {
-        target = seconds;
-        if (video.readyState >= 1) {
-            try { video.currentTime = seconds; } catch (e) {}
-        }
-    }
-
-    function playFrom(seconds) {
-        start();
-        if (seconds != null) seekTo(seconds);
-        var p = video.play();
-        if (p && p.catch) p.catch(function () {});
-    }
-
-    // Some browsers (mobile Safari / Chrome) ignore a seek made before enough
-    // data has arrived and restart from 0. Re-apply the target when they are ready.
-    function applyTarget() {
-        if (target == null) return;
-        if (Math.abs(video.currentTime - target) > 1.5) {
-            try { video.currentTime = target; } catch (e) {}
-        } else {
-            target = null;
-        }
-    }
-    video.addEventListener('loadedmetadata', applyTarget);
-    video.addEventListener('canplay', applyTarget);
-    video.addEventListener('playing', applyTarget);
 
     function render(t) {
         var idx = 0;
@@ -404,30 +377,58 @@
             });
         }
 
-        var end  = idx + 1 < starts.length ? starts[idx + 1] : (video.duration || total);
-        var pct  = Math.max(0, Math.min(100, ((t - starts[idx]) / (end - starts[idx])) * 100));
+        var end = idx + 1 < starts.length ? starts[idx + 1] : duration();
+        var pct = Math.max(0, Math.min(100, ((t - starts[idx]) / (end - starts[idx])) * 100));
         chapBtns[idx].querySelector('.gd-chap-bar i').style.width = pct + '%';
     }
 
-    playBtn.addEventListener('click', function () { playFrom(null); });
+    // Move the playhead once. If the video has not loaded its metadata yet the
+    // jump is remembered and applied a single time when it arrives.
+    function setTime(t) {
+        t = Math.max(0, Math.min(t, duration() - 0.2));
+        if (video.readyState >= 1) {
+            pending = null;
+            try { video.currentTime = t; } catch (e) { pending = t; }
+        } else {
+            pending = t;
+        }
+    }
+
+    function applyPending() {
+        if (pending == null) return;
+        var t = pending;
+        pending = null;
+        try { video.currentTime = t; } catch (e) {}
+    }
+    video.addEventListener('loadedmetadata', applyPending);
+
+    function play() {
+        start();
+        var p = video.play();
+        if (p && p.catch) p.catch(function () {});
+    }
+
+    // Jump to a second (chapter click) and keep playing from there.
+    function jumpAndPlay(t) {
+        setTime(t);
+        render(t);
+        updateSeek(t);
+        play();
+    }
+
+    playBtn.addEventListener('click', play);
     video.addEventListener('play', start);
+
     video.addEventListener('timeupdate', function () {
-        // While a seek is still pending, ignore the time the browser reports.
-        if (target != null && Math.abs(video.currentTime - target) > 1.5) return;
-        if (target != null) target = null;
+        if (scrubbing || video.seeking) return;   // the bar and chapters follow the thumb instead
         render(video.currentTime);
-        if (!dragging) updateSeek(video.currentTime);
-    });
-    video.addEventListener('seeked', function () {
-        if (target == null) { render(video.currentTime); if (!dragging) updateSeek(video.currentTime); }
+        updateSeek(video.currentTime);
     });
 
+    // Chapters
     chapBtns.forEach(function (btn) {
         btn.addEventListener('click', function () {
-            var t = Number(btn.getAttribute('data-start'));
-            playFrom(t);
-            render(t);
-            updateSeek(t);
+            jumpAndPlay(Number(btn.getAttribute('data-start')));
             // On phones the chapter list sits below the video: bring the video back into view.
             if (window.matchMedia('(max-width: 900px)').matches) {
                 stage.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -435,25 +436,55 @@
         });
     });
 
-    // Seek bar: the picture follows the thumb while it is dragged, and
-    // playback carries on from wherever it is let go.
+    // Seek bar. While dragging, the video is paused and shows the frame under the
+    // thumb. Only one seek is ever in flight (a new one starts when the last
+    // finishes), so the decoder is never flooded. On release it plays from there.
+    var lastScrub = 0, scrubTimer = null;
+    function scrubStep() {
+        if (!scrubbing || video.seeking || video.readyState < 1) return;
+        if (Math.abs(video.currentTime - scrubTo) < 0.05) return;
+        var wait = 90 - (Date.now() - lastScrub);      // at most ~10 frames a second
+        if (wait > 0) {
+            if (!scrubTimer) scrubTimer = setTimeout(function () { scrubTimer = null; scrubStep(); }, wait);
+            return;
+        }
+        lastScrub = Date.now();
+        try { video.currentTime = scrubTo; } catch (e) {}
+    }
+    video.addEventListener('seeked', scrubStep);
+
+    function beginScrub() {
+        if (scrubbing) return;
+        scrubbing = true;
+        scrubTo = Number(seekBar.value);   // a plain click on the handle must not jump anywhere
+        start();
+        if (!video.paused) video.pause();
+    }
+
+    function endScrub() {
+        if (!scrubbing) return;           // pointerup, touchend and change all land here: run once
+        scrubbing = false;
+        clearTimeout(scrubTimer); scrubTimer = null;
+        setTime(scrubTo);
+        render(scrubTo);
+        updateSeek(scrubTo);
+        play();
+    }
+
     if (seekBar) {
+        seekBar.addEventListener('pointerdown', beginScrub);
         seekBar.addEventListener('input', function () {
-            dragging = true;
-            var t = Number(seekBar.value);
-            start();
-            seekTo(t);
-            render(t);
-            updateSeek(t);
+            beginScrub();                  // also covers keyboard arrows
+            scrubTo = Number(seekBar.value);
+            render(scrubTo);
+            updateSeek(scrubTo);
+            scrubStep();
         });
-        seekBar.addEventListener('change', function () {
-            dragging = false;
-            playFrom(Number(seekBar.value));
+        seekBar.addEventListener('change', endScrub);
+        ['pointerup', 'pointercancel', 'touchend'].forEach(function (ev) {
+            seekBar.addEventListener(ev, endScrub);
         });
-        // Releasing outside the bar can skip `change` on some touch browsers.
-        ['pointerup', 'touchend', 'mouseup'].forEach(function (ev) {
-            seekBar.addEventListener(ev, function () { if (dragging) { dragging = false; playFrom(Number(seekBar.value)); } });
-        });
+        seekBar.addEventListener('blur', endScrub);
     }
 
     // Reuse the existing WhatsApp button (bottom nav) so the message and Play Store link stay in one place.
