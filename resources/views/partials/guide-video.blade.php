@@ -351,6 +351,45 @@
 
     function duration() { return video.duration || total; }
 
+    // ── Servers that cannot "jump" (no HTTP Range support, e.g. `php artisan serve`) ──
+    // A browser can only jump to a part of the video it has already downloaded.
+    // If the server cannot send partial content, we download the file once and
+    // play it from memory, where jumping always works.
+    var videoUrl  = (video.querySelector('source') || {}).src || video.currentSrc;
+    var inMemory  = false;       // already playing from a downloaded copy
+    var loadingMem = false;
+    var wantPlay  = false;       // the visitor asked for playback
+    var expected  = null;        // second a jump should land on (to verify it did)
+
+    function useDownloadedCopy(resumeAt) {
+        if (inMemory || loadingMem || !window.fetch || !window.URL) return;
+        loadingMem = true;
+        if (!video.paused) video.pause();            // do not play from the wrong spot meanwhile
+        stage.style.cursor = 'progress';
+        fetch(videoUrl).then(function (r) { return r.blob(); }).then(function (blob) {
+            inMemory = true;
+            loadingMem = false;
+            stage.style.cursor = '';
+            if (pending == null) pending = resumeAt != null ? resumeAt : 0;   // a jump asked for meanwhile wins
+            video.src = URL.createObjectURL(blob);
+            video.load();
+            video.addEventListener('loadedmetadata', function once() {
+                video.removeEventListener('loadedmetadata', once);
+                if (wantPlay && !scrubbing) play();
+            });
+        }).catch(function () { loadingMem = false; stage.style.cursor = ''; });
+    }
+
+    // Ask for 2 bytes: a server that supports jumping answers 206 Partial Content.
+    (function probeRange() {
+        if (!window.fetch || !window.AbortController) return;
+        var ac = new AbortController();
+        fetch(videoUrl, { headers: { Range: 'bytes=0-1' }, signal: ac.signal }).then(function (r) {
+            ac.abort();   // we only wanted the headers
+            if (r.status !== 206) useDownloadedCopy(0);
+        }).catch(function () {});
+    })();
+
     function start() {
         stage.classList.add('is-started');
         video.controls = true;
@@ -386,6 +425,8 @@
     // jump is remembered and applied a single time when it arrives.
     function setTime(t) {
         t = Math.max(0, Math.min(t, duration() - 0.2));
+        expected = t;
+        if (loadingMem) { pending = t; return; }   // applied once the downloaded copy is ready
         if (video.readyState >= 1) {
             pending = null;
             try { video.currentTime = t; } catch (e) { pending = t; }
@@ -403,6 +444,7 @@
     video.addEventListener('loadedmetadata', applyPending);
 
     function play() {
+        wantPlay = true;
         start();
         var p = video.play();
         if (p && p.catch) p.catch(function () {});
@@ -420,7 +462,7 @@
     video.addEventListener('play', start);
 
     video.addEventListener('timeupdate', function () {
-        if (scrubbing || video.seeking) return;   // the bar and chapters follow the thumb instead
+        if (scrubbing || video.seeking || (loadingMem && !inMemory)) return;   // the bar and chapters follow the thumb instead
         render(video.currentTime);
         updateSeek(video.currentTime);
     });
@@ -452,6 +494,14 @@
         try { video.currentTime = scrubTo; } catch (e) {}
     }
     video.addEventListener('seeked', scrubStep);
+
+    // Safety net: if a jump did not land (server/proxy quirk), switch to the downloaded copy.
+    video.addEventListener('seeked', function () {
+        if (scrubbing || expected == null) return;
+        var want = expected;
+        expected = null;
+        if (Math.abs(video.currentTime - want) > 3) useDownloadedCopy(want);
+    });
 
     function beginScrub() {
         if (scrubbing) return;
