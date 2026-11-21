@@ -1821,6 +1821,7 @@
                         </div>
                     </div>
                     ${quiz.instructions ? '<p style="margin-top: 12px; font-size: 0.85rem; color: var(--muted);">' + escapeHtml(quiz.instructions) + '</p>' : ''}
+                    ${quiz.random_subset ? '<p style="margin-top:8px;font-size:0.85rem;color:var(--purple);font-weight:600;"><i class="fas fa-random"></i> You will answer ' + quiz.questions_count + ' randomly selected questions.</p>' : ''}
                 </div>
                 <form id="quizSubmissionForm">
                     <input type="hidden" name="exam_id" value="${quiz.id}">

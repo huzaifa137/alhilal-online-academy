@@ -506,6 +506,12 @@
 
         <form id="questionsForm">
             @csrf
+
+            @include('Teacher.quizzes.partials.questions-per-student', [
+                'exam' => $exam,
+                'poolCount' => $existingQuestions->count(),
+                'marksVary' => $existingQuestions->pluck('marks')->unique()->count() > 1,
+            ])
             <div id="questionsList">
                 @if($existingQuestions->count() > 0)
                     @foreach($existingQuestions as $index => $question)
@@ -741,6 +747,7 @@
 
         function reindexQuestions() {
             const questions = document.querySelectorAll('.qz-question-card');
+            if (window.qpsSync) qpsSync(questions.length);
             questions.forEach((question, idx) => {
                 const numberSpan = question.querySelector('.qz-question-number');
                 numberSpan.innerHTML = `<i class="fas fa-question-circle"></i> Question #${idx + 1}`;
@@ -861,6 +868,17 @@
             });
             
             if (hasError) return;
+
+            const qpsError = window.qpsValidate ? qpsValidate() : null;
+            if (qpsError) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Questions per student',
+                    text: qpsError,
+                    confirmButtonColor: '#DC2626'
+                });
+                return;
+            }
 
             const submitBtn = document.getElementById('submitBtn');
             const originalText = submitBtn.innerHTML;

@@ -542,6 +542,12 @@
                         </div>
                     </div>
 
+                    @include('Teacher.quizzes.partials.questions-per-student', [
+                        'exam' => $exam,
+                        'poolCount' => $exam->questions->count(),
+                        'marksVary' => $exam->questions->pluck('marks')->unique()->count() > 1,
+                    ])
+
                     <div class="qz-form-actions">
                         <a href="{{ route('teacher.quizzes.index') }}" class="btn-secondary">
                             <i class="fas fa-times"></i> Cancel
@@ -559,6 +565,12 @@
     <script>
         document.getElementById('editQuizForm').addEventListener('submit', async function (e) {
             e.preventDefault();
+
+            const qpsError = window.qpsValidate ? qpsValidate() : null;
+            if (qpsError) {
+                Swal.fire({ icon: 'error', title: 'Questions per student', text: qpsError, confirmButtonColor: '#DC2626' });
+                return;
+            }
 
             const submitBtn = document.getElementById('submitBtn');
             const originalText = submitBtn.innerHTML;

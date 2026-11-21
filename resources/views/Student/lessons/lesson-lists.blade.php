@@ -2661,7 +2661,7 @@
             timer.dataset.duration = duration * 60;
 
             const container = document.getElementById('quizQuestions');
-            container.innerHTML = `<div style="margin-bottom:16px;padding:12px;background:#f0f4ff;border-radius:12px;font-size:.82rem;color:#4338ca"><strong>Instructions:</strong> ${quiz.instructions || 'Answer all questions carefully.'} | Pass mark: ${quiz.pass_mark}%</div>` +
+            container.innerHTML = `<div style="margin-bottom:16px;padding:12px;background:#f0f4ff;border-radius:12px;font-size:.82rem;color:#4338ca"><strong>Instructions:</strong> ${quiz.instructions || 'Answer all questions carefully.'} | Pass mark: ${quiz.pass_mark}%${quiz.random_subset ? `<div style="margin-top:6px"><i class="fas fa-random"></i> You will answer ${quiz.questions_count} randomly selected questions.</div>` : ''}</div>` +
                 questions.map((q, i) => `
                                         <div class="q-block">
                                             <div class="q-text">${i + 1}. ${q.question}</div>

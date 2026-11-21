@@ -33,6 +33,7 @@ class Exam extends Model
         'instructions',
         'allow_late_submission',
         'shuffle_questions',
+        'questions_per_student',
         'status'
     ];
 
@@ -43,6 +44,7 @@ class Exam extends Model
         'available_to' => 'datetime',
         'allow_late_submission' => 'boolean',
         'shuffle_questions' => 'boolean',
+        'questions_per_student' => 'integer',
     ];
 
     /**
@@ -160,6 +162,30 @@ class Exam extends Model
     public function getTotalQuestionsCount(): int
     {
         return $this->questions()->count();
+    }
+
+    /**
+     * How many questions one student answers per attempt.
+     *
+     * When the optional "questions per student" limit is not set (or is not
+     * smaller than the pool) every question is used, exactly as before.
+     */
+    public function questionsPerAttempt(?int $poolSize = null): int
+    {
+        $poolSize ??= $this->getTotalQuestionsCount();
+        $limit = (int) $this->questions_per_student;
+
+        return $limit > 0 ? min($limit, $poolSize) : $poolSize;
+    }
+
+    /** True when students only receive a random subset of the question pool. */
+    public function usesRandomSubset(?int $poolSize = null): bool
+    {
+        $poolSize ??= $this->getTotalQuestionsCount();
+
+        return $this->questions_per_student !== null
+            && (int) $this->questions_per_student > 0
+            && (int) $this->questions_per_student < $poolSize;
     }
 
     public function getStudentResult($studentId): ?ExamAttempt

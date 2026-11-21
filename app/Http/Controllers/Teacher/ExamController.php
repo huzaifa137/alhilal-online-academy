@@ -12,6 +12,7 @@ use App\Models\Academic\ClassModel;
 use App\Models\Academic\Subject;
 use App\Models\User;
 use App\Support\ContentLanguage;
+use App\Support\QuizDraw;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Session;
@@ -193,6 +194,24 @@ class ExamController extends Controller
                 ], 422);
             }
 
+            // Questions this student has to be graded on. Normally that is every
+            // question; when the quiz uses "questions per student" it is only the
+            // random set that was issued when the student opened the quiz.
+            $gradedQuestions = $exam->questions;
+
+            if ($exam->usesRandomSubset($exam->questions->count())) {
+                $issued = QuizDraw::issuedFor($exam, $studentId);
+
+                if ($issued === null) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Your quiz session has expired or the quiz was changed. Please reopen the quiz and try again.',
+                    ], 409);
+                }
+
+                $gradedQuestions = $issued;
+            }
+
             // Check how many attempts the student has already made
             $attemptCount = ExamResult::where('exam_id', $examId)
                 ->where('student_id', $studentId)
@@ -222,26 +241,19 @@ class ExamController extends Controller
             $obtainedMarks = 0;
             $answersData = [];
 
-            // Create a map of questions by ID for quick lookup
-            $questionsMap = [];
-            foreach ($exam->questions as $question) {
-                $questionsMap[$question->id] = $question;
-            }
+            // Answers the student sent, keyed by question id
+            $submitted = collect($request->answers)->keyBy('question_id');
 
-            foreach ($request->answers as $answerData) {
-                $questionId = $answerData['question_id'];
-                $question = $questionsMap[$questionId] ?? null;
-
-                if (!$question)
-                    continue;
-
+            // Grade every question the student was given, so an unanswered
+            // question counts as wrong rather than silently dropping out.
+            foreach ($gradedQuestions as $question) {
                 $totalMarks += $question->marks;
                 $isCorrect = false;
-                $studentAnswer = $answerData['answer'] ?? '';
+                $studentAnswer = $submitted->get($question->id)['answer'] ?? '';
 
                 // Auto-grade MCQ and True/False questions
                 if (in_array($question->type, ['mcq', 'true_false'])) {
-                    $isCorrect = strtolower(trim($studentAnswer)) == strtolower(trim($question->answer));
+                    $isCorrect = $question->checkAnswer($studentAnswer);
                     if ($isCorrect) {
                         $obtainedMarks += $question->marks;
                     }
@@ -286,6 +298,9 @@ class ExamController extends Controller
                 'status' => 'graded',
                 'graded_at' => now(),
             ]);
+
+            // The attempt is finished: the next attempt gets a fresh random draw.
+            QuizDraw::forget($exam, $studentId);
 
             return response()->json([
                 'success' => true,
@@ -395,6 +410,7 @@ $studentId = Session('LoggedStudent') ?? Session('LoggedTeacher');
                     'duration_minutes' => $quiz->duration_minutes,
                     'status' => $quiz->status,
                     'questions_count' => $quiz->questions->count(),
+                    'questions_per_student' => $quiz->questions_per_student,
                     'max_attempts' => $quiz->max_attempts ?? 20000,
                     'results' => []
                 ];
@@ -447,11 +463,7 @@ $studentId = Session('LoggedStudent') ?? Session('LoggedTeacher');
     {
         try {
             $studentId = Session('LoggedStudent');
-            $exam = Exam::with([
-                'questions' => function ($q) {
-                    $q->orderBy('sort_order');
-                }
-            ])->findOrFail($examId);
+            $exam = Exam::findOrFail($examId);
 
             // A student may only open quizzes taught in their selected language.
             if (!ContentLanguage::allows($exam->language)) {
@@ -478,6 +490,11 @@ $studentId = Session('LoggedStudent') ?? Session('LoggedTeacher');
                 ], 403);
             }
 
+            // Every question, or this student's random subset when the teacher
+            // limited the number of questions per student.
+            $poolCount = $exam->questions()->count();
+            $questions = QuizDraw::questionsFor($exam, $studentId ?? Session('LoggedTeacher'));
+
             return response()->json([
                 'success' => true,
                 'quiz' => [
@@ -487,8 +504,11 @@ $studentId = Session('LoggedStudent') ?? Session('LoggedTeacher');
                     'pass_mark' => $exam->pass_mark,
                     'duration_minutes' => $exam->duration_minutes,
                     'instructions' => $exam->instructions,
+                    'questions_count' => $questions->count(),
+                    'pool_count' => $poolCount,
+                    'random_subset' => $exam->usesRandomSubset($poolCount),
                 ],
-                'questions' => $exam->questions->map(function ($question) {
+                'questions' => $questions->map(function ($question) {
                     return [
                         'id' => $question->id,
                         'question' => $question->question,

@@ -589,6 +589,9 @@
                                     <tr>
                                         <td data-label="Title">
                                             <strong>{{ $quiz->title }}</strong>@include('partials.content-language-badge', ['code' => $quiz->language])
+                                            @if($quiz->questions_per_student && $quiz->questions_per_student < $quiz->questions_count)
+                                                <br><small style="color:#5B3FD9;font-weight:600"><i class="fas fa-random"></i> {{ $quiz->questions_per_student }} of {{ $quiz->questions_count }} questions per student</small>
+                                            @endif
                                         </td>
                                         <td data-label="Lesson">{{ $quiz->lesson->title ?? 'N/A' }}</td>
                                         <td data-label="Class">{{ $quiz->class->name ?? 'N/A' }}</td>
@@ -671,6 +674,9 @@
                                         <tr>
                                             <td data-label="Title">
                                                 <strong>{{ $quiz->title }}</strong>
+                                            @if($quiz->questions_per_student && $quiz->questions_per_student < $quiz->questions_count)
+                                                <br><small style="color:#5B3FD9;font-weight:600"><i class="fas fa-random"></i> {{ $quiz->questions_per_student }} of {{ $quiz->questions_count }} questions per student</small>
+                                            @endif
                                             </td>
                                             <td data-label="Class">{{ $quiz->class->name ?? 'N/A' }}</td>
                                             <td data-label="Subject">{{ $quiz->subject->name ?? 'N/A' }}</td>

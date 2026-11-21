@@ -28,6 +28,7 @@ class QuizController extends Controller
             ->where('exam_type', 'quiz')
             ->whereNotNull('lesson_id')
             ->with(['lesson', 'class', 'subject'])
+            ->withCount('questions')
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -36,6 +37,7 @@ class QuizController extends Controller
             ->where('exam_type', 'quiz')
             ->whereNull('lesson_id')
             ->with(['class', 'subject'])
+            ->withCount('questions')
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -178,7 +180,22 @@ class QuizController extends Controller
             'questions.*.marks' => 'required|integer|min:1',
             'questions.*.options' => 'required_if:questions.*.type,mcq|nullable|array',
             'questions.*.answer' => 'required_if:questions.*.type,mcq,true_false|nullable|string',
+            // Optional: how many of these questions each student answers (blank = all).
+            'questions_per_student' => 'nullable|integer|min:1',
         ]);
+
+        // A student can't be given more questions than the quiz has.
+        $validator->after(function ($validator) use ($request) {
+            $limit = $request->input('questions_per_student');
+            $total = count($request->input('questions', []));
+
+            if ($limit !== null && $limit !== '' && (int) $limit > $total) {
+                $validator->errors()->add(
+                    'questions_per_student',
+                    "Questions per student ({$limit}) cannot be more than the number of questions in the quiz ({$total})."
+                );
+            }
+        });
 
         if ($validator->fails()) {
             return response()->json([
@@ -206,8 +223,14 @@ class QuizController extends Controller
             ]);
         }
 
-        // Update exam status to published
-        $exam->update(['status' => 'published']);
+        // Update exam status to published (and store the optional per-student limit;
+        // an empty value switches the random selection off again)
+        $exam->update([
+            'status' => 'published',
+            'questions_per_student' => $request->filled('questions_per_student')
+                ? (int) $request->questions_per_student
+                : null,
+        ]);
 
         return response()->json([
             'success' => true,
@@ -251,7 +274,20 @@ class QuizController extends Controller
             'status' => 'required|in:draft,published,closed',
             'max_attempts' => 'nullable|integer|min:1',
             'language' => 'nullable|' . \App\Support\ContentLanguage::rule(),
+            'questions_per_student' => 'nullable|integer|min:1',
         ]);
+
+        $validator->after(function ($validator) use ($request, $exam) {
+            $limit = $request->input('questions_per_student');
+            $total = $exam->questions()->count();
+
+            if ($limit !== null && $limit !== '' && (int) $limit > $total) {
+                $validator->errors()->add(
+                    'questions_per_student',
+                    "Questions per student ({$limit}) cannot be more than the number of questions in the quiz ({$total})."
+                );
+            }
+        });
 
         if ($validator->fails()) {
             return response()->json([
@@ -284,6 +320,9 @@ class QuizController extends Controller
             'available_to' => $request->available_to,
             'instructions' => $request->instructions,
             'shuffle_questions' => $request->shuffle_questions ?? false,
+            'questions_per_student' => $request->filled('questions_per_student')
+                ? (int) $request->questions_per_student
+                : null,
             'status' => $request->status,
             'max_attempts' => $request->max_attempts ?? 20000,
         ]);

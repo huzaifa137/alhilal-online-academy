@@ -71,7 +71,19 @@ class Question extends Model
         }
         
         if ($this->type === 'mcq') {
-            return strtoupper(trim($studentAnswer)) === strtoupper(trim($this->answer));
+            $given = trim((string) $studentAnswer);
+            $correct = trim((string) $this->answer);
+
+            // The answer is stored either as an option letter ("C") or as the
+            // option text itself; students may submit either form.
+            if (strcasecmp($given, $correct) === 0) {
+                return true;
+            }
+
+            $options = $this->options ?? [];
+            $correctText = $options[strtoupper($correct)] ?? null;
+
+            return $correctText !== null && strcasecmp($given, trim((string) $correctText)) === 0;
         }
         
         return false;
