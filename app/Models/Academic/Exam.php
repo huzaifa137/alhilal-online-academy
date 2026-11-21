@@ -34,6 +34,7 @@ class Exam extends Model
         'allow_late_submission',
         'shuffle_questions',
         'questions_per_student',
+        'is_free',
         'status'
     ];
 
@@ -45,6 +46,7 @@ class Exam extends Model
         'allow_late_submission' => 'boolean',
         'shuffle_questions' => 'boolean',
         'questions_per_student' => 'integer',
+        'is_free' => 'boolean',
     ];
 
     /**

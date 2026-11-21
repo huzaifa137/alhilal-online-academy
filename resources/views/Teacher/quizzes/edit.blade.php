@@ -540,6 +540,14 @@
                             </label>
                             <small>Randomize question order for each student</small>
                         </div>
+
+                        <div class="fg">
+                            <label class="fg-checkbox">
+                                <input type="checkbox" name="is_free" value="1" {{ $exam->is_free ? 'checked' : '' }}>
+                                <span>Free quiz</span>
+                            </label>
+                            <small>Any enrolled student can take it without paying for the class or lesson</small>
+                        </div>
                     </div>
 
                     @include('Teacher.quizzes.partials.questions-per-student', [

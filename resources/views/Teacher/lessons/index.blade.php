@@ -1127,6 +1127,10 @@
                                     <label>Amount (UGX)</label>
                                     <input type="text" id="edit_lesson_amount" name="lesson_amount" class="form-control"
                                         placeholder="e.g., 15,000" required>
+                                    <label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-weight:600;cursor:pointer">
+                                        <input type="checkbox" id="edit_is_free" name="is_free" value="1" style="width:auto">
+                                        <span>Free lesson (students don't pay)</span>
+                                    </label>
                                 </div>
                                 <div class="form-group">
                                     <label>Status <span class="required">*</span></label>
@@ -1461,6 +1465,18 @@
         let editSelectedFile = null;
 
         // Edit Lesson Function
+        // Free lesson: no price to enter
+        function syncEditFree() {
+            const free = document.getElementById('edit_is_free').checked;
+            const amount = document.getElementById('edit_lesson_amount');
+            amount.disabled = free;
+            amount.required = !free;
+            if (free) amount.value = '';
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('edit_is_free').addEventListener('change', syncEditFree);
+        });
+
         function editLesson(lessonId) {
             const modal = document.getElementById('editLessonModal');
             const loadingState = document.getElementById('editLoadingState');
@@ -1506,6 +1522,9 @@
             document.getElementById('edit_duration').value = lesson.duration || '';
             document.getElementById('edit_lesson_order').value = lesson.lesson_order || '';
             document.getElementById('edit_lesson_amount').value = lesson.lesson_amount || '';
+            const editFree = !parseFloat(String(lesson.lesson_amount || '0').replace(/,/g, ''));
+            document.getElementById('edit_is_free').checked = editFree;
+            syncEditFree();
             document.getElementById('edit_status').value = lesson.status;
             document.getElementById('edit_language').value = lesson.language || '';
 

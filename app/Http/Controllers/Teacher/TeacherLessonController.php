@@ -329,7 +329,8 @@ class TeacherLessonController extends Controller
             // Numbering restarts for every language: Lesson 1 in Luganda is not Lesson 11 because English has ten.
             'lesson_order' => $request->lesson_order ?? (Lesson::where('topic_id', $topicId)->where('language', $request->language)->max('lesson_order') + 1),
             'status' => $request->status,
-            'lesson_amount' => $request->lesson_amount,
+            // "Free lesson" ticked => no price, so no student has to pay for it.
+            'lesson_amount' => $request->boolean('is_free') ? '0' : $request->lesson_amount,
             'published_at' => $request->status === 'published' ? now() : null,
         ]);
     }
@@ -620,7 +621,8 @@ class TeacherLessonController extends Controller
             'duration' => $request->duration,
             'lesson_order' => $request->lesson_order,
             'status' => $request->status,
-            'lesson_amount' => $request->lesson_amount,
+            // "Free lesson" ticked => no price, so no student has to pay for it.
+            'lesson_amount' => $request->boolean('is_free') ? '0' : $request->lesson_amount,
             'published_at' => $request->status === 'published' && $lesson->status !== 'published' ? now() : $lesson->published_at,
         ]);
 

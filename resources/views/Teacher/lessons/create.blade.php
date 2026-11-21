@@ -591,6 +591,10 @@
                         <div class="fg">
                             <label>Amount (UGX)</label>
                             <input type="text" id="lessonAmount" name="amount" placeholder="e.g., 15,000" required>
+                            <label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-weight:600;cursor:pointer">
+                                <input type="checkbox" id="lessonIsFree" style="width:auto">
+                                <span>Free lesson (students don't pay)</span>
+                            </label>
                         </div>
 
                         <div class="fg">
@@ -887,6 +891,7 @@
             formData.append('notes', document.getElementById('lessonNotes').value);
             formData.append('duration', document.getElementById('lessonDuration').value || '');
             formData.append('lesson_amount', document.getElementById('lessonAmount').value || '');
+            formData.append('is_free', document.getElementById('lessonIsFree').checked ? '1' : '0');
             formData.append('lesson_order', document.getElementById('lessonOrder').value || '');
             formData.append('status', document.getElementById('lessonStatus').value);
             formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
@@ -936,5 +941,13 @@
         });
 
         window.clearFile = clearFile;
-    </script>
+    
+        // Free lesson: no price to enter
+        document.getElementById('lessonIsFree').addEventListener('change', function () {
+            const amount = document.getElementById('lessonAmount');
+            amount.disabled = this.checked;
+            amount.required = !this.checked;
+            if (this.checked) amount.value = '';
+        });
+</script>
 @endsection

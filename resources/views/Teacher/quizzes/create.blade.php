@@ -494,6 +494,14 @@
                         <small>Randomize question order for each student</small>
                     </div>
 
+                    <div class="fg">
+                        <label class="fg-checkbox">
+                            <input type="checkbox" name="is_free" value="1">
+                            <span>Free quiz</span>
+                        </label>
+                        <small>Any enrolled student can take it without paying for the class or lesson (good for testing or a trial quiz)</small>
+                    </div>
+
                     <div class="qz-form-actions">
                         <a href="{{ route('teacher.quizzes.index') }}" class="btn-secondary">
                             <i class="fas fa-times"></i> Cancel

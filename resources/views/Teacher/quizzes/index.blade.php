@@ -592,6 +592,9 @@
                                             @if($quiz->questions_per_student && $quiz->questions_per_student < $quiz->questions_count)
                                                 <br><small style="color:#5B3FD9;font-weight:600"><i class="fas fa-random"></i> {{ $quiz->questions_per_student }} of {{ $quiz->questions_count }} questions per student</small>
                                             @endif
+                                            @if($quiz->is_free)
+                                                <br><small style="color:#059669;font-weight:600"><i class="fas fa-gift"></i> Free quiz</small>
+                                            @endif
                                         </td>
                                         <td data-label="Lesson">{{ $quiz->lesson->title ?? 'N/A' }}</td>
                                         <td data-label="Class">{{ $quiz->class->name ?? 'N/A' }}</td>
@@ -676,6 +679,9 @@
                                                 <strong>{{ $quiz->title }}</strong>
                                             @if($quiz->questions_per_student && $quiz->questions_per_student < $quiz->questions_count)
                                                 <br><small style="color:#5B3FD9;font-weight:600"><i class="fas fa-random"></i> {{ $quiz->questions_per_student }} of {{ $quiz->questions_count }} questions per student</small>
+                                            @endif
+                                            @if($quiz->is_free)
+                                                <br><small style="color:#059669;font-weight:600"><i class="fas fa-gift"></i> Free quiz</small>
                                             @endif
                                             </td>
                                             <td data-label="Class">{{ $quiz->class->name ?? 'N/A' }}</td>

@@ -138,6 +138,7 @@ class QuizController extends Controller
             'instructions' => $request->instructions,
             'allow_late_submission' => true,
             'shuffle_questions' => $request->shuffle_questions ?? false,
+            'is_free' => $request->boolean('is_free'),
             'status' => 'draft',
             'max_attempts' => $request->max_attempts ?? 20000,
         ]);
@@ -320,6 +321,7 @@ class QuizController extends Controller
             'available_to' => $request->available_to,
             'instructions' => $request->instructions,
             'shuffle_questions' => $request->shuffle_questions ?? false,
+            'is_free' => $request->boolean('is_free'),
             'questions_per_student' => $request->filled('questions_per_student')
                 ? (int) $request->questions_per_student
                 : null,

@@ -12,7 +12,9 @@ use App\Models\Academic\ClassModel;
 use App\Models\Academic\Subject;
 use App\Models\User;
 use App\Support\ContentLanguage;
+use App\Support\QuizClock;
 use App\Support\QuizDraw;
+use App\Services\ContentAccess;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Session;
@@ -80,6 +82,7 @@ class ExamController extends Controller
             'instructions' => $request->instructions,
             'allow_late_submission' => $request->allow_late_submission ?? false,
             'shuffle_questions' => $request->shuffle_questions ?? false,
+            'is_free' => $request->boolean('is_free'),
             'status' => 'draft',
         ]);
 
@@ -177,6 +180,22 @@ class ExamController extends Controller
                     'language_mismatch' => true,
                     'message' => ContentLanguage::mismatchMessage($exam->language),
                 ], 403);
+            }
+
+            if ($reason = app(ContentAccess::class)->forQuiz($exam)) {
+                return response()->json(['success' => false, 'message' => $reason], 403);
+            }
+
+            // Submitted long after the time limit ran out: not accepted.
+            if (QuizClock::isOverdue($exam, $studentId)) {
+                QuizClock::forget($exam, $studentId);
+                QuizDraw::forget($exam, $studentId);
+
+                return response()->json([
+                    'success' => false,
+                    'time_up' => true,
+                    'message' => 'Time is up. This attempt was submitted after the time limit, so it was not recorded. Please start the quiz again.',
+                ], 422);
             }
 
             \Log::info('Submitting quiz', ['exam_id' => $examId, 'student_id' => $studentId]);
@@ -301,6 +320,7 @@ class ExamController extends Controller
 
             // The attempt is finished: the next attempt gets a fresh random draw.
             QuizDraw::forget($exam, $studentId);
+            QuizClock::forget($exam, $studentId);
 
             return response()->json([
                 'success' => true,
@@ -411,6 +431,7 @@ $studentId = Session('LoggedStudent') ?? Session('LoggedTeacher');
                     'status' => $quiz->status,
                     'questions_count' => $quiz->questions->count(),
                     'questions_per_student' => $quiz->questions_per_student,
+                    'is_free' => (bool) $quiz->is_free,
                     'max_attempts' => $quiz->max_attempts ?? 20000,
                     'results' => []
                 ];
@@ -474,6 +495,11 @@ $studentId = Session('LoggedStudent') ?? Session('LoggedTeacher');
                 ], 403);
             }
 
+            // Enrolment / payment rules (a FREE quiz skips the payment checks).
+            if ($reason = app(ContentAccess::class)->forQuiz($exam)) {
+                return response()->json(['success' => false, 'message' => $reason], 403);
+            }
+
             // Check if student has reached max attempts using ExamResult
             $attemptCount = ExamResult::where('exam_id', $examId)
                 ->where('student_id', $studentId)
@@ -492,8 +518,17 @@ $studentId = Session('LoggedStudent') ?? Session('LoggedTeacher');
 
             // Every question, or this student's random subset when the teacher
             // limited the number of questions per student.
+            $viewerId = $studentId ?? Session('LoggedTeacher');
+
+            // Start (or resume) the server-side clock. A brand-new attempt
+            // always gets a fresh random draw as well.
+            $clock = QuizClock::start($exam, $viewerId);
+            if ($clock['fresh']) {
+                QuizDraw::forget($exam, $viewerId);
+            }
+
             $poolCount = $exam->questions()->count();
-            $questions = QuizDraw::questionsFor($exam, $studentId ?? Session('LoggedTeacher'));
+            $questions = QuizDraw::questionsFor($exam, $viewerId);
 
             return response()->json([
                 'success' => true,
@@ -503,6 +538,9 @@ $studentId = Session('LoggedStudent') ?? Session('LoggedTeacher');
                     'total_marks' => $exam->total_marks,
                     'pass_mark' => $exam->pass_mark,
                     'duration_minutes' => $exam->duration_minutes,
+                    // Seconds left on the server's clock (null = untimed quiz)
+                    'remaining_seconds' => $clock['remaining'],
+                    'is_free' => (bool) $exam->is_free,
                     'instructions' => $exam->instructions,
                     'questions_count' => $questions->count(),
                     'pool_count' => $poolCount,

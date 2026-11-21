@@ -1056,6 +1056,26 @@
             padding: 24px
         }
 
+        /* ── Quiz countdown ───────────────────────────── */
+        .quiz-modal-head { flex-direction: column; align-items: stretch !important; gap: 10px; padding-bottom: 0 !important; }
+        .quiz-modal-head .qh-row { display: flex; justify-content: space-between; align-items: center; }
+        .qh-status { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-bottom: 12px; }
+        .qc-clock { display: inline-flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, .2); color: #fff; padding: 8px 18px; border-radius: 999px; font-weight: 700; transition: background .3s, color .3s; }
+        .qc-clock i { font-size: 1.1rem; }
+        .qc-time { font-size: 2rem; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: .02em; min-width: 4.4ch; text-align: center; }
+        .qc-label { font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; opacity: .85; }
+        .qc-clock.qc-warn { background: #FBBF24; color: #422006; }
+        .qc-clock.qc-danger { background: #DC2626; color: #fff; animation: qcPulse 1s ease-in-out infinite; }
+        .qc-answered { color: rgba(255, 255, 255, .92); font-size: .85rem; font-weight: 600; margin-left: auto; }
+        .qc-bar { height: 6px; background: rgba(255, 255, 255, .25); margin: 0 -24px; }
+        .qc-bar > div { height: 100%; width: 100%; background: #fff; transition: width .5s linear, background .3s; }
+        .qc-bar.qc-warn > div { background: #FBBF24; }
+        .qc-bar.qc-danger > div { background: #DC2626; }
+        .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+        @keyframes qcPulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, .6); } 50% { transform: scale(1.04); box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); } }
+        @media (max-width: 480px) { .qc-time { font-size: 1.6rem; } .qc-clock { padding: 6px 14px; } }
+        @media (prefers-reduced-motion: reduce) { .qc-clock.qc-danger { animation: none; } .qc-bar > div { transition: none; } }
+
         .q-block {
             margin-bottom: 20px;
             padding: 16px;
@@ -1775,18 +1795,26 @@
                                                                 </div>
 
                                                                 {{-- Quiz Section --}}
-                                                                @if($hasQuizzes && $canAccessLesson)
+                                                                @php
+                                                                    $lessonQuizzes = $hasQuizzes
+                                                                        ? \App\Models\Academic\Exam::where('lesson_id', $lesson->id)
+                                                                            ->where('exam_type', 'quiz')
+                                                                            ->where('status', 'published')
+                                                                            ->with('questions')
+                                                                            ->get()
+                                                                        : collect();
+                                                                    $allLessonQuizCount = $lessonQuizzes->count();
+                                                                    // Free quizzes stay open even while the lesson is locked.
+                                                                    if (!$canAccessLesson) {
+                                                                        $lessonQuizzes = $lessonQuizzes->where('is_free', true)->values();
+                                                                    }
+                                                                @endphp
+                                                                @if($lessonQuizzes->isNotEmpty())
                                                                     <div class="sl-quiz-section">
                                                                         <div class="sl-quiz-header">
-                                                                            <i class="fas fa-question-circle"></i> Lesson Quiz
+                                                                            <i class="fas fa-question-circle"></i>
+                                                                            {{ $canAccessLesson ? 'Lesson Quiz' : 'Free Quiz' }}
                                                                         </div>
-                                                                        @php
-                                                                            $lessonQuizzes = \App\Models\Academic\Exam::where('lesson_id', $lesson->id)
-                                                                                ->where('exam_type', 'quiz')
-                                                                                ->where('status', 'published')
-                                                                                ->with('questions')
-                                                                                ->get();
-                                                                        @endphp
                                                                         @foreach($lessonQuizzes as $quiz)
                                                                             @php
                                                                                 $studentId = session('LoggedStudent');
@@ -1798,7 +1826,11 @@
                                                                             @endphp
                                                                             <div class="sl-quiz-item">
                                                                                 <div>
-                                                                                    <div class="sl-quiz-title">{{ $quiz->title }}</div>
+                                                                                    <div class="sl-quiz-title">{{ $quiz->title }}
+                                                                                        @if($quiz->is_free)
+                                                                                            <span style="background:var(--c-green-lt);color:var(--c-emerald);font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:999px;margin-left:6px"><i class="fas fa-gift"></i> FREE</span>
+                                                                                        @endif
+                                                                                    </div>
                                                                                     <div class="sl-quiz-meta">
                                                                                         {{ $quiz->questions->count() }} Questions · Pass {{ $quiz->pass_mark }}%
                                                                                         @if($quiz->duration_minutes) · {{ $quiz->duration_minutes }} min @endif
@@ -1816,6 +1848,9 @@
                                                                                 @endif
                                                                             </div>
                                                                         @endforeach
+                                                                        @if(!$canAccessLesson && $allLessonQuizCount > $lessonQuizzes->count())
+                                                                            <div class="sl-quiz-meta" style="margin-top:8px;opacity:.7"><i class="fas fa-lock"></i> Other quizzes unlock when you pay for this lesson.</div>
+                                                                        @endif
                                                                     </div>
                                                                 @elseif($hasQuizzes && !$canAccessLesson)
                                                                     <div class="sl-quiz-section" style="opacity:.5">
@@ -2115,14 +2150,23 @@
     <div class="quiz-modal-overlay" id="quizModal">
         <div class="quiz-modal-box">
             <div class="quiz-modal-head">
-                <h3 id="quizModalTitle"><i class="fas fa-question-circle"></i> Quiz</h3>
-                <button onclick="closeQuizModal()" class="sl-modal-close"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="quiz-modal-body">
-                <div id="quizTimer"
-                    style="text-align:right;font-size:.8rem;color:var(--c-accent);font-weight:700;margin-bottom:12px;display:none">
-                    <i class="fas fa-clock"></i> <span id="timerDisplay">00:00</span>
+                <div class="qh-row">
+                    <h3 id="quizModalTitle"><i class="fas fa-question-circle"></i> Quiz</h3>
+                    <button onclick="closeQuizModal()" class="sl-modal-close"><i class="fas fa-times"></i></button>
                 </div>
+                {{-- Always-visible status strip: countdown + answered counter --}}
+                <div class="qh-status" id="quizStatus" style="display:none">
+                    <div class="qc-clock" id="quizTimer" role="timer" style="display:none">
+                        <i class="fas fa-hourglass-half"></i>
+                        <span class="qc-time" id="timerDisplay">--:--</span>
+                        <span class="qc-label">left</span>
+                    </div>
+                    <div class="qc-answered" id="quizAnswered"></div>
+                </div>
+                <div class="qc-bar" id="quizTimerBar" style="display:none"><div id="quizTimerFill"></div></div>
+            </div>
+            <div class="sr-only" id="quizTimerAnnounce" aria-live="polite"></div>
+            <div class="quiz-modal-body">
                 <div id="quizQuestions"></div>
                 <div id="quizResult" style="display:none"></div>
                 <div style="display:flex;justify-content:flex-end;margin-top:16px">
@@ -2152,6 +2196,12 @@
         let currentExamId = null;
         let quizQuestions = [];
         let quizTimer = null;
+        let quizDeadline = 0;          // timestamp (ms) when time runs out
+        let quizTotalSeconds = 0;      // full allowed time, for the progress bar
+        let quizInProgress = false;    // true between opening a quiz and submitting it
+        let quizSubmitting = false;
+        let quizWarned = {};
+        let currentQuizTitle = '';
 
         // ── Toggle Helpers ────────────────────────────────
         function toggleClass(el) {
@@ -2637,6 +2687,7 @@
         // ── Quiz ──────────────────────────────────────────
         async function takeQuiz(examId, title, durationMinutes) {
             currentExamId = examId;
+            currentQuizTitle = title;
             Swal.fire({ title: 'Loading Quiz...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             try {
                 const res = await fetch(`/exams/${examId}/take`, { headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } });
@@ -2645,10 +2696,13 @@
                 if (!data.success) { Swal.fire({ icon: 'error', title: 'Cannot Take Quiz', text: data.message }); return; }
                 quizQuestions = data.questions;
                 document.getElementById('quizModalTitle').innerHTML = `<i class="fas fa-question-circle"></i> ${title}`;
-                renderQuizQuestions(data.quiz, data.questions, durationMinutes);
+                const minutes = data.quiz.duration_minutes || 0;
+                renderQuizQuestions(data.quiz, data.questions, minutes);
                 document.querySelector('.quiz-modal-overlay').style.display = 'flex';
                 document.body.style.overflow = 'hidden';
-                if (durationMinutes > 0) startTimer(durationMinutes * 60);
+                // The server tells us how much time is really left, so reopening
+                // the quiz can't restart the clock.
+                if (minutes > 0) startTimer(data.quiz.remaining_seconds ?? minutes * 60, minutes * 60);
             } catch (e) { Swal.close(); Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to load quiz.' }); }
         }
 
@@ -2656,9 +2710,11 @@
             document.getElementById('quizResult').style.display = 'none';
             document.getElementById('quizSubmitBtn').style.display = 'inline-flex';
             document.getElementById('quizCloseBtn').style.display = 'none';
-            const timer = document.getElementById('quizTimer');
-            timer.style.display = duration > 0 ? 'block' : 'none';
-            timer.dataset.duration = duration * 60;
+            quizInProgress = true;
+            quizSubmitting = false;
+            document.getElementById('quizStatus').style.display = 'flex';
+            document.getElementById('quizTimer').style.display = duration > 0 ? 'inline-flex' : 'none';
+            document.getElementById('quizTimerBar').style.display = duration > 0 ? 'block' : 'none';
 
             const container = document.getElementById('quizQuestions');
             container.innerHTML = `<div style="margin-bottom:16px;padding:12px;background:#f0f4ff;border-radius:12px;font-size:.82rem;color:#4338ca"><strong>Instructions:</strong> ${quiz.instructions || 'Answer all questions carefully.'} | Pass mark: ${quiz.pass_mark}%${quiz.random_subset ? `<div style="margin-top:6px"><i class="fas fa-random"></i> You will answer ${quiz.questions_count} randomly selected questions.</div>` : ''}</div>` +
@@ -2674,22 +2730,86 @@
                                                 <label class="q-opt"><input type="radio" name="q${q.id}" value="false" style="width:auto"> False</label>` :
                             `<textarea name="q${q.id}" rows="3" style="width:100%;border:1.5px solid #e3e0f0;border-radius:10px;padding:10px;font-family:inherit;font-size:.82rem;resize:vertical" placeholder="Your answer..."></textarea>`}
                                         </div>`).join('');
+
+            // Live "answered x / y" counter
+            container.oninput = container.onchange = updateAnswered;
+            updateAnswered();
         }
 
-        function startTimer(seconds) {
+        function updateAnswered() {
+            let done = 0;
+            quizQuestions.forEach(q => {
+                if (q.type === 'mcq' || q.type === 'true_false') {
+                    if (document.querySelector(`input[name="q${q.id}"]:checked`)) done++;
+                } else {
+                    const ta = document.querySelector(`textarea[name="q${q.id}"]`);
+                    if (ta && ta.value.trim() !== '') done++;
+                }
+            });
+            document.getElementById('quizAnswered').textContent = `Answered ${done} / ${quizQuestions.length}`;
+        }
+
+        // Countdown. Runs off a fixed deadline (not "subtract one every second"), so it
+        // stays correct if the tab is throttled or the device sleeps for a while.
+        function startTimer(remainingSeconds, totalSeconds) {
             clearInterval(quizTimer);
-            let remaining = seconds;
-            const display = document.getElementById('timerDisplay');
-            quizTimer = setInterval(() => {
-                remaining--;
-                const m = Math.floor(remaining / 60).toString().padStart(2, '0');
-                const s = (remaining % 60).toString().padStart(2, '0');
-                display.textContent = `${m}:${s}`;
-                if (remaining <= 0) { clearInterval(quizTimer); submitQuiz(); }
-            }, 1000);
+            quizTotalSeconds = totalSeconds || remainingSeconds;
+            quizDeadline = Date.now() + remainingSeconds * 1000;
+            quizWarned = {};
+            tickTimer();
+            quizTimer = setInterval(tickTimer, 250);
         }
 
-        async function submitQuiz() {
+        function formatClock(sec) {
+            const h = Math.floor(sec / 3600);
+            const m = Math.floor((sec % 3600) / 60).toString().padStart(2, '0');
+            const s = (sec % 60).toString().padStart(2, '0');
+            return h > 0 ? `${h}:${m}:${s}` : `${m}:${s}`;
+        }
+
+        function tickTimer() {
+            const remaining = Math.max(0, Math.ceil((quizDeadline - Date.now()) / 1000));
+            const clock = document.getElementById('quizTimer');
+            const bar = document.getElementById('quizTimerBar');
+
+            document.getElementById('timerDisplay').textContent = formatClock(remaining);
+            document.getElementById('quizTimerFill').style.width =
+                (quizTotalSeconds > 0 ? (remaining / quizTotalSeconds) * 100 : 0) + '%';
+
+            // Warning levels scale with the quiz length (a 3-minute quiz can't wait for "5 minutes left")
+            const warnAt = Math.min(300, Math.round(quizTotalSeconds * 0.25));
+            const dangerAt = Math.min(60, Math.round(quizTotalSeconds * 0.10));
+            const danger = remaining <= dangerAt;
+            const warn = !danger && remaining <= warnAt;
+            clock.classList.toggle('qc-warn', warn);
+            clock.classList.toggle('qc-danger', danger);
+            bar.classList.toggle('qc-warn', warn);
+            bar.classList.toggle('qc-danger', danger);
+
+            if (warn && !quizWarned.warn) { quizWarned.warn = true; announceTime(remaining >= 60 ? `${Math.ceil(remaining / 60)} minutes remaining` : `${remaining} seconds remaining`, 'warning'); }
+            if (danger && remaining > 0 && !quizWarned.danger) { quizWarned.danger = true; announceTime(`Only ${remaining} seconds remaining!`, 'error'); }
+
+            if (remaining <= 0) {
+                clearInterval(quizTimer);
+                if (quizInProgress && !quizSubmitting) timeIsUp();
+            }
+        }
+
+        function announceTime(message, icon) {
+            document.getElementById('quizTimerAnnounce').textContent = message;
+            Swal.fire({ toast: true, position: 'top', icon, title: message, showConfirmButton: false, timer: 3500, timerProgressBar: true });
+        }
+
+        async function timeIsUp() {
+            document.getElementById('quizTimerAnnounce').textContent = 'Time is up. Submitting your answers.';
+            // Freeze the paper while it is being sent
+            document.querySelectorAll('#quizQuestions input, #quizQuestions textarea').forEach(el => el.disabled = true);
+            await submitQuiz(true);
+        }
+
+        async function submitQuiz(timedOut = false) {
+            if (quizSubmitting) return;
+            quizSubmitting = true;
             clearInterval(quizTimer);
             const answers = [];
             quizQuestions.forEach(q => {
@@ -2704,15 +2824,17 @@
                 answers.push({ question_id: q.id, answer });
             });
 
-            Swal.fire({ title: 'Submitting...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            Swal.fire({ title: timedOut ? "Time's up! Submitting your answers..." : 'Submitting...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             try {
                 const res = await fetch(`/exams/${currentExamId}/submit`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }, body: JSON.stringify({ answers }) });
                 const data = await res.json();
                 Swal.close();
                 if (data.success) {
                     const r = data.result;
+                    quizInProgress = false;
                     document.getElementById('quizSubmitBtn').style.display = 'none';
-                    document.getElementById('quizTimer').style.display = 'none';
+                    document.getElementById('quizStatus').style.display = 'none';
+                    document.getElementById('quizTimerBar').style.display = 'none';
                     const resDiv = document.getElementById('quizResult');
                     resDiv.style.display = 'block';
 
@@ -2732,39 +2854,42 @@
                                         </div>`;
                         document.getElementById('quizCloseBtn').style.display = 'inline-flex';
                     }
+                } else if (data.time_up) {
+                    quizInProgress = false;
+                    Swal.fire({ icon: 'warning', title: "Time's up", text: data.message, confirmButtonColor: '#6B46C1' })
+                        .then(() => location.reload());
                 } else {
+                    quizSubmitting = false;
                     Swal.fire({ icon: 'error', title: 'Submission Failed', text: data.message });
                 }
-            } catch (e) { Swal.close(); Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to submit quiz.' }); }
+            } catch (e) { quizSubmitting = false; Swal.close(); Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to submit quiz.' }); }
         }
 
         function retryQuiz() {
-            // Hide result panel and reset buttons
+            // Reload the quiz from the server: that starts a fresh clock and, when the
+            // teacher limited questions per student, draws a new random set.
             const resDiv = document.getElementById('quizResult');
             resDiv.style.display = 'none';
             resDiv.innerHTML = '';
-            document.getElementById('quizSubmitBtn').style.display = 'inline-flex';
             document.getElementById('quizCloseBtn').style.display = 'none';
-
-            // Clear all selected answers and text inputs
-            document.querySelectorAll('#quizQuestions input[type="radio"]').forEach(r => r.checked = false);
-            document.querySelectorAll('#quizQuestions textarea').forEach(t => t.value = '');
-
-            // Remove any correct/wrong highlight classes left from a previous attempt
-            document.querySelectorAll('#quizQuestions .q-opt').forEach(opt => {
-                opt.classList.remove('correct', 'wrong');
-            });
-
-            // Restart timer if the quiz had one
-            const timerEl = document.getElementById('quizTimer');
-            const duration = parseInt(timerEl.dataset.duration ?? 0);
-            if (duration > 0) {
-                timerEl.style.display = 'block';
-                startTimer(duration);
-            }
+            takeQuiz(currentExamId, currentQuizTitle, 0);
         }
 
-        function closeQuizModal() {
+        async function closeQuizModal() {
+            // Leaving mid-attempt: the (server) clock keeps running, so confirm first.
+            if (quizInProgress) {
+                const ok = await Swal.fire({
+                    icon: 'warning',
+                    title: 'Leave this quiz?',
+                    text: 'Your answers will be lost and the timer keeps running.',
+                    showCancelButton: true,
+                    confirmButtonText: 'Leave',
+                    cancelButtonText: 'Stay',
+                    confirmButtonColor: '#DC2626'
+                });
+                if (!ok.isConfirmed) return;
+            }
+            quizInProgress = false;
             document.querySelector('.quiz-modal-overlay').style.display = 'none';
             document.body.style.overflow = '';
             clearInterval(quizTimer);

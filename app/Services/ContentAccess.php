@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Academic\ClassEnrollment;
+use App\Models\Academic\Exam;
 use App\Models\Academic\Lesson;
 use App\Models\Academic\SubjectMaterial;
 use App\Support\ContentLanguage;
@@ -94,6 +95,58 @@ class ContentAccess
         }
 
         return 'Not authorised.';
+    }
+
+    /**
+     * Who may open or submit a quiz.
+     *
+     * Admins and teachers are not restricted (teachers preview their own quizzes).
+     * A student needs a published quiz and an active enrolment in its class.
+     * A FREE quiz needs nothing more; any other quiz also needs the class fee
+     * and, when the quiz belongs to a lesson, that lesson to be paid for.
+     */
+    public function forQuiz(Exam $exam): ?string
+    {
+        if (session()->has('LoggedAdmin') || session()->has('LoggedTeacher')) {
+            return null;
+        }
+
+        if (!session()->has('LoggedStudent')) {
+            return 'Not authorised.';
+        }
+
+        $studentId = (int) session('LoggedStudent');
+
+        if ($exam->status !== 'published') {
+            return 'This quiz is not available.';
+        }
+
+        $enrollment = ClassEnrollment::where('class_id', $exam->class_id)
+            ->where('student_id', $studentId)
+            ->where('status', 'active')
+            ->first();
+
+        if (!$enrollment) {
+            return 'You are not enrolled in this class.';
+        }
+
+        if ($exam->is_free) {
+            return null;
+        }
+
+        if (strtolower((string) $enrollment->payment_status) !== 'paid') {
+            return 'Please pay for the class before taking its quizzes.';
+        }
+
+        if ($exam->lesson_id) {
+            $lesson = Lesson::find($exam->lesson_id);
+
+            if ($lesson && !$lesson->isPaidByStudent($studentId)) {
+                return 'Please pay for this lesson to take its quiz.';
+            }
+        }
+
+        return null;
     }
 
     /** Active enrolment + class fee paid (same two checks as the lesson page). */
